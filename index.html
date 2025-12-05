@@ -35,6 +35,7 @@
 
         <div class="tabs">
             <div class="tab active" data-tab="connection">Conexión</div>
+            <div class="tab" data-tab="maze">Laberinto</div>
             <div class="tab" data-tab="console">Consola Serial</div>
             <div class="tab" data-tab="info">Información</div>
         </div>
@@ -51,6 +52,52 @@
                 <p>2. Asegúrate de que tu ESP32 esté encendido y conectado</p>
                 <p>3. Haz clic en "Conectar" para establecer la conexión</p>
                 <p>4. Espera la confirmación del robot</p>
+            </div>
+        </div>
+
+        <div id="maze-tab" class="tab-content">
+            <h2>Trayectoria del Robot</h2>
+            <div class="maze-controls">
+                <input type="file" id="mazeFile" accept=".txt" style="display: none;">
+                <button id="loadMazeBtn" onclick="document.getElementById('mazeFile').click()">
+                    📁 Cargar Datos
+                </button>
+                <button id="clearMazeBtn" onclick="Maze.clear(); Console.logSystem('Trayectoria borrada')">
+                    🗑️ Limpiar
+                </button>
+                <button id="exportMazeBtn" onclick="exportMazeData()">
+                    💾 Exportar
+                </button>
+            </div>
+            
+            <div class="maze-settings">
+                <label>
+                    Ancho del trazo (cm): 
+                    <input type="number" id="wallWidth" value="2" min="0.5" max="10" step="0.5" 
+                           onchange="Maze.setWallWidth(parseFloat(this.value))">
+                </label>
+                <label>
+                    Escala (px/cm): 
+                    <input type="number" id="scale" value="20" min="5" max="50" step="5"
+                           onchange="Maze.setScale(parseFloat(this.value))">
+                </label>
+            </div>
+            
+            <div class="canvas-container">
+                <canvas id="mazeCanvas"></canvas>
+            </div>
+            
+            <div class="info-box">
+                <h3>Formato de datos:</h3>
+                <p>Cada línea representa una coordenada (X,Y) en centímetros:</p>
+                <pre style="background: #0f172a; padding: 10px; border-radius: 4px; color: #60a5fa;">0,0
+0.5,0
+1.2,0.3
+2.5,1.8
+...</pre>
+                <p>🟢 <strong>Verde:</strong> Punto de inicio</p>
+                <p>🔴 <strong>Rojo:</strong> Posición actual</p>
+                <p>🔵 <strong>Azul:</strong> Trayectoria recorrida</p>
             </div>
         </div>
 
@@ -86,7 +133,37 @@
 
     <script src="config.js"></script>
     <script src="console.js"></script>
+    <script src="maze.js"></script>
     <script src="ui.js"></script>
     <script src="mqtt.js"></script>
+    <script>
+        // Manejar carga de archivo
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('mazeFile').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    Maze.loadFromFile(file);
+                }
+            });
+        });
+
+        // Exportar datos
+        function exportMazeData() {
+            const data = Maze.exportData();
+            if (!data) {
+                Console.logError('No hay datos para exportar');
+                return;
+            }
+            
+            const blob = new Blob([data], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `trayectoria_${new Date().getTime()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            Console.logSystem('Datos exportados exitosamente');
+        }
+    </script>
 </body>
 </html>
