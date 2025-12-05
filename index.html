@@ -79,26 +79,90 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
             max-width: 900px;
             width: 100%;
-            padding: 40px;
+            padding: 0;
             border: 1px solid rgba(100, 100, 200, 0.2);
             position: relative;
             z-index: 1;
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 30px 40px 20px 40px;
+            text-align: center;
         }
 
         h1 {
             color: #fff;
-            margin-bottom: 35px;
-            text-align: center;
             font-size: 2em;
             text-shadow: 0 0 20px rgba(100, 150, 255, 0.5);
+            margin-bottom: 10px;
         }
 
-        .section {
-            margin-bottom: 30px;
-            padding: 25px;
-            background: rgba(30, 35, 55, 0.6);
-            border-radius: 10px;
-            border: 1px solid rgba(100, 100, 200, 0.1);
+        .status {
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            border: 2px solid;
+            display: inline-block;
+            min-width: 300px;
+        }
+
+        .status.disconnected {
+            background: rgba(220, 38, 38, 0.2);
+            color: #fca5a5;
+            border-color: rgba(220, 38, 38, 0.4);
+        }
+
+        .status.connected {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+            border-color: rgba(34, 197, 94, 0.4);
+        }
+
+        .status.connecting {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fde047;
+            border-color: rgba(251, 191, 36, 0.4);
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(15, 20, 35, 0.8);
+            border-bottom: 2px solid rgba(100, 100, 200, 0.2);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 18px;
+            text-align: center;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 600;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            background: transparent;
+        }
+
+        .tab:hover {
+            background: rgba(100, 100, 200, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .tab.active {
+            color: #7b9cff;
+            border-bottom-color: #7b9cff;
+            background: rgba(100, 100, 200, 0.15);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 40px;
+            min-height: 400px;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .section h2 {
@@ -159,40 +223,12 @@
             transform: none;
         }
 
-        .status {
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-weight: 600;
-            text-align: center;
-            border: 2px solid;
-        }
-
-        .status.disconnected {
-            background: rgba(220, 38, 38, 0.2);
-            color: #fca5a5;
-            border-color: rgba(220, 38, 38, 0.4);
-        }
-
-        .status.connected {
-            background: rgba(34, 197, 94, 0.2);
-            color: #86efac;
-            border-color: rgba(34, 197, 94, 0.4);
-        }
-
-        .status.connecting {
-            background: rgba(251, 191, 36, 0.2);
-            color: #fde047;
-            border-color: rgba(251, 191, 36, 0.4);
-        }
-
         .console {
             background: #0d1117;
             color: #c9d1d9;
             border-radius: 8px;
             padding: 20px;
-            min-height: 350px;
-            max-height: 450px;
+            height: 400px;
             overflow-y: auto;
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             font-size: 14px;
@@ -263,28 +299,40 @@
         .clear-btn:hover {
             box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5);
         }
+
+        .info-box {
+            background: rgba(123, 156, 255, 0.1);
+            border: 1px solid rgba(123, 156, 255, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: #c9d1d9;
+        }
+
+        .info-box h3 {
+            color: #7b9cff;
+            margin-bottom: 10px;
+        }
+
+        .info-box p {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="rat-container">
         <svg class="rat" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <!-- Cuerpo -->
             <ellipse cx="50" cy="55" rx="25" ry="20" fill="#666"/>
-            <!-- Cabeza -->
             <ellipse cx="35" cy="45" rx="18" ry="16" fill="#777"/>
-            <!-- Orejas -->
             <ellipse cx="28" cy="35" rx="8" ry="10" fill="#555"/>
             <ellipse cx="42" cy="35" rx="8" ry="10" fill="#555"/>
-            <!-- Ojos -->
             <circle cx="30" cy="43" r="3" fill="#fff"/>
             <circle cx="40" cy="43" r="3" fill="#fff"/>
             <circle cx="31" cy="43" r="1.5" fill="#000"/>
             <circle cx="41" cy="43" r="1.5" fill="#000"/>
-            <!-- Nariz -->
             <ellipse cx="35" cy="50" rx="3" ry="2" fill="#ffc0cb"/>
-            <!-- Cola -->
             <path d="M 75 55 Q 85 50, 90 55 Q 95 60, 90 65" stroke="#666" stroke-width="3" fill="none"/>
-            <!-- Patas -->
             <rect x="40" y="70" width="4" height="12" rx="2" fill="#666"/>
             <rect x="48" y="70" width="4" height="12" rx="2" fill="#666"/>
             <rect x="56" y="70" width="4" height="12" rx="2" fill="#666"/>
@@ -293,19 +341,35 @@
     </div>
 
     <div class="container">
-        <h1>Control ESP32 - MQTT</h1>
-
-        <div class="section">
-            <h2>Conectividad</h2>
+        <div class="header">
+            <h1>Control ESP32 - MQTT</h1>
             <div id="status" class="status disconnected">Desconectado del broker</div>
-            
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('connection')">Conexión</div>
+            <div class="tab" onclick="switchTab('console')">Consola Serial</div>
+            <div class="tab" onclick="switchTab('info')">Información</div>
+        </div>
+
+        <!-- Tab Conexión -->
+        <div id="connection-tab" class="tab-content active">
+            <h2>Conectividad</h2>
             <div class="input-group">
                 <input type="text" id="robotName" placeholder="Nombre del Robot (Topic)" value="robot01">
                 <button id="connectBtn" onclick="connectRobot()">Conectar</button>
             </div>
+            <div class="info-box">
+                <h3>Instrucciones:</h3>
+                <p>1. Ingresa el nombre del robot (este será el topic MQTT)</p>
+                <p>2. Asegúrate de que tu ESP32 esté encendido y conectado</p>
+                <p>3. Haz clic en "Conectar" para establecer la conexión</p>
+                <p>4. Espera la confirmación del robot</p>
+            </div>
         </div>
 
-        <div class="section">
+        <!-- Tab Consola -->
+        <div id="console-tab" class="tab-content">
             <h2>Puerto Serial Virtual</h2>
             <div id="console" class="console"></div>
             <div class="input-group" style="margin-top: 15px;">
@@ -313,6 +377,26 @@
                 <button id="sendBtn" onclick="sendMessage()" disabled>Enviar</button>
             </div>
             <button class="clear-btn" onclick="clearConsole()">Limpiar Consola</button>
+        </div>
+
+        <!-- Tab Información -->
+        <div id="info-tab" class="tab-content">
+            <h2>Información del Sistema</h2>
+            <div class="info-box">
+                <h3>Broker MQTT:</h3>
+                <p>Host: 90246ea5b74141e783178f6a189a8171.s1.eu.hivemq.cloud</p>
+                <p>Puerto: 8884 (WebSocket Secure)</p>
+            </div>
+            <div class="info-box">
+                <h3>Topics:</h3>
+                <p><strong>[nombre_robot]/cmd</strong> - Para enviar comandos al ESP32</p>
+                <p><strong>[nombre_robot]/data</strong> - Para recibir datos del ESP32</p>
+            </div>
+            <div class="info-box">
+                <h3>Comandos especiales:</h3>
+                <p><strong>CONNECT</strong> - Inicia la conexión con el robot</p>
+                <p><strong>CONNECTED</strong> - Respuesta del robot confirmando conexión</p>
+            </div>
         </div>
     </div>
 
@@ -324,6 +408,16 @@
         const brokerUrl = 'wss://90246ea5b74141e783178f6a189a8171.s1.eu.hivemq.cloud:8884/mqtt';
         const brokerUsername = 'admin';
         const brokerPassword = 'SuperMan2233';
+
+        function switchTab(tabName) {
+            // Remover active de todas las tabs
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // Activar la tab seleccionada
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
 
         function addToConsole(message, type = 'system') {
             const console = document.getElementById('console');
@@ -346,6 +440,7 @@
             
             if (!robotName) {
                 addToConsole('Error: Debes ingresar un nombre de robot', 'error');
+                switchTab('console');
                 return;
             }
 
