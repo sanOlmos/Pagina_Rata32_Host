@@ -57,6 +57,9 @@ const MQTTClient = {
             UI.updateStatus(`Conectado al robot: ${AppState.currentTopic}`, 'connected');
             UI.setConnectedState(true);
             Console.logSystem('Conexión exitosa con el robot');
+        } else if (msg.includes(',') && !isNaN(parseFloat(msg.split(',')[0]))) {
+            // Recibir coordenadas (X,Y) del encoder
+            Maze.processLine(msg);
         }
     },
 
