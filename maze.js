@@ -1,234 +1,314 @@
-// Visualizador de laberintos
+// Visualizador de trayectoria del robot
 const Maze = {
     canvas: null,
     ctx: null,
-    data: null,
-    cellSize: 30,
-    padding: 20,
+    points: [],
+    wallWidth: 2, // Ancho de las "paredes" (línea del robot) en cm
+    scale: 20, // Pixels por cm
+    padding: 40,
+    minX: 0,
+    minY: 0,
+    maxX: 0,
+    maxY: 0,
 
     init() {
         this.canvas = document.getElementById('mazeCanvas');
         if (!this.canvas) return;
         this.ctx = this.canvas.getContext('2d');
+        this.clear();
+    },
+
+    setWallWidth(width) {
+        this.wallWidth = width;
+        if (this.points.length > 0) {
+            this.draw();
+        }
+    },
+
+    setScale(scale) {
+        this.scale = scale;
+        if (this.points.length > 0) {
+            this.draw();
+        }
+    },
+
+    addPoint(x, y) {
+        this.points.push({ x, y });
+        
+        // Actualizar límites
+        if (this.points.length === 1) {
+            this.minX = this.maxX = x;
+            this.minY = this.maxY = y;
+        } else {
+            this.minX = Math.min(this.minX, x);
+            this.maxX = Math.max(this.maxX, x);
+            this.minY = Math.min(this.minY, y);
+            this.maxY = Math.max(this.maxY, y);
+        }
+        
+        this.draw();
+        return this.points.length;
     },
 
     loadFromFile(file) {
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
-                this.parseAndDraw(e.target.result);
-                Console.logSystem('Laberinto cargado exitosamente');
+                this.clear();
+                this.parseAndLoad(e.target.result);
+                Console.logSystem(`Trayectoria cargada: ${this.points.length} puntos`);
             } catch (error) {
-                Console.logError('Error al cargar laberinto: ' + error.message);
+                Console.logError('Error al cargar archivo: ' + error.message);
             }
         };
         reader.readAsText(file);
     },
 
-    loadFromText(text) {
-        try {
-            this.parseAndDraw(text);
-            Console.logSystem('Laberinto cargado desde MQTT');
-        } catch (error) {
-            Console.logError('Error al parsear laberinto: ' + error.message);
-        }
-    },
-
-    parseAndDraw(text) {
+    parseAndLoad(text) {
         const lines = text.trim().split('\n');
-        this.data = {
-            width: 0,
-            height: 0,
-            start: null,
-            end: null,
-            walls: [],
-            path: []
-        };
-
+        
         lines.forEach(line => {
             line = line.trim();
-            if (line.startsWith('W:') && line.includes(',H:')) {
-                // Dimensiones: W:10,H:10
-                const parts = line.substring(2).split(',H:');
-                this.data.width = parseInt(parts[0]);
-                this.data.height = parseInt(parts[1]);
-            } else if (line.startsWith('S:')) {
-                // Start: S:0,0
-                const coords = line.substring(2).split(',');
-                this.data.start = { x: parseInt(coords[0]), y: parseInt(coords[1]) };
-            } else if (line.startsWith('E:')) {
-                // End: E:9,9
-                const coords = line.substring(2).split(',');
-                this.data.end = { x: parseInt(coords[0]), y: parseInt(coords[1]) };
-            } else if (line.startsWith('W:')) {
-                // Walls: W:0,1-0,5;2,3-2,7
-                const segments = line.substring(2).split(';');
-                segments.forEach(seg => {
-                    const [p1, p2] = seg.split('-');
-                    const [x1, y1] = p1.split(',').map(Number);
-                    const [x2, y2] = p2.split(',').map(Number);
-                    this.data.walls.push({ x1, y1, x2, y2 });
-                });
-            } else if (line.startsWith('P:')) {
-                // Path (recorrido del robot): P:0,0;0,1;1,1;1,2
-                const points = line.substring(2).split(';');
-                points.forEach(p => {
-                    const [x, y] = p.split(',').map(Number);
-                    this.data.path.push({ x, y });
-                });
+            if (!line || line.startsWith('#')) return; // Ignorar comentarios
+            
+            const parts = line.split(',');
+            if (parts.length >= 2) {
+                const x = parseFloat(parts[0]);
+                const y = parseFloat(parts[1]);
+                if (!isNaN(x) && !isNaN(y)) {
+                    this.addPoint(x, y);
+                }
             }
         });
+    },
 
-        this.draw();
+    processLine(line) {
+        // Procesar una línea desde MQTT
+        line = line.trim();
+        if (!line || line.startsWith('#')) return;
+        
+        const parts = line.split(',');
+        if (parts.length >= 2) {
+            const x = parseFloat(parts[0]);
+            const y = parseFloat(parts[1]);
+            if (!isNaN(x) && !isNaN(y)) {
+                const count = this.addPoint(x, y);
+                Console.logSystem(`Punto ${count}: (${x}, ${y}) cm`);
+            }
+        }
     },
 
     draw() {
-        if (!this.data || !this.ctx) return;
+        if (!this.ctx || this.points.length === 0) return;
 
-        // Calcular tamaño del canvas
-        const canvasWidth = this.data.width * this.cellSize + this.padding * 2;
-        const canvasHeight = this.data.height * this.cellSize + this.padding * 2;
-        this.canvas.width = canvasWidth;
-        this.canvas.height = canvasHeight;
+        // Calcular dimensiones del canvas
+        const width = (this.maxX - this.minX) * this.scale + this.padding * 2;
+        const height = (this.maxY - this.minY) * this.scale + this.padding * 2;
+        
+        this.canvas.width = Math.max(width, 400);
+        this.canvas.height = Math.max(height, 400);
 
         // Fondo
         this.ctx.fillStyle = '#0f172a';
-        this.ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Grid
+        // Grid de referencia
         this.drawGrid();
 
-        // Paredes
-        this.drawWalls();
+        // Dibujar recorrido
+        this.drawPath();
 
-        // Start y End
-        this.drawStartEnd();
+        // Dibujar puntos
+        this.drawPoints();
 
-        // Path (si existe)
-        if (this.data.path.length > 0) {
-            this.drawPath();
-        }
+        // Información
+        this.drawInfo();
     },
 
     drawGrid() {
-        this.ctx.strokeStyle = 'rgba(148, 163, 184, 0.2)';
+        this.ctx.strokeStyle = 'rgba(148, 163, 184, 0.15)';
         this.ctx.lineWidth = 1;
+        this.ctx.setLineDash([2, 2]);
 
-        for (let x = 0; x <= this.data.width; x++) {
-            const posX = this.padding + x * this.cellSize;
+        const gridSize = 5 * this.scale; // Grid cada 5 cm
+
+        // Líneas verticales
+        for (let x = 0; x <= this.canvas.width; x += gridSize) {
             this.ctx.beginPath();
-            this.ctx.moveTo(posX, this.padding);
-            this.ctx.lineTo(posX, this.padding + this.data.height * this.cellSize);
+            this.ctx.moveTo(x, 0);
+            this.ctx.lineTo(x, this.canvas.height);
             this.ctx.stroke();
         }
 
-        for (let y = 0; y <= this.data.height; y++) {
-            const posY = this.padding + y * this.cellSize;
+        // Líneas horizontales
+        for (let y = 0; y <= this.canvas.height; y += gridSize) {
             this.ctx.beginPath();
-            this.ctx.moveTo(this.padding, posY);
-            this.ctx.lineTo(this.padding + this.data.width * this.cellSize, posY);
+            this.ctx.moveTo(0, y);
+            this.ctx.lineTo(this.canvas.width, y);
             this.ctx.stroke();
         }
+
+        this.ctx.setLineDash([]);
     },
 
-    drawWalls() {
-        this.ctx.strokeStyle = '#60a5fa';
-        this.ctx.lineWidth = 3;
-
-        this.data.walls.forEach(wall => {
-            const x1 = this.padding + wall.x1 * this.cellSize;
-            const y1 = this.padding + wall.y1 * this.cellSize;
-            const x2 = this.padding + wall.x2 * this.cellSize;
-            const y2 = this.padding + wall.y2 * this.cellSize;
-
-            this.ctx.beginPath();
-            this.ctx.moveTo(x1, y1);
-            this.ctx.lineTo(x2, y2);
-            this.ctx.stroke();
-        });
+    toCanvasX(x) {
+        return this.padding + (x - this.minX) * this.scale;
     },
 
-    drawStartEnd() {
-        // Start (verde)
-        if (this.data.start) {
-            const x = this.padding + this.data.start.x * this.cellSize + this.cellSize / 2;
-            const y = this.padding + this.data.start.y * this.cellSize + this.cellSize / 2;
-            
-            this.ctx.fillStyle = 'rgba(34, 197, 94, 0.3)';
-            this.ctx.fillRect(
-                this.padding + this.data.start.x * this.cellSize,
-                this.padding + this.data.start.y * this.cellSize,
-                this.cellSize,
-                this.cellSize
-            );
-            
-            this.ctx.fillStyle = '#22c55e';
-            this.ctx.beginPath();
-            this.ctx.arc(x, y, 8, 0, Math.PI * 2);
-            this.ctx.fill();
-        }
-
-        // End (rojo)
-        if (this.data.end) {
-            const x = this.padding + this.data.end.x * this.cellSize + this.cellSize / 2;
-            const y = this.padding + this.data.end.y * this.cellSize + this.cellSize / 2;
-            
-            this.ctx.fillStyle = 'rgba(239, 68, 68, 0.3)';
-            this.ctx.fillRect(
-                this.padding + this.data.end.x * this.cellSize,
-                this.padding + this.data.end.y * this.cellSize,
-                this.cellSize,
-                this.cellSize
-            );
-            
-            this.ctx.fillStyle = '#ef4444';
-            this.ctx.beginPath();
-            this.ctx.arc(x, y, 8, 0, Math.PI * 2);
-            this.ctx.fill();
-        }
+    toCanvasY(y) {
+        return this.padding + (y - this.minY) * this.scale;
     },
 
     drawPath() {
-        if (this.data.path.length < 2) return;
+        if (this.points.length < 2) return;
 
-        this.ctx.strokeStyle = '#fbbf24';
-        this.ctx.lineWidth = 3;
+        // Dibujar línea del recorrido
+        this.ctx.strokeStyle = '#60a5fa';
+        this.ctx.lineWidth = this.wallWidth * this.scale;
         this.ctx.lineCap = 'round';
         this.ctx.lineJoin = 'round';
 
         this.ctx.beginPath();
-        const firstPoint = this.data.path[0];
-        this.ctx.moveTo(
-            this.padding + firstPoint.x * this.cellSize + this.cellSize / 2,
-            this.padding + firstPoint.y * this.cellSize + this.cellSize / 2
-        );
+        const first = this.points[0];
+        this.ctx.moveTo(this.toCanvasX(first.x), this.toCanvasY(first.y));
 
-        for (let i = 1; i < this.data.path.length; i++) {
-            const point = this.data.path[i];
-            this.ctx.lineTo(
-                this.padding + point.x * this.cellSize + this.cellSize / 2,
-                this.padding + point.y * this.cellSize + this.cellSize / 2
-            );
+        for (let i = 1; i < this.points.length; i++) {
+            const point = this.points[i];
+            this.ctx.lineTo(this.toCanvasX(point.x), this.toCanvasY(point.y));
         }
         this.ctx.stroke();
 
-        // Dibujar puntos
-        this.data.path.forEach((point, index) => {
-            const x = this.padding + point.x * this.cellSize + this.cellSize / 2;
-            const y = this.padding + point.y * this.cellSize + this.cellSize / 2;
-            
-            this.ctx.fillStyle = index === 0 ? '#22c55e' : 
-                                 index === this.data.path.length - 1 ? '#ef4444' : '#fbbf24';
+        // Sombra del recorrido (efecto de profundidad)
+        this.ctx.strokeStyle = 'rgba(96, 165, 250, 0.3)';
+        this.ctx.lineWidth = (this.wallWidth + 0.5) * this.scale;
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.toCanvasX(first.x), this.toCanvasY(first.y));
+        for (let i = 1; i < this.points.length; i++) {
+            const point = this.points[i];
+            this.ctx.lineTo(this.toCanvasX(point.x), this.toCanvasY(point.y));
+        }
+        this.ctx.stroke();
+    },
+
+    drawPoints() {
+        // Punto de inicio (verde)
+        if (this.points.length > 0) {
+            const start = this.points[0];
+            this.ctx.fillStyle = '#22c55e';
             this.ctx.beginPath();
-            this.ctx.arc(x, y, 4, 0, Math.PI * 2);
+            this.ctx.arc(
+                this.toCanvasX(start.x),
+                this.toCanvasY(start.y),
+                6,
+                0,
+                Math.PI * 2
+            );
             this.ctx.fill();
-        });
+
+            // Etiqueta START
+            this.ctx.fillStyle = '#22c55e';
+            this.ctx.font = 'bold 12px sans-serif';
+            this.ctx.fillText(
+                'START',
+                this.toCanvasX(start.x) + 10,
+                this.toCanvasY(start.y) - 10
+            );
+        }
+
+        // Punto final (rojo)
+        if (this.points.length > 1) {
+            const end = this.points[this.points.length - 1];
+            this.ctx.fillStyle = '#ef4444';
+            this.ctx.beginPath();
+            this.ctx.arc(
+                this.toCanvasX(end.x),
+                this.toCanvasY(end.y),
+                6,
+                0,
+                Math.PI * 2
+            );
+            this.ctx.fill();
+
+            // Etiqueta END
+            this.ctx.fillStyle = '#ef4444';
+            this.ctx.font = 'bold 12px sans-serif';
+            this.ctx.fillText(
+                'END',
+                this.toCanvasX(end.x) + 10,
+                this.toCanvasY(end.y) - 10
+            );
+        }
+
+        // Puntos intermedios (amarillo, solo cada 3 para no saturar)
+        this.ctx.fillStyle = 'rgba(251, 191, 36, 0.6)';
+        for (let i = 1; i < this.points.length - 1; i += 3) {
+            const point = this.points[i];
+            this.ctx.beginPath();
+            this.ctx.arc(
+                this.toCanvasX(point.x),
+                this.toCanvasY(point.y),
+                2,
+                0,
+                Math.PI * 2
+            );
+            this.ctx.fill();
+        }
+    },
+
+    drawInfo() {
+        if (this.points.length === 0) return;
+
+        // Calcular distancia total
+        let totalDistance = 0;
+        for (let i = 1; i < this.points.length; i++) {
+            const dx = this.points[i].x - this.points[i - 1].x;
+            const dy = this.points[i].y - this.points[i - 1].y;
+            totalDistance += Math.sqrt(dx * dx + dy * dy);
+        }
+
+        // Panel de información
+        const infoX = 10;
+        const infoY = 10;
+        const infoWidth = 200;
+        const infoHeight = 90;
+
+        this.ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+        this.ctx.fillRect(infoX, infoY, infoWidth, infoHeight);
+        this.ctx.strokeStyle = 'rgba(148, 163, 184, 0.3)';
+        this.ctx.strokeRect(infoX, infoY, infoWidth, infoHeight);
+
+        this.ctx.fillStyle = '#cbd5e1';
+        this.ctx.font = '12px sans-serif';
+        this.ctx.fillText(`Puntos: ${this.points.length}`, infoX + 10, infoY + 20);
+        this.ctx.fillText(`Distancia: ${totalDistance.toFixed(1)} cm`, infoX + 10, infoY + 40);
+        this.ctx.fillText(`Rango X: ${this.minX.toFixed(1)} → ${this.maxX.toFixed(1)} cm`, infoX + 10, infoY + 60);
+        this.ctx.fillText(`Rango Y: ${this.minY.toFixed(1)} → ${this.maxY.toFixed(1)} cm`, infoX + 10, infoY + 80);
     },
 
     clear() {
-        if (!this.ctx) return;
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.data = null;
+        this.points = [];
+        this.minX = this.minY = this.maxX = this.maxY = 0;
+        if (this.ctx) {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.fillStyle = '#0f172a';
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            
+            // Texto de ayuda
+            this.ctx.fillStyle = '#64748b';
+            this.ctx.font = '14px sans-serif';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText(
+                'Esperando datos del robot...',
+                this.canvas.width / 2,
+                this.canvas.height / 2
+            );
+            this.ctx.textAlign = 'left';
+        }
+    },
+
+    exportData() {
+        if (this.points.length === 0) return '';
+        return this.points.map(p => `${p.x},${p.y}`).join('\n');
     }
 };
 
