@@ -56,6 +56,68 @@
             </div>
         </div>
 
+        <div id="control-tab" class="tab-content">
+            <h2>Control Manual del Robot</h2>
+            
+            <div class="control-status">
+                <div id="controlStatus" class="control-disabled">
+                    ⚠️ Conecta el robot primero
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <div class="control-row">
+                    <button class="control-btn" id="btnForward" disabled>
+                        <span class="arrow">▲</span>
+                        <span class="label">Adelante</span>
+                        <span class="key">W</span>
+                    </button>
+                </div>
+                <div class="control-row">
+                    <button class="control-btn" id="btnLeft" disabled>
+                        <span class="arrow">◄</span>
+                        <span class="label">Izquierda</span>
+                        <span class="key">A</span>
+                    </button>
+                    <button class="control-btn" id="btnStop" disabled>
+                        <span class="arrow">■</span>
+                        <span class="label">Detener</span>
+                        <span class="key">S</span>
+                    </button>
+                    <button class="control-btn" id="btnRight" disabled>
+                        <span class="arrow">►</span>
+                        <span class="label">Derecha</span>
+                        <span class="key">D</span>
+                    </button>
+                </div>
+                <div class="control-row">
+                    <button class="control-btn" id="btnBackward" disabled>
+                        <span class="arrow">▼</span>
+                        <span class="label">Atrás</span>
+                        <span class="key">X</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-settings">
+                <label>
+                    Velocidad: 
+                    <input type="range" id="speedSlider" min="0" max="255" value="150" disabled>
+                    <span id="speedValue">150</span>
+                </label>
+            </div>
+
+            <div class="info-box">
+                <h3>Controles de teclado:</h3>
+                <p>🎮 <strong>W</strong> - Avanzar</p>
+                <p>🎮 <strong>S</strong> - Detener</p>
+                <p>🎮 <strong>A</strong> - Girar izquierda</p>
+                <p>🎮 <strong>D</strong> - Girar derecha</p>
+                <p>🎮 <strong>X</strong> - Retroceder</p>
+                <p>💡 Los controles solo funcionan cuando estás conectado al robot</p>
+            </div>
+        </div>
+
         <div id="maze-tab" class="tab-content">
             <h2>Trayectoria del Robot</h2>
             <div class="maze-controls">
@@ -161,6 +223,7 @@
     <script src="console.js"></script>
     <script src="maze.js"></script>
     <script src="solver.js"></script>
+    <script src="control.js"></script>
     <script src="ui.js"></script>
     <script src="mqtt.js"></script>
     <script>
