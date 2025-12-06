@@ -56,6 +56,12 @@ const MQTTClient = {
             AppState.isConnected = true;
             UI.updateStatus(`Conectado al robot: ${AppState.currentTopic}`, 'connected');
             UI.setConnectedState(true);
+            
+            // Habilitar controles manuales
+            if (typeof RobotControl !== 'undefined') {
+                RobotControl.enable();
+            }
+            
             Console.logSystem('Conexión exitosa con el robot');
         } else if (msg.includes(',') && !isNaN(parseFloat(msg.split(',')[0]))) {
             // Recibir coordenadas (X,Y) del encoder
@@ -87,6 +93,11 @@ const MQTTClient = {
         AppState.isConnected = false;
         UI.updateStatus('Desconectado del broker', 'disconnected');
         UI.setConnectedState(false);
+        
+        // Deshabilitar controles manuales
+        if (typeof RobotControl !== 'undefined') {
+            RobotControl.disable();
+        }
     },
 
     toggleConnection() {
