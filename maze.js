@@ -48,6 +48,7 @@ const Maze = {
     addPoint(x, y) {
         this.points.push({ x, y });
         
+        // Actualizar límites incluso si es el primer punto
         if (this.points.length === 1) {
             this.minX = this.maxX = x;
             this.minY = this.maxY = y;
@@ -58,7 +59,11 @@ const Maze = {
             this.maxY = Math.max(this.maxY, y);
         }
         
-        this.draw();
+        // Redibujar solo si hay más de un punto
+        if (this.points.length > 1) {
+            this.draw();
+        }
+        
         return this.points.length;
     },
 
@@ -92,6 +97,12 @@ const Maze = {
                 }
             }
         });
+        
+        // Dibujar después de cargar todos los puntos
+        if (this.points.length > 0) {
+            Console.logSystem(`Rango detectado: X[${this.minX.toFixed(1)}, ${this.maxX.toFixed(1)}] Y[${this.minY.toFixed(1)}, ${this.maxY.toFixed(1)}]`);
+            this.draw();
+        }
     },
 
     processLine(line) {
@@ -112,11 +123,13 @@ const Maze = {
     draw() {
         if (!this.ctx || this.points.length === 0) return;
 
-        const width = (this.maxX - this.minX) * this.scale + this.padding * 2;
-        const height = (this.maxY - this.minY) * this.scale + this.padding * 2;
+        // Calcular dimensiones reales del laberinto
+        const mazeWidth = (this.maxX - this.minX) * this.scale + this.padding * 2;
+        const mazeHeight = (this.maxY - this.minY) * this.scale + this.padding * 2;
         
-        this.canvas.width = Math.max(width, 400);
-        this.canvas.height = Math.max(height, 400);
+        // Ajustar canvas al tamaño del laberinto (mínimo 200px)
+        this.canvas.width = Math.max(mazeWidth, 200);
+        this.canvas.height = Math.max(mazeHeight, 200);
 
         this.ctx.fillStyle = '#0f172a';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -137,20 +150,23 @@ const Maze = {
         this.ctx.lineWidth = 1;
         this.ctx.setLineDash([2, 2]);
 
-        const gridSize = 5 * this.scale;
+        const gridSize = 5 * this.scale; // Grid cada 5 cm
 
-        for (let x = 0; x <= this.canvas.width; x += gridSize) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(x, 0);
-            this.ctx.lineTo(x, this.canvas.height);
-            this.ctx.stroke();
-        }
+        // Solo dibujar grid si el canvas es lo suficientemente grande
+        if (this.canvas.width > 100 && this.canvas.height > 100) {
+            for (let x = 0; x <= this.canvas.width; x += gridSize) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, 0);
+                this.ctx.lineTo(x, this.canvas.height);
+                this.ctx.stroke();
+            }
 
-        for (let y = 0; y <= this.canvas.height; y += gridSize) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(0, y);
-            this.ctx.lineTo(this.canvas.width, y);
-            this.ctx.stroke();
+            for (let y = 0; y <= this.canvas.height; y += gridSize) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, y);
+                this.ctx.lineTo(this.canvas.width, y);
+                this.ctx.stroke();
+            }
         }
 
         this.ctx.setLineDash([]);
