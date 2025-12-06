@@ -3,13 +3,15 @@ const Maze = {
     canvas: null,
     ctx: null,
     points: [],
-    wallWidth: 2, // Ancho de las "paredes" (línea del robot) en cm
-    scale: 20, // Pixels por cm
+    solutionPath: [],
+    wallWidth: 2,
+    scale: 20,
     padding: 40,
     minX: 0,
     minY: 0,
     maxX: 0,
     maxY: 0,
+    showSolution: false,
 
     init() {
         this.canvas = document.getElementById('mazeCanvas');
@@ -32,10 +34,20 @@ const Maze = {
         }
     },
 
+    setSolution(solution) {
+        this.solutionPath = solution || [];
+        this.showSolution = solution && solution.length > 0;
+        this.draw();
+    },
+
+    toggleSolution() {
+        this.showSolution = !this.showSolution;
+        this.draw();
+    },
+
     addPoint(x, y) {
         this.points.push({ x, y });
         
-        // Actualizar límites
         if (this.points.length === 1) {
             this.minX = this.maxX = x;
             this.minY = this.maxY = y;
@@ -69,7 +81,7 @@ const Maze = {
         
         lines.forEach(line => {
             line = line.trim();
-            if (!line || line.startsWith('#')) return; // Ignorar comentarios
+            if (!line || line.startsWith('#')) return;
             
             const parts = line.split(',');
             if (parts.length >= 2) {
@@ -83,7 +95,6 @@ const Maze = {
     },
 
     processLine(line) {
-        // Procesar una línea desde MQTT
         line = line.trim();
         if (!line || line.startsWith('#')) return;
         
@@ -101,27 +112,23 @@ const Maze = {
     draw() {
         if (!this.ctx || this.points.length === 0) return;
 
-        // Calcular dimensiones del canvas
         const width = (this.maxX - this.minX) * this.scale + this.padding * 2;
         const height = (this.maxY - this.minY) * this.scale + this.padding * 2;
         
         this.canvas.width = Math.max(width, 400);
         this.canvas.height = Math.max(height, 400);
 
-        // Fondo
         this.ctx.fillStyle = '#0f172a';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Grid de referencia
         this.drawGrid();
-
-        // Dibujar recorrido
         this.drawPath();
-
-        // Dibujar puntos
+        
+        if (this.showSolution && this.solutionPath.length > 0) {
+            this.drawSolution();
+        }
+        
         this.drawPoints();
-
-        // Información
         this.drawInfo();
     },
 
@@ -130,9 +137,8 @@ const Maze = {
         this.ctx.lineWidth = 1;
         this.ctx.setLineDash([2, 2]);
 
-        const gridSize = 5 * this.scale; // Grid cada 5 cm
+        const gridSize = 5 * this.scale;
 
-        // Líneas verticales
         for (let x = 0; x <= this.canvas.width; x += gridSize) {
             this.ctx.beginPath();
             this.ctx.moveTo(x, 0);
@@ -140,7 +146,6 @@ const Maze = {
             this.ctx.stroke();
         }
 
-        // Líneas horizontales
         for (let y = 0; y <= this.canvas.height; y += gridSize) {
             this.ctx.beginPath();
             this.ctx.moveTo(0, y);
@@ -162,7 +167,6 @@ const Maze = {
     drawPath() {
         if (this.points.length < 2) return;
 
-        // Dibujar línea del recorrido
         this.ctx.strokeStyle = '#60a5fa';
         this.ctx.lineWidth = this.wallWidth * this.scale;
         this.ctx.lineCap = 'round';
@@ -178,7 +182,6 @@ const Maze = {
         }
         this.ctx.stroke();
 
-        // Sombra del recorrido (efecto de profundidad)
         this.ctx.strokeStyle = 'rgba(96, 165, 250, 0.3)';
         this.ctx.lineWidth = (this.wallWidth + 0.5) * this.scale;
         this.ctx.beginPath();
@@ -190,8 +193,44 @@ const Maze = {
         this.ctx.stroke();
     },
 
+    drawSolution() {
+        if (this.solutionPath.length < 2) return;
+
+        // Dibujar camino de solución
+        this.ctx.strokeStyle = '#f59e0b';
+        this.ctx.lineWidth = (this.wallWidth * 0.5) * this.scale;
+        this.ctx.lineCap = 'round';
+        this.ctx.lineJoin = 'round';
+        this.ctx.setLineDash([5, 5]);
+
+        this.ctx.beginPath();
+        const first = this.solutionPath[0];
+        this.ctx.moveTo(this.toCanvasX(first.x), this.toCanvasY(first.y));
+
+        for (let i = 1; i < this.solutionPath.length; i++) {
+            const point = this.solutionPath[i];
+            this.ctx.lineTo(this.toCanvasX(point.x), this.toCanvasY(point.y));
+        }
+        this.ctx.stroke();
+        this.ctx.setLineDash([]);
+
+        // Puntos de la solución
+        this.ctx.fillStyle = '#f59e0b';
+        for (let i = 0; i < this.solutionPath.length; i += 2) {
+            const point = this.solutionPath[i];
+            this.ctx.beginPath();
+            this.ctx.arc(
+                this.toCanvasX(point.x),
+                this.toCanvasY(point.y),
+                3,
+                0,
+                Math.PI * 2
+            );
+            this.ctx.fill();
+        }
+    },
+
     drawPoints() {
-        // Punto de inicio (verde)
         if (this.points.length > 0) {
             const start = this.points[0];
             this.ctx.fillStyle = '#22c55e';
@@ -205,7 +244,6 @@ const Maze = {
             );
             this.ctx.fill();
 
-            // Etiqueta START
             this.ctx.fillStyle = '#22c55e';
             this.ctx.font = 'bold 12px sans-serif';
             this.ctx.fillText(
@@ -215,7 +253,6 @@ const Maze = {
             );
         }
 
-        // Punto final (rojo)
         if (this.points.length > 1) {
             const end = this.points[this.points.length - 1];
             this.ctx.fillStyle = '#ef4444';
@@ -229,7 +266,6 @@ const Maze = {
             );
             this.ctx.fill();
 
-            // Etiqueta END
             this.ctx.fillStyle = '#ef4444';
             this.ctx.font = 'bold 12px sans-serif';
             this.ctx.fillText(
@@ -239,7 +275,6 @@ const Maze = {
             );
         }
 
-        // Puntos intermedios (amarillo, solo cada 3 para no saturar)
         this.ctx.fillStyle = 'rgba(251, 191, 36, 0.6)';
         for (let i = 1; i < this.points.length - 1; i += 3) {
             const point = this.points[i];
@@ -258,7 +293,6 @@ const Maze = {
     drawInfo() {
         if (this.points.length === 0) return;
 
-        // Calcular distancia total
         let totalDistance = 0;
         for (let i = 1; i < this.points.length; i++) {
             const dx = this.points[i].x - this.points[i - 1].x;
@@ -266,11 +300,10 @@ const Maze = {
             totalDistance += Math.sqrt(dx * dx + dy * dy);
         }
 
-        // Panel de información
         const infoX = 10;
         const infoY = 10;
-        const infoWidth = 200;
-        const infoHeight = 90;
+        const infoWidth = 220;
+        const infoHeight = this.showSolution ? 130 : 90;
 
         this.ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
         this.ctx.fillRect(infoX, infoY, infoWidth, infoHeight);
@@ -279,21 +312,33 @@ const Maze = {
 
         this.ctx.fillStyle = '#cbd5e1';
         this.ctx.font = '12px sans-serif';
-        this.ctx.fillText(`Puntos: ${this.points.length}`, infoX + 10, infoY + 20);
-        this.ctx.fillText(`Distancia: ${totalDistance.toFixed(1)} cm`, infoX + 10, infoY + 40);
-        this.ctx.fillText(`Rango X: ${this.minX.toFixed(1)} → ${this.maxX.toFixed(1)} cm`, infoX + 10, infoY + 60);
-        this.ctx.fillText(`Rango Y: ${this.minY.toFixed(1)} → ${this.maxY.toFixed(1)} cm`, infoX + 10, infoY + 80);
+        let lineY = infoY + 20;
+        this.ctx.fillText(`Puntos: ${this.points.length}`, infoX + 10, lineY);
+        lineY += 20;
+        this.ctx.fillText(`Distancia: ${totalDistance.toFixed(1)} cm`, infoX + 10, lineY);
+        lineY += 20;
+        this.ctx.fillText(`Rango X: ${this.minX.toFixed(1)} → ${this.maxX.toFixed(1)} cm`, infoX + 10, lineY);
+        lineY += 20;
+        this.ctx.fillText(`Rango Y: ${this.minY.toFixed(1)} → ${this.maxY.toFixed(1)} cm`, infoX + 10, lineY);
+        
+        if (this.showSolution && this.solutionPath.length > 0) {
+            lineY += 25;
+            this.ctx.fillStyle = '#f59e0b';
+            this.ctx.font = 'bold 12px sans-serif';
+            this.ctx.fillText(`🟡 Solución: ${this.solutionPath.length} pasos`, infoX + 10, lineY);
+        }
     },
 
     clear() {
         this.points = [];
+        this.solutionPath = [];
+        this.showSolution = false;
         this.minX = this.minY = this.maxX = this.maxY = 0;
         if (this.ctx) {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             this.ctx.fillStyle = '#0f172a';
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             
-            // Texto de ayuda
             this.ctx.fillStyle = '#64748b';
             this.ctx.font = '14px sans-serif';
             this.ctx.textAlign = 'center';
