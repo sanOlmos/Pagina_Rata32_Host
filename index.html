@@ -60,7 +60,7 @@
             <div class="maze-controls">
                 <input type="file" id="mazeFile" accept=".txt" style="display: none;">
                 <button id="loadMazeBtn" onclick="document.getElementById('mazeFile').click()">
-                    📁 Cargar Datos
+                    📂 Cargar Datos
                 </button>
                 <button id="clearMazeBtn" onclick="Maze.clear(); Console.logSystem('Trayectoria borrada')">
                     🗑️ Limpiar
@@ -68,6 +68,24 @@
                 <button id="exportMazeBtn" onclick="exportMazeData()">
                     💾 Exportar
                 </button>
+            </div>
+            
+            <!-- Nuevos controles de resolución -->
+            <div class="solver-controls">
+                <div class="solver-group">
+                    <label for="algorithmSelect">Algoritmo:</label>
+                    <select id="algorithmSelect">
+                        <option value="astar">A* (Heurístico)</option>
+                        <option value="dijkstra">Dijkstra (Óptimo)</option>
+                        <option value="bfs">BFS (Amplitud)</option>
+                    </select>
+                    <button id="solveBtn" onclick="solveMaze()">
+                        🧠 Resolver Laberinto
+                    </button>
+                    <button id="toggleSolutionBtn" onclick="toggleSolution()" style="display: none;">
+                        👁️ Ocultar Solución
+                    </button>
+                </div>
             </div>
             
             <div class="maze-settings">
@@ -96,8 +114,9 @@
 2.5,1.8
 ...</pre>
                 <p>🟢 <strong>Verde:</strong> Punto de inicio</p>
-                <p>🔴 <strong>Rojo:</strong> Posición actual</p>
+                <p>🔴 <strong>Rojo:</strong> Posición final</p>
                 <p>🔵 <strong>Azul:</strong> Trayectoria recorrida</p>
+                <p>🟡 <strong>Amarillo:</strong> Solución del algoritmo</p>
             </div>
         </div>
 
@@ -128,12 +147,19 @@
                 <p><strong>CONNECT</strong> - Inicia la conexión con el robot</p>
                 <p><strong>CONNECTED</strong> - Respuesta del robot confirmando conexión</p>
             </div>
+            <div class="info-box">
+                <h3>Algoritmos de resolución:</h3>
+                <p><strong>A*</strong> - Búsqueda heurística, rápida y eficiente</p>
+                <p><strong>Dijkstra</strong> - Encuentra el camino más corto garantizado</p>
+                <p><strong>BFS</strong> - Búsqueda en amplitud, explora nivel por nivel</p>
+            </div>
         </div>
     </div>
 
     <script src="config.js"></script>
     <script src="console.js"></script>
     <script src="maze.js"></script>
+    <script src="solver.js"></script>
     <script src="ui.js"></script>
     <script src="mqtt.js"></script>
     <script>
@@ -163,6 +189,25 @@
             a.click();
             URL.revokeObjectURL(url);
             Console.logSystem('Datos exportados exitosamente');
+        }
+
+        // Resolver laberinto
+        function solveMaze() {
+            const algorithm = document.getElementById('algorithmSelect').value;
+            const solution = MazeSolver.solve(algorithm);
+            
+            if (solution) {
+                Maze.setSolution(solution);
+                document.getElementById('toggleSolutionBtn').style.display = 'inline-block';
+                Console.logSystem(`✓ Laberinto resuelto con ${algorithm.toUpperCase()}`);
+            }
+        }
+
+        // Mostrar/ocultar solución
+        function toggleSolution() {
+            Maze.toggleSolution();
+            const btn = document.getElementById('toggleSolutionBtn');
+            btn.textContent = Maze.showSolution ? '👁️ Ocultar Solución' : '👁️ Mostrar Solución';
         }
     </script>
 </body>
