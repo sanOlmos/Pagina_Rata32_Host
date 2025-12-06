@@ -16,7 +16,6 @@ body {
     position: relative;
 }
 
-/* Grid de fondo sutil */
 body::before {
     content: '';
     position: fixed;
@@ -31,7 +30,6 @@ body::before {
     z-index: 0;
 }
 
-/* Robot icon en la esquina */
 .rat-container {
     position: fixed;
     bottom: 20px;
@@ -50,7 +48,6 @@ body::before {
     opacity: 0.7;
 }
 
-/* Container principal */
 .container {
     background: rgba(30, 41, 59, 0.95);
     border-radius: 12px;
@@ -66,7 +63,6 @@ body::before {
     backdrop-filter: blur(10px);
 }
 
-/* Header */
 .header {
     padding: 35px 40px 25px 40px;
     text-align: center;
@@ -89,7 +85,6 @@ h2 {
     margin-bottom: 25px;
 }
 
-/* Status */
 .status {
     padding: 10px 20px;
     border-radius: 6px;
@@ -121,7 +116,6 @@ h2 {
     border-color: rgba(234, 179, 8, 0.4);
 }
 
-/* Tabs */
 .tabs {
     display: flex;
     background: rgba(15, 23, 42, 0.6);
@@ -154,7 +148,6 @@ h2 {
     background: rgba(51, 65, 85, 0.3);
 }
 
-/* Tab content */
 .tab-content {
     display: none;
     padding: 35px 40px;
@@ -165,7 +158,6 @@ h2 {
     display: block;
 }
 
-/* Inputs y botones */
 .input-group {
     display: flex;
     gap: 12px;
@@ -227,7 +219,6 @@ button:disabled {
     opacity: 0.6;
 }
 
-/* Consola */
 .console {
     background: #0f172a;
     color: #cbd5e1;
@@ -309,7 +300,6 @@ button:disabled {
     box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
 }
 
-/* Info boxes */
 .info-box {
     background: rgba(51, 65, 85, 0.4);
     border: 1px solid rgba(148, 163, 184, 0.25);
@@ -338,43 +328,82 @@ button:disabled {
     font-weight: 600;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .container {
-        margin: 10px;
-    }
-    
-    .header {
-        padding: 25px 20px 20px 20px;
-    }
-    
-    h1 {
-        font-size: 1.5em;
-    }
-    
-    .tab-content {
-        padding: 25px 20px;
-    }
-    
-    .input-group {
-        flex-direction: column;
-    }
-    
-    button {
-        width: 100%;
-    }
-    
-    .rat-container {
-        bottom: 10px;
-        right: 10px;
-    }
-}
-
 /* Estilos para el módulo de laberinto */
 .maze-controls {
     display: flex;
     gap: 12px;
     margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.maze-controls button {
+    padding: 12px 24px;
+}
+
+/* Nuevos estilos para controles de resolución */
+.solver-controls {
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.solver-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.solver-group label {
+    color: #fbbf24;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.solver-group select {
+    padding: 10px 16px;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 6px;
+    color: #f1f5f9;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.solver-group select:hover {
+    border-color: #fbbf24;
+    background: rgba(15, 23, 42, 0.9);
+}
+
+.solver-group select:focus {
+    outline: none;
+    border-color: #fbbf24;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+}
+
+#solveBtn {
+    background: #f59e0b;
+    color: #1e293b;
+    font-weight: 700;
+}
+
+#solveBtn:hover {
+    background: #d97706;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+#toggleSolutionBtn {
+    background: #64748b;
+}
+
+#toggleSolutionBtn:hover {
+    background: #475569;
 }
 
 .maze-settings {
@@ -385,6 +414,7 @@ button:disabled {
     background: rgba(51, 65, 85, 0.3);
     border-radius: 6px;
     border: 1px solid rgba(148, 163, 184, 0.2);
+    flex-wrap: wrap;
 }
 
 .maze-settings label {
@@ -426,4 +456,41 @@ button:disabled {
 #mazeCanvas {
     display: block;
     image-rendering: crisp-edges;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+    }
+    
+    .header {
+        padding: 25px 20px 20px 20px;
+    }
+    
+    h1 {
+        font-size: 1.5em;
+    }
+    
+    .tab-content {
+        padding: 25px 20px;
+    }
+    
+    .input-group, .maze-controls, .solver-group {
+        flex-direction: column;
+    }
+    
+    button, .solver-group select {
+        width: 100%;
+    }
+    
+    .rat-container {
+        bottom: 10px;
+        right: 10px;
+    }
+    
+    .maze-settings {
+        flex-direction: column;
+        gap: 10px;
+    }
 }
