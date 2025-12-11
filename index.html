@@ -8,215 +8,220 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
 </head>
 <body>
-    <div class="rat-container">
-        <svg class="rat" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <ellipse cx="50" cy="55" rx="25" ry="20" fill="#666"/>
-            <ellipse cx="35" cy="45" rx="18" ry="16" fill="#777"/>
-            <ellipse cx="28" cy="35" rx="8" ry="10" fill="#555"/>
-            <ellipse cx="42" cy="35" rx="8" ry="10" fill="#555"/>
-            <circle cx="30" cy="43" r="3" fill="#fff"/>
-            <circle cx="40" cy="43" r="3" fill="#fff"/>
-            <circle cx="31" cy="43" r="1.5" fill="#000"/>
-            <circle cx="41" cy="43" r="1.5" fill="#000"/>
-            <ellipse cx="35" cy="50" rx="3" ry="2" fill="#ffc0cb"/>
-            <path d="M 75 55 Q 85 50, 90 55 Q 95 60, 90 65" stroke="#666" stroke-width="3" fill="none"/>
-            <rect x="40" y="70" width="4" height="12" rx="2" fill="#666"/>
-            <rect x="48" y="70" width="4" height="12" rx="2" fill="#666"/>
-            <rect x="56" y="70" width="4" height="12" rx="2" fill="#666"/>
-            <rect x="64" y="70" width="4" height="12" rx="2" fill="#666"/>
-        </svg>
-    </div>
-
-    <div class="container">
-        <div class="header">
-            <h1>Control ESP32 - MQTT</h1>
-            <div id="status" class="status disconnected">Desconectado del broker</div>
-        </div>
-
-        <div class="tabs">
-            <div class="tab active" data-tab="connection">Conexión</div>
-            <div class="tab" data-tab="control">Control Manual</div>
-            <div class="tab" data-tab="maze">Laberinto</div>
-            <div class="tab" data-tab="console">Consola Serial</div>
-            <div class="tab" data-tab="info">Información</div>
-        </div>
-
-        <div id="connection-tab" class="tab-content active">
-            <h2>Conectividad</h2>
-            <div class="input-group">
-                <input type="text" id="robotName" placeholder="Nombre del Robot (Topic)" value="robot01">
-                <button id="connectBtn">Conectar</button>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="logo.png" alt="Logo" class="logo">
+                <h1>Control ESP32</h1>
             </div>
-            <div class="info-box">
-                <h3>Instrucciones:</h3>
-                <p>1. Ingresa el nombre del robot (este será el topic MQTT)</p>
-                <p>2. Asegúrate de que tu ESP32 esté encendido y conectado</p>
-                <p>3. Haz clic en "Conectar" para establecer la conexión</p>
-                <p>4. Espera la confirmación del robot</p>
-            </div>
-        </div>
 
-        <div id="control-tab" class="tab-content">
-            <h2>Control Manual del Robot</h2>
-            
-            <div class="control-status">
-                <div id="controlStatus" class="control-disabled">
-                    ⚠️ Conecta el robot primero
+            <nav class="sidebar-nav">
+                <div class="tab active" data-tab="connection">
+                    <span class="tab-icon">🔌</span>
+                    <span class="tab-text">Conexión</span>
+                </div>
+                <div class="tab" data-tab="control">
+                    <span class="tab-icon">🎮</span>
+                    <span class="tab-text">Control Manual</span>
+                </div>
+                <div class="tab" data-tab="maze">
+                    <span class="tab-icon">🗺️</span>
+                    <span class="tab-text">Laberinto</span>
+                </div>
+                <div class="tab" data-tab="console">
+                    <span class="tab-icon">💻</span>
+                    <span class="tab-text">Consola Serial</span>
+                </div>
+                <div class="tab" data-tab="info">
+                    <span class="tab-icon">ℹ️</span>
+                    <span class="tab-text">Información</span>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div id="status" class="status disconnected">Desconectado</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div id="connection-tab" class="tab-content active">
+                <h2>Conectividad</h2>
+                <div class="input-group">
+                    <input type="text" id="robotName" placeholder="Nombre del Robot (Topic)" value="robot01">
+                    <button id="connectBtn">Conectar</button>
+                </div>
+                <div class="info-box">
+                    <h3>Instrucciones:</h3>
+                    <p>1. Ingresa el nombre del robot (este será el topic MQTT)</p>
+                    <p>2. Asegúrate de que tu ESP32 esté encendido y conectado</p>
+                    <p>3. Haz clic en "Conectar" para establecer la conexión</p>
+                    <p>4. Espera la confirmación del robot</p>
                 </div>
             </div>
 
-            <div class="control-panel">
-                <div class="control-row">
-                    <button class="control-btn" id="btnForward" disabled>
-                        <span class="arrow">▲</span>
-                        <span class="label">Adelante</span>
-                        <span class="key">W</span>
-                    </button>
+            <div id="control-tab" class="tab-content">
+                <h2>Control Manual del Robot</h2>
+                
+                <div class="control-status">
+                    <div id="controlStatus" class="control-disabled">
+                        ⚠️ Conecta el robot primero
+                    </div>
                 </div>
-                <div class="control-row">
-                    <button class="control-btn" id="btnLeft" disabled>
-                        <span class="arrow">◄</span>
-                        <span class="label">Izquierda</span>
-                        <span class="key">A</span>
-                    </button>
-                    <button class="control-btn" id="btnStop" disabled>
-                        <span class="arrow">■</span>
-                        <span class="label">Detener</span>
-                        <span class="key">S</span>
-                    </button>
-                    <button class="control-btn" id="btnRight" disabled>
-                        <span class="arrow">►</span>
-                        <span class="label">Derecha</span>
-                        <span class="key">D</span>
-                    </button>
+
+                <div class="control-panel">
+                    <div class="control-row">
+                        <button class="control-btn" id="btnForward" disabled>
+                            <span class="arrow">▲</span>
+                            <span class="label">Adelante</span>
+                            <span class="key">W</span>
+                        </button>
+                    </div>
+                    <div class="control-row">
+                        <button class="control-btn" id="btnLeft" disabled>
+                            <span class="arrow">◄</span>
+                            <span class="label">Izquierda</span>
+                            <span class="key">A</span>
+                        </button>
+                        <button class="control-btn" id="btnStop" disabled>
+                            <span class="arrow">■</span>
+                            <span class="label">Detener</span>
+                            <span class="key">S</span>
+                        </button>
+                        <button class="control-btn" id="btnRight" disabled>
+                            <span class="arrow">►</span>
+                            <span class="label">Derecha</span>
+                            <span class="key">D</span>
+                        </button>
+                    </div>
+                    <div class="control-row">
+                        <button class="control-btn" id="btnBackward" disabled>
+                            <span class="arrow">▼</span>
+                            <span class="label">Atrás</span>
+                            <span class="key">X</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="control-row">
-                    <button class="control-btn" id="btnBackward" disabled>
-                        <span class="arrow">▼</span>
-                        <span class="label">Atrás</span>
-                        <span class="key">X</span>
-                    </button>
+
+                <div class="control-settings">
+                    <label>
+                        Velocidad: 
+                        <input type="range" id="speedSlider" min="0" max="255" value="150" disabled>
+                        <span id="speedValue">150</span>
+                    </label>
+                </div>
+
+                <div class="info-box">
+                    <h3>Controles de teclado:</h3>
+                    <p>🎮 <strong>W</strong> - Avanzar</p>
+                    <p>🎮 <strong>S</strong> - Detener</p>
+                    <p>🎮 <strong>A</strong> - Girar izquierda</p>
+                    <p>🎮 <strong>D</strong> - Girar derecha</p>
+                    <p>🎮 <strong>X</strong> - Retroceder</p>
+                    <p>💡 Los controles solo funcionan cuando estás conectado al robot</p>
                 </div>
             </div>
 
-            <div class="control-settings">
-                <label>
-                    Velocidad: 
-                    <input type="range" id="speedSlider" min="0" max="255" value="150" disabled>
-                    <span id="speedValue">150</span>
-                </label>
-            </div>
-
-            <div class="info-box">
-                <h3>Controles de teclado:</h3>
-                <p>🎮 <strong>W</strong> - Avanzar</p>
-                <p>🎮 <strong>S</strong> - Detener</p>
-                <p>🎮 <strong>A</strong> - Girar izquierda</p>
-                <p>🎮 <strong>D</strong> - Girar derecha</p>
-                <p>🎮 <strong>X</strong> - Retroceder</p>
-                <p>💡 Los controles solo funcionan cuando estás conectado al robot</p>
-            </div>
-        </div>
-
-        <div id="maze-tab" class="tab-content">
-            <h2>Trayectoria del Robot</h2>
-            <div class="maze-controls">
-                <input type="file" id="mazeFile" accept=".txt" style="display: none;">
-                <button id="loadMazeBtn" onclick="document.getElementById('mazeFile').click()">
-                    📂 Cargar Datos
-                </button>
-                <button id="clearMazeBtn" onclick="Maze.clear(); Console.logSystem('Trayectoria borrada')">
-                    🗑️ Limpiar
-                </button>
-                <button id="exportMazeBtn" onclick="exportMazeData()">
-                    💾 Exportar
-                </button>
-            </div>
-            
-            <!-- Nuevos controles de resolución -->
-            <div class="solver-controls">
-                <div class="solver-group">
-                    <label for="algorithmSelect">Algoritmo:</label>
-                    <select id="algorithmSelect">
-                        <option value="astar">A* (Heurístico)</option>
-                        <option value="dijkstra">Dijkstra (Óptimo)</option>
-                        <option value="bfs">BFS (Amplitud)</option>
-                    </select>
-                    <button id="solveBtn" onclick="solveMaze()">
-                        🧠 Resolver Laberinto
+            <div id="maze-tab" class="tab-content">
+                <h2>Trayectoria del Robot</h2>
+                <div class="maze-controls">
+                    <input type="file" id="mazeFile" accept=".txt" style="display: none;">
+                    <button id="loadMazeBtn" onclick="document.getElementById('mazeFile').click()">
+                        📂 Cargar Datos
                     </button>
-                    <button id="toggleSolutionBtn" onclick="toggleSolution()" style="display: none;">
-                        👁️ Ocultar Solución
+                    <button id="clearMazeBtn" onclick="Maze.clear(); Console.logSystem('Trayectoria borrada')">
+                        🗑️ Limpiar
+                    </button>
+                    <button id="exportMazeBtn" onclick="exportMazeData()">
+                        💾 Exportar
                     </button>
                 </div>
-            </div>
-            
-            <div class="maze-settings">
-                <label>
-                    Ancho del trazo (cm): 
-                    <input type="number" id="wallWidth" value="2" min="0.5" max="10" step="0.5" 
-                           onchange="Maze.setWallWidth(parseFloat(this.value))">
-                </label>
-                <label>
-                    Escala (px/cm): 
-                    <input type="number" id="scale" value="20" min="5" max="50" step="5"
-                           onchange="Maze.setScale(parseFloat(this.value))">
-                </label>
-            </div>
-            
-            <div class="canvas-container">
-                <canvas id="mazeCanvas"></canvas>
-            </div>
-            
-            <div class="info-box">
-                <h3>Formato de datos:</h3>
-                <p>Cada línea representa una coordenada (X,Y) en centímetros:</p>
-                <pre style="background: #0f172a; padding: 10px; border-radius: 4px; color: #60a5fa;">0,0
+                
+                <div class="solver-controls">
+                    <div class="solver-group">
+                        <label for="algorithmSelect">Algoritmo:</label>
+                        <select id="algorithmSelect">
+                            <option value="astar">A* (Heurístico)</option>
+                            <option value="dijkstra">Dijkstra (Óptimo)</option>
+                            <option value="bfs">BFS (Amplitud)</option>
+                        </select>
+                        <button id="solveBtn" onclick="solveMaze()">
+                            🧠 Resolver Laberinto
+                        </button>
+                        <button id="toggleSolutionBtn" onclick="toggleSolution()" style="display: none;">
+                            👁️ Ocultar Solución
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="maze-settings">
+                    <label>
+                        Ancho del trazo (cm): 
+                        <input type="number" id="wallWidth" value="2" min="0.5" max="10" step="0.5" 
+                               onchange="Maze.setWallWidth(parseFloat(this.value))">
+                    </label>
+                    <label>
+                        Escala (px/cm): 
+                        <input type="number" id="scale" value="20" min="5" max="50" step="5"
+                               onchange="Maze.setScale(parseFloat(this.value))">
+                    </label>
+                </div>
+                
+                <div class="canvas-container">
+                    <canvas id="mazeCanvas"></canvas>
+                </div>
+                
+                <div class="info-box">
+                    <h3>Formato de datos:</h3>
+                    <p>Cada línea representa una coordenada (X,Y) en centímetros:</p>
+                    <pre style="background: #0f172a; padding: 10px; border-radius: 4px; color: #60a5fa;">0,0
 0.5,0
 1.2,0.3
 2.5,1.8
 ...</pre>
-                <p>🟢 <strong>Verde:</strong> Punto de inicio</p>
-                <p>🔴 <strong>Rojo:</strong> Posición final</p>
-                <p>🔵 <strong>Azul:</strong> Trayectoria recorrida</p>
-                <p>🟡 <strong>Amarillo:</strong> Solución del algoritmo</p>
+                    <p>🟢 <strong>Verde:</strong> Punto de inicio</p>
+                    <p>🔴 <strong>Rojo:</strong> Posición final</p>
+                    <p>🔵 <strong>Azul:</strong> Trayectoria recorrida</p>
+                    <p>🟡 <strong>Amarillo:</strong> Solución del algoritmo</p>
+                </div>
             </div>
-        </div>
 
-        <div id="console-tab" class="tab-content">
-            <h2>Puerto Serial Virtual</h2>
-            <div id="console" class="console"></div>
-            <div class="input-group" style="margin-top: 15px;">
-                <input type="text" id="messageInput" placeholder="Escribe un mensaje..." disabled>
-                <button id="sendBtn" disabled>Enviar</button>
+            <div id="console-tab" class="tab-content">
+                <h2>Puerto Serial Virtual</h2>
+                <div id="console" class="console"></div>
+                <div class="input-group" style="margin-top: 15px;">
+                    <input type="text" id="messageInput" placeholder="Escribe un mensaje..." disabled>
+                    <button id="sendBtn" disabled>Enviar</button>
+                </div>
+                <button class="clear-btn">Limpiar Consola</button>
             </div>
-            <button class="clear-btn">Limpiar Consola</button>
-        </div>
 
-        <div id="info-tab" class="tab-content">
-            <h2>Información del Sistema</h2>
-            <div class="info-box">
-                <h3>Broker MQTT:</h3>
-                <p>Host: 90246ea5b74141e783178f6a189a8171.s1.eu.hivemq.cloud</p>
-                <p>Puerto: 8884 (WebSocket Secure)</p>
+            <div id="info-tab" class="tab-content">
+                <h2>Información del Sistema</h2>
+                <div class="info-box">
+                    <h3>Broker MQTT:</h3>
+                    <p>Host: f9d90e4c488c4716ac1e5862b9c8a708.s1.eu.hivemq.cloud</p>
+                    <p>Puerto: 8884 (WebSocket Secure)</p>
+                </div>
+                <div class="info-box">
+                    <h3>Topics:</h3>
+                    <p><strong>[nombre_robot]/cmd</strong> - Para enviar comandos al ESP32</p>
+                    <p><strong>[nombre_robot]/data</strong> - Para recibir datos del ESP32</p>
+                </div>
+                <div class="info-box">
+                    <h3>Comandos especiales:</h3>
+                    <p><strong>CONNECT</strong> - Inicia la conexión con el robot</p>
+                    <p><strong>CONNECTED</strong> - Respuesta del robot confirmando conexión</p>
+                </div>
+                <div class="info-box">
+                    <h3>Algoritmos de resolución:</h3>
+                    <p><strong>A*</strong> - Búsqueda heurística, rápida y eficiente</p>
+                    <p><strong>Dijkstra</strong> - Encuentra el camino más corto garantizado</p>
+                    <p><strong>BFS</strong> - Búsqueda en amplitud, explora nivel por nivel</p>
+                </div>
             </div>
-            <div class="info-box">
-                <h3>Topics:</h3>
-                <p><strong>[nombre_robot]/cmd</strong> - Para enviar comandos al ESP32</p>
-                <p><strong>[nombre_robot]/data</strong> - Para recibir datos del ESP32</p>
-            </div>
-            <div class="info-box">
-                <h3>Comandos especiales:</h3>
-                <p><strong>CONNECT</strong> - Inicia la conexión con el robot</p>
-                <p><strong>CONNECTED</strong> - Respuesta del robot confirmando conexión</p>
-            </div>
-            <div class="info-box">
-                <h3>Algoritmos de resolución:</h3>
-                <p><strong>A*</strong> - Búsqueda heurística, rápida y eficiente</p>
-                <p><strong>Dijkstra</strong> - Encuentra el camino más corto garantizado</p>
-                <p><strong>BFS</strong> - Búsqueda en amplitud, explora nivel por nivel</p>
-            </div>
-        </div>
+        </main>
     </div>
 
     <script src="config.js"></script>
@@ -227,7 +232,6 @@
     <script src="ui.js"></script>
     <script src="mqtt.js"></script>
     <script>
-        // Manejar carga de archivo
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('mazeFile').addEventListener('change', (e) => {
                 const file = e.target.files[0];
@@ -237,7 +241,6 @@
             });
         });
 
-        // Exportar datos
         function exportMazeData() {
             const data = Maze.exportData();
             if (!data) {
@@ -255,7 +258,6 @@
             Console.logSystem('Datos exportados exitosamente');
         }
 
-        // Resolver laberinto
         function solveMaze() {
             const algorithm = document.getElementById('algorithmSelect').value;
             const solution = MazeSolver.solve(algorithm);
@@ -267,7 +269,6 @@
             }
         }
 
-        // Mostrar/ocultar solución
         function toggleSolution() {
             Maze.toggleSolution();
             const btn = document.getElementById('toggleSolutionBtn');
