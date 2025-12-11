@@ -9,11 +9,7 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    position: relative;
+    overflow-x: hidden;
 }
 
 body::before {
@@ -28,72 +24,152 @@ body::before {
         linear-gradient(90deg, rgba(100, 116, 139, 0.1) 1px, transparent 1px);
     background-size: 50px 50px;
     z-index: 0;
+    pointer-events: none;
 }
 
-.rat-container {
+.app-container {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 280px;
+    background: rgba(15, 23, 42, 0.95);
+    border-right: 1px solid rgba(148, 163, 184, 0.2);
+    display: flex;
+    flex-direction: column;
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1000;
-    background: rgba(30, 41, 59, 0.8);
-    padding: 12px;
-    border-radius: 10px;
-    border: 2px solid rgba(148, 163, 184, 0.3);
+    height: 100vh;
+    left: 0;
+    top: 0;
     backdrop-filter: blur(10px);
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
 }
 
-.rat {
-    width: 50px;
-    height: 50px;
-    opacity: 0.7;
+.sidebar-header {
+    padding: 30px 20px;
+    text-align: center;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.6) 0%, transparent 100%);
 }
 
-.container {
+.logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    background: rgba(51, 65, 85, 0.3);
+    padding: 10px;
+    border: 2px solid rgba(148, 163, 184, 0.2);
+}
+
+.sidebar-header h1 {
+    color: #f1f5f9;
+    font-size: 1.4em;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 20px 0;
+    overflow-y: auto;
+}
+
+.sidebar-nav .tab {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 16px 25px;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+    margin: 5px 0;
+}
+
+.sidebar-nav .tab:hover {
+    background: rgba(51, 65, 85, 0.5);
+    color: #cbd5e1;
+}
+
+.sidebar-nav .tab.active {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border-left-color: #60a5fa;
+}
+
+.tab-icon {
+    font-size: 22px;
+    width: 30px;
+    text-align: center;
+}
+
+.tab-text {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+/* MAIN CONTENT */
+.main-content {
+    flex: 1;
+    margin-left: 280px;
+    padding: 40px;
+    min-height: 100vh;
+}
+
+.tab-content {
+    display: none;
     background: rgba(30, 41, 59, 0.95);
     border-radius: 12px;
+    padding: 40px;
     box-shadow: 
         0 20px 60px rgba(0, 0, 0, 0.4),
         0 0 0 1px rgba(148, 163, 184, 0.2);
-    max-width: 1000px;
-    width: 100%;
-    padding: 0;
-    position: relative;
-    z-index: 1;
-    overflow: hidden;
     backdrop-filter: blur(10px);
 }
 
-.header {
-    padding: 35px 40px 25px 40px;
-    text-align: center;
-    background: linear-gradient(180deg, rgba(15, 23, 42, 0.6) 0%, transparent 100%);
-    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
 }
 
-h1 {
-    color: #f1f5f9;
-    font-size: 1.8em;
-    font-weight: 600;
-    letter-spacing: -0.5px;
-    margin-bottom: 12px;
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 h2 {
-    color: #94a3b8;
-    font-size: 1.2em;
-    font-weight: 500;
-    margin-bottom: 25px;
+    color: #f1f5f9;
+    font-size: 1.8em;
+    font-weight: 600;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(148, 163, 184, 0.2);
 }
 
 .status {
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-weight: 500;
-    font-size: 14px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
     text-align: center;
     border: 1px solid;
-    display: inline-block;
-    min-width: 280px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -114,48 +190,6 @@ h2 {
     background: rgba(234, 179, 8, 0.15);
     color: #fde047;
     border-color: rgba(234, 179, 8, 0.4);
-}
-
-.tabs {
-    display: flex;
-    background: rgba(15, 23, 42, 0.6);
-    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-}
-
-.tab {
-    flex: 1;
-    padding: 16px;
-    text-align: center;
-    cursor: pointer;
-    color: #94a3b8;
-    font-weight: 500;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: all 0.2s ease;
-    border-bottom: 2px solid transparent;
-    background: transparent;
-}
-
-.tab:hover {
-    background: rgba(51, 65, 85, 0.5);
-    color: #cbd5e1;
-}
-
-.tab.active {
-    color: #60a5fa;
-    border-bottom-color: #60a5fa;
-    background: rgba(51, 65, 85, 0.3);
-}
-
-.tab-content {
-    display: none;
-    padding: 35px 40px;
-    min-height: 450px;
-}
-
-.tab-content.active {
-    display: block;
 }
 
 .input-group {
@@ -340,7 +374,6 @@ button:disabled {
     padding: 12px 24px;
 }
 
-/* Nuevos estilos para controles de resolución */
 .solver-controls {
     background: rgba(251, 191, 36, 0.1);
     border: 1px solid rgba(251, 191, 36, 0.3);
@@ -627,21 +660,55 @@ button:disabled {
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 250px;
+    }
+    
+    .main-content {
+        margin-left: 250px;
+        padding: 30px;
+    }
+}
+
 @media (max-width: 768px) {
-    .container {
-        margin: 10px;
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
     }
     
-    .header {
-        padding: 25px 20px 20px 20px;
+    .sidebar-nav {
+        display: flex;
+        overflow-x: auto;
+        padding: 10px 0;
     }
     
-    h1 {
-        font-size: 1.5em;
+    .sidebar-nav .tab {
+        flex-direction: column;
+        padding: 15px 20px;
+        min-width: 100px;
+        text-align: center;
+        gap: 8px;
+    }
+    
+    .tab-text {
+        font-size: 12px;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        padding: 20px;
     }
     
     .tab-content {
         padding: 25px 20px;
+    }
+    
+    h2 {
+        font-size: 1.4em;
     }
     
     .input-group, .maze-controls, .solver-group {
@@ -652,17 +719,11 @@ button:disabled {
         width: 100%;
     }
     
-    .rat-container {
-        bottom: 10px;
-        right: 10px;
-    }
-    
     .maze-settings {
         flex-direction: column;
         gap: 10px;
     }
     
-    /* Control panel responsive */
     .control-btn {
         width: 100px;
         height: 100px;
