@@ -21,8 +21,8 @@ body {
 /* SIDEBAR */
 .sidebar {
     width: 260px;
-    background: #1e3a8a;
-    border-right: 1px solid #1e40af;
+    background: #031926;
+    border-right: 1px solid #468189;
     display: flex;
     flex-direction: column;
     position: fixed;
@@ -33,11 +33,11 @@ body {
 
 .sidebar-header {
     padding: 32px 24px;
-    border-bottom: 1px solid #1e40af;
+    border-bottom: 1px solid #468189;
 }
 
 .sidebar-header h1 {
-    color: #ffffff;
+    color: #9DBEBB;
     font-size: 1.25em;
     font-weight: 600;
     letter-spacing: -0.3px;
@@ -45,7 +45,7 @@ body {
 }
 
 .subtitle {
-    color: #93c5fd;
+    color: #77ACA2;
     font-size: 0.8125em;
     font-weight: 400;
 }
@@ -60,7 +60,7 @@ body {
     display: flex;
     align-items: center;
     padding: 12px 24px;
-    color: #bfdbfe;
+    color: #9DBEBB;
     cursor: pointer;
     transition: all 0.15s ease;
     border-left: 3px solid transparent;
@@ -69,14 +69,14 @@ body {
 }
 
 .sidebar-nav .tab:hover {
-    background: #1e40af;
-    color: #ffffff;
+    background: #468189;
+    color: #F4E9CD;
 }
 
 .sidebar-nav .tab.active {
-    background: #2563eb;
-    color: #ffffff;
-    border-left-color: #60a5fa;
+    background: #77ACA2;
+    color: #031926;
+    border-left-color: #9DBEBB;
 }
 
 .tab-text {
@@ -85,7 +85,7 @@ body {
 
 .sidebar-footer {
     padding: 20px;
-    border-top: 1px solid #1e40af;
+    border-top: 1px solid #468189;
 }
 
 /* MAIN CONTENT */
@@ -186,8 +186,8 @@ input[type="text"] {
 
 input[type="text"]:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #468189;
+    box-shadow: 0 0 0 3px rgba(70, 129, 137, 0.1);
 }
 
 input[type="text"]::placeholder {
@@ -196,7 +196,7 @@ input[type="text"]::placeholder {
 
 button {
     padding: 12px 24px;
-    background: #3b82f6;
+    background: #468189;
     color: white;
     border: none;
     border-radius: 6px;
@@ -207,9 +207,9 @@ button {
 }
 
 button:hover {
-    background: #2563eb;
+    background: #77ACA2;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    box-shadow: 0 4px 12px rgba(70, 129, 137, 0.25);
 }
 
 button:active {
@@ -264,14 +264,14 @@ button:disabled {
 }
 
 .console-line.sent {
-    color: #1e40af;
-    border-left-color: #3b82f6;
-    background: #eff6ff;
+    color: #031926;
+    border-left-color: #468189;
+    background: #e8f4f5;
 }
 
 .console-line.received {
     color: #047857;
-    border-left-color: #10b981;
+    border-left-color: #77ACA2;
     background: #f0fdf4;
 }
 
@@ -452,8 +452,8 @@ button:disabled {
 
 .maze-settings input[type="number"]:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #468189;
+    box-shadow: 0 0 0 3px rgba(70, 129, 137, 0.1);
 }
 
 .canvas-container {
@@ -537,18 +537,18 @@ button:disabled {
 }
 
 .control-btn:not(:disabled):hover {
-    background: #eff6ff;
-    border-color: #3b82f6;
+    background: #e8f4f5;
+    border-color: #468189;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 4px 12px rgba(70, 129, 137, 0.2);
 }
 
 .control-btn:not(:disabled):active,
 .control-btn.active-control {
-    background: #dbeafe;
-    border-color: #2563eb;
+    background: #d4ebec;
+    border-color: #77ACA2;
     transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 2px 8px rgba(70, 129, 137, 0.3);
 }
 
 .control-btn:disabled {
@@ -614,14 +614,14 @@ button:disabled {
     appearance: none;
     width: 18px;
     height: 18px;
-    background: #3b82f6;
+    background: #468189;
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.15s ease;
 }
 
 .control-settings input[type="range"]::-webkit-slider-thumb:hover {
-    background: #2563eb;
+    background: #77ACA2;
     transform: scale(1.15);
 }
 
@@ -638,7 +638,7 @@ button:disabled {
 .control-settings span {
     min-width: 50px;
     text-align: right;
-    color: #3b82f6;
+    color: #468189;
     font-weight: 700;
     font-size: 1.125em;
 }
@@ -661,7 +661,7 @@ button:disabled {
         height: auto;
         position: relative;
         border-right: none;
-        border-bottom: 1px solid #1e40af;
+        border-bottom: 1px solid #468189;
     }
     
     .sidebar-nav {
