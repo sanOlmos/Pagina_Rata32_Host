@@ -1,6 +1,6 @@
 // Configuración del Broker MQTT
 const MQTT_CONFIG = {
-    brokerUrl: 'wss://90246ea5b74141e783178f6a189a8171.s1.eu.hivemq.cloud:8884/mqtt',
+    brokerUrl: 'wss://f9d90e4c488c4716ac1e5862b9c8a708.s1.eu.hivemq.cloud:8884/mqtt',
     username: 'admin',
     password: 'SuperMan2233',
     reconnectPeriod: 1000,
