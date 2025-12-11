@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control ESP32 - MQTT</title>
+    <title>LCDLR - UTN - FRSF</title>
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
@@ -13,29 +13,24 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <img src="logo.png" alt="Logo" class="logo">
                 <h1>Control ESP32</h1>
+                <p class="subtitle">Sistema MQTT</p>
             </div>
 
             <nav class="sidebar-nav">
                 <div class="tab active" data-tab="connection">
-                    <span class="tab-icon">🔌</span>
                     <span class="tab-text">Conexión</span>
                 </div>
                 <div class="tab" data-tab="control">
-                    <span class="tab-icon">🎮</span>
                     <span class="tab-text">Control Manual</span>
                 </div>
                 <div class="tab" data-tab="maze">
-                    <span class="tab-icon">🗺️</span>
-                    <span class="tab-text">Laberinto</span>
+                    <span class="tab-text">Trayectoria</span>
                 </div>
                 <div class="tab" data-tab="console">
-                    <span class="tab-icon">💻</span>
                     <span class="tab-text">Consola Serial</span>
                 </div>
                 <div class="tab" data-tab="info">
-                    <span class="tab-icon">ℹ️</span>
                     <span class="tab-text">Información</span>
                 </div>
             </nav>
@@ -67,7 +62,7 @@
                 
                 <div class="control-status">
                     <div id="controlStatus" class="control-disabled">
-                        ⚠️ Conecta el robot primero
+                        Conecta el robot primero
                     </div>
                 </div>
 
@@ -115,12 +110,12 @@
 
                 <div class="info-box">
                     <h3>Controles de teclado:</h3>
-                    <p>🎮 <strong>W</strong> - Avanzar</p>
-                    <p>🎮 <strong>S</strong> - Detener</p>
-                    <p>🎮 <strong>A</strong> - Girar izquierda</p>
-                    <p>🎮 <strong>D</strong> - Girar derecha</p>
-                    <p>🎮 <strong>X</strong> - Retroceder</p>
-                    <p>💡 Los controles solo funcionan cuando estás conectado al robot</p>
+                    <p><strong>W</strong> - Avanzar</p>
+                    <p><strong>S</strong> - Detener</p>
+                    <p><strong>A</strong> - Girar izquierda</p>
+                    <p><strong>D</strong> - Girar derecha</p>
+                    <p><strong>X</strong> - Retroceder</p>
+                    <p class="note">Los controles solo funcionan cuando estás conectado al robot</p>
                 </div>
             </div>
 
@@ -129,13 +124,13 @@
                 <div class="maze-controls">
                     <input type="file" id="mazeFile" accept=".txt" style="display: none;">
                     <button id="loadMazeBtn" onclick="document.getElementById('mazeFile').click()">
-                        📂 Cargar Datos
+                        Cargar Datos
                     </button>
                     <button id="clearMazeBtn" onclick="Maze.clear(); Console.logSystem('Trayectoria borrada')">
-                        🗑️ Limpiar
+                        Limpiar
                     </button>
                     <button id="exportMazeBtn" onclick="exportMazeData()">
-                        💾 Exportar
+                        Exportar
                     </button>
                 </div>
                 
@@ -148,10 +143,10 @@
                             <option value="bfs">BFS (Amplitud)</option>
                         </select>
                         <button id="solveBtn" onclick="solveMaze()">
-                            🧠 Resolver Laberinto
+                            Resolver Laberinto
                         </button>
                         <button id="toggleSolutionBtn" onclick="toggleSolution()" style="display: none;">
-                            👁️ Ocultar Solución
+                            Ocultar Solución
                         </button>
                     </div>
                 </div>
@@ -176,15 +171,15 @@
                 <div class="info-box">
                     <h3>Formato de datos:</h3>
                     <p>Cada línea representa una coordenada (X,Y) en centímetros:</p>
-                    <pre style="background: #0f172a; padding: 10px; border-radius: 4px; color: #60a5fa;">0,0
+                    <pre style="background: #f8f9fa; padding: 10px; border-radius: 4px; color: #1e293b; border: 1px solid #e2e8f0;">0,0
 0.5,0
 1.2,0.3
 2.5,1.8
 ...</pre>
-                    <p>🟢 <strong>Verde:</strong> Punto de inicio</p>
-                    <p>🔴 <strong>Rojo:</strong> Posición final</p>
-                    <p>🔵 <strong>Azul:</strong> Trayectoria recorrida</p>
-                    <p>🟡 <strong>Amarillo:</strong> Solución del algoritmo</p>
+                    <p><span class="legend-color" style="background: #10b981;"></span> <strong>Verde:</strong> Punto de inicio</p>
+                    <p><span class="legend-color" style="background: #ef4444;"></span> <strong>Rojo:</strong> Posición final</p>
+                    <p><span class="legend-color" style="background: #3b82f6;"></span> <strong>Azul:</strong> Trayectoria recorrida</p>
+                    <p><span class="legend-color" style="background: #f59e0b;"></span> <strong>Amarillo:</strong> Solución del algoritmo</p>
                 </div>
             </div>
 
@@ -273,7 +268,7 @@
         function toggleSolution() {
             Maze.toggleSolution();
             const btn = document.getElementById('toggleSolutionBtn');
-            btn.textContent = Maze.showSolution ? '👁️ Ocultar Solución' : '👁️ Mostrar Solución';
+            btn.textContent = Maze.showSolution ? 'Ocultar Solución' : 'Mostrar Solución';
         }
     </script>
 </body>
