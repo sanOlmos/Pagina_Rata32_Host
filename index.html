@@ -13,8 +13,8 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h1>Control ESP32</h1>
-                <p class="subtitle">Sistema MQTT</p>
+                <h1>LCDLR - UTN - FRSF</h1>
+                <p class="subtitle">Sistema de Control</p>
             </div>
 
             <nav class="sidebar-nav">
@@ -66,56 +66,82 @@
                     </div>
                 </div>
 
-                <div class="control-panel">
-                    <div class="control-row">
-                        <button class="control-btn" id="btnForward" disabled>
-                            <span class="arrow">▲</span>
-                            <span class="label">Adelante</span>
-                            <span class="key">W</span>
-                        </button>
+                <div class="mode-selector">
+                    <button id="btnManual" class="mode-btn active">Control Manual</button>
+                    <button id="btnAutomatic" class="mode-btn">Modo Automático</button>
+                </div>
+
+                <div id="manualControls" class="control-section">
+                    <div class="control-panel">
+                        <div class="control-row">
+                            <button class="control-btn" id="btnForward" disabled>
+                                <span class="arrow">▲</span>
+                                <span class="label">Adelante</span>
+                                <span class="key">W</span>
+                            </button>
+                        </div>
+                        <div class="control-row">
+                            <button class="control-btn" id="btnLeft" disabled>
+                                <span class="arrow">◄</span>
+                                <span class="label">Izquierda</span>
+                                <span class="key">A</span>
+                            </button>
+                            <button class="control-btn" id="btnStop" disabled>
+                                <span class="arrow">■</span>
+                                <span class="label">Detener</span>
+                                <span class="key">S</span>
+                            </button>
+                            <button class="control-btn" id="btnRight" disabled>
+                                <span class="arrow">►</span>
+                                <span class="label">Derecha</span>
+                                <span class="key">D</span>
+                            </button>
+                        </div>
+                        <div class="control-row">
+                            <button class="control-btn" id="btnBackward" disabled>
+                                <span class="arrow">▼</span>
+                                <span class="label">Atrás</span>
+                                <span class="key">X</span>
+                            </button>
+                        </div>
                     </div>
-                    <div class="control-row">
-                        <button class="control-btn" id="btnLeft" disabled>
-                            <span class="arrow">◄</span>
-                            <span class="label">Izquierda</span>
-                            <span class="key">A</span>
-                        </button>
-                        <button class="control-btn" id="btnStop" disabled>
-                            <span class="arrow">■</span>
-                            <span class="label">Detener</span>
-                            <span class="key">S</span>
-                        </button>
-                        <button class="control-btn" id="btnRight" disabled>
-                            <span class="arrow">►</span>
-                            <span class="label">Derecha</span>
-                            <span class="key">D</span>
-                        </button>
+
+                    <div class="control-settings">
+                        <label>
+                            Velocidad: 
+                            <input type="range" id="speedSlider" min="0" max="255" value="150" disabled>
+                            <span id="speedValue">150</span>
+                        </label>
                     </div>
-                    <div class="control-row">
-                        <button class="control-btn" id="btnBackward" disabled>
-                            <span class="arrow">▼</span>
-                            <span class="label">Atrás</span>
-                            <span class="key">X</span>
-                        </button>
+
+                    <div class="info-box">
+                        <h3>Controles de teclado:</h3>
+                        <p><strong>W</strong> - Avanzar</p>
+                        <p><strong>S</strong> - Detener</p>
+                        <p><strong>A</strong> - Girar izquierda</p>
+                        <p><strong>D</strong> - Girar derecha</p>
+                        <p><strong>X</strong> - Retroceder</p>
+                        <p class="note">Los controles solo funcionan cuando estás conectado al robot</p>
                     </div>
                 </div>
 
-                <div class="control-settings">
-                    <label>
-                        Velocidad: 
-                        <input type="range" id="speedSlider" min="0" max="255" value="150" disabled>
-                        <span id="speedValue">150</span>
-                    </label>
-                </div>
-
-                <div class="info-box">
-                    <h3>Controles de teclado:</h3>
-                    <p><strong>W</strong> - Avanzar</p>
-                    <p><strong>S</strong> - Detener</p>
-                    <p><strong>A</strong> - Girar izquierda</p>
-                    <p><strong>D</strong> - Girar derecha</p>
-                    <p><strong>X</strong> - Retroceder</p>
-                    <p class="note">Los controles solo funcionan cuando estás conectado al robot</p>
+                <div id="automaticControls" class="control-section" style="display: none;">
+                    <div class="info-box">
+                        <h3>Modo Automático Activado</h3>
+                        <p>El robot está funcionando de manera autónoma utilizando:</p>
+                        <ul>
+                            <li><strong>3 Sensores Ultrasónicos</strong> - Detección de obstáculos</li>
+                            <li><strong>Sensor Infrarrojo</strong> - Seguimiento de línea (negro/blanco)</li>
+                        </ul>
+                        <p class="note">El robot se detendrá automáticamente al detectar línea blanca</p>
+                    </div>
+                    
+                    <div class="automatic-status">
+                        <div class="status-indicator">
+                            <div class="indicator-dot"></div>
+                            <span>Sistema Autónomo Activo</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
