@@ -21,8 +21,8 @@ body {
 /* SIDEBAR */
 .sidebar {
     width: 260px;
-    background: #f8f9fa;
-    border-right: 1px solid #e2e8f0;
+    background: #dbeafe;
+    border-right: 1px solid #bfdbfe;
     display: flex;
     flex-direction: column;
     position: fixed;
@@ -33,11 +33,11 @@ body {
 
 .sidebar-header {
     padding: 32px 24px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #bfdbfe;
 }
 
 .sidebar-header h1 {
-    color: #0f172a;
+    color: #1e3a8a;
     font-size: 1.5em;
     font-weight: 600;
     letter-spacing: -0.5px;
@@ -45,7 +45,7 @@ body {
 }
 
 .subtitle {
-    color: #64748b;
+    color: #3b82f6;
     font-size: 0.875em;
     font-weight: 400;
 }
@@ -60,7 +60,7 @@ body {
     display: flex;
     align-items: center;
     padding: 12px 24px;
-    color: #475569;
+    color: #1e3a8a;
     cursor: pointer;
     transition: all 0.15s ease;
     border-left: 3px solid transparent;
@@ -69,14 +69,14 @@ body {
 }
 
 .sidebar-nav .tab:hover {
-    background: #f1f5f9;
-    color: #1e293b;
+    background: #bfdbfe;
+    color: #1e40af;
 }
 
 .sidebar-nav .tab.active {
-    background: #e0f2fe;
-    color: #0369a1;
-    border-left-color: #0369a1;
+    background: #93c5fd;
+    color: #1e3a8a;
+    border-left-color: #2563eb;
 }
 
 .tab-text {
@@ -85,7 +85,7 @@ body {
 
 .sidebar-footer {
     padding: 20px;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid #bfdbfe;
 }
 
 /* MAIN CONTENT */
@@ -661,7 +661,7 @@ button:disabled {
         height: auto;
         position: relative;
         border-right: none;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid #bfdbfe;
     }
     
     .sidebar-nav {
