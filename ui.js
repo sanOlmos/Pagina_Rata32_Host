@@ -20,7 +20,10 @@ const UI = {
     attachEventListeners() {
         // Tabs
         this.elements.tabs.forEach(tab => {
-            tab.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
+            tab.addEventListener('click', (e) => {
+                const tabName = e.target.closest('.tab').dataset.tab;
+                this.switchTab(tabName);
+            });
         });
 
         // Botones
@@ -40,8 +43,13 @@ const UI = {
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
         // Activar la tab seleccionada
-        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-        document.getElementById(`${tabName}-tab`).classList.add('active');
+        const selectedTab = document.querySelector(`[data-tab="${tabName}"]`);
+        const selectedContent = document.getElementById(`${tabName}-tab`);
+        
+        if (selectedTab && selectedContent) {
+            selectedTab.classList.add('active');
+            selectedContent.classList.add('active');
+        }
     },
 
     updateStatus(text, cssClass) {
