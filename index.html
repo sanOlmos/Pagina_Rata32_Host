@@ -9,9 +9,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
 </head>
 <body>
+    <!-- Botón hamburguesa -->
+    <button class="hamburger-btn" id="hamburgerBtn">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
     <div class="app-container">
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h1>RataLab - UTN - FRSF</h1>
                 <p class="subtitle">Web App</p>
@@ -76,24 +83,73 @@
 
                 <div class="info-box download-section">
                     <h3>📥 Descargas</h3>
-                    <div class="download-grid">
-                        <div class="download-item">
+                    
+                    <!-- Manual de Usuario -->
+                    <div class="download-category">
+                        <div class="category-header">
                             <div class="download-icon">📄</div>
-                            <div class="download-info">
+                            <div class="category-info">
                                 <h4>Manual de Usuario</h4>
                                 <p>Guía completa de instalación, configuración y uso del sistema RataLab</p>
-                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/Manual_RataLab.pdf" download class="download-btn">
-                                    Descargar Manual (PDF)
-                                </a>
                             </div>
                         </div>
-                        <div class="download-item">
+                        <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/Manual_RataLab.pdf" download class="download-btn">
+                            Descargar Manual (PDF)
+                        </a>
+                    </div>
+
+                    <!-- Firmwares -->
+                    <div class="download-category">
+                        <div class="category-header" onclick="toggleFirmwareList()">
                             <div class="download-icon">💾</div>
-                            <div class="download-info">
-                                <h4>Firmware ESP32</h4>
+                            <div class="category-info">
+                                <h4>Firmwares ESP32 <span class="expand-arrow" id="firmwareArrow">▼</span></h4>
                                 <p>Código fuente para cargar en la placa ESP32 del robot</p>
-                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_esp32.ino" download class="download-btn">
-                                    Descargar Firmware (.ino)
+                            </div>
+                        </div>
+                        
+                        <div class="firmware-list" id="firmwareList" style="display: none;">
+                            <div class="firmware-item">
+                                <div class="firmware-info">
+                                    <strong>Firmware v1.0 - Básico</strong>
+                                    <span class="firmware-tag">Estable</span>
+                                    <p>Control manual y modo automático con sensores ultrasónicos</p>
+                                </div>
+                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_esp32.ino" download class="download-btn-small">
+                                    Descargar
+                                </a>
+                            </div>
+                            
+                            <div class="firmware-item">
+                                <div class="firmware-info">
+                                    <strong>Firmware v1.1 - Encoders</strong>
+                                    <span class="firmware-tag firmware-tag-beta">Beta</span>
+                                    <p>Incluye soporte para encoders y odometría avanzada</p>
+                                </div>
+                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_esp32_v1.1.ino" download class="download-btn-small">
+                                    Descargar
+                                </a>
+                            </div>
+                            
+                            <div class="firmware-item">
+                                <div class="firmware-info">
+                                    <strong>Firmware v2.0 - Laberintos</strong>
+                                    <span class="firmware-tag firmware-tag-new">Nuevo</span>
+                                    <p>Algoritmos de resolución de laberintos integrados (A*, Dijkstra, BFS)</p>
+                                </div>
+                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_esp32_v2.0.ino" download class="download-btn-small">
+                                    Descargar
+                                </a>
+                            </div>
+                            
+                            <div class="firmware-item">
+                                <div class="firmware-info">
+                                    <strong>Firmware v2.1 - Completo</strong>
+                                    <span class="firmware-tag firmware-tag-recommended">Recomendado</span>
+                                    <p>Versión completa con todas las características optimizadas</p>
+                                </div>
+                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_esp32_v2.1.ino" download class="download-btn-small">
+                                    Descargar
                                 </a>
                             </div>
                         </div>
@@ -101,7 +157,7 @@
                 </div>
 
                 <div class="info-box">
-                    <h3>🐙 Repositorio GitHub</h3>
+                    <h3>🔧 Repositorio GitHub</h3>
                     <p>El código completo del proyecto está disponible como open source en GitHub. Incluye el frontend web, firmware para ESP32, documentación técnica y ejemplos de uso.</p>
                     <div class="github-link">
                         <svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor">
@@ -346,6 +402,29 @@
     <script src="mqtt.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Menú hamburguesa
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
+            
+            hamburgerBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('sidebar-hidden');
+                mainContent.classList.toggle('sidebar-hidden');
+                hamburgerBtn.classList.toggle('active');
+            });
+            
+            // Cerrar sidebar al hacer click en una tab (en móviles)
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.add('sidebar-hidden');
+                        mainContent.classList.add('sidebar-hidden');
+                        hamburgerBtn.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Archivo de laberinto
             document.getElementById('mazeFile').addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (file) {
@@ -353,6 +432,19 @@
                 }
             });
         });
+
+        function toggleFirmwareList() {
+            const list = document.getElementById('firmwareList');
+            const arrow = document.getElementById('firmwareArrow');
+            
+            if (list.style.display === 'none') {
+                list.style.display = 'block';
+                arrow.textContent = '▲';
+            } else {
+                list.style.display = 'none';
+                arrow.textContent = '▼';
+            }
+        }
 
         function exportMazeData() {
             const data = Maze.exportData();
