@@ -5,988 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RataLab</title>
     <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
-    <style>
-/* Reset y estilos base */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background: #ffffff;
-    min-height: 100vh;
-    overflow-x: hidden;
-    color: #1e293b;
-}
-
-.app-container {
-    display: flex;
-    min-height: 100vh;
-}
-
-/* SIDEBAR */
-.sidebar {
-    width: 260px;
-    background: #031926;
-    border-right: 1px solid #468189;
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    height: 100vh;
-    left: 0;
-    top: 0;
-}
-
-.sidebar-header {
-    padding: 32px 24px;
-    border-bottom: 1px solid #468189;
-}
-
-.sidebar-header h1 {
-    color: #9DBEBB;
-    font-size: 1.25em;
-    font-weight: 600;
-    letter-spacing: -0.3px;
-    margin-bottom: 4px;
-}
-
-.subtitle {
-    color: #77ACA2;
-    font-size: 0.8125em;
-    font-weight: 400;
-}
-
-.sidebar-nav {
-    flex: 1;
-    padding: 16px 0;
-    overflow-y: auto;
-}
-
-.sidebar-nav .tab {
-    display: flex;
-    align-items: center;
-    padding: 12px 24px;
-    color: #9DBEBB;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    border-left: 3px solid transparent;
-    margin: 2px 0;
-    font-weight: 500;
-}
-
-.sidebar-nav .tab:hover {
-    background: #468189;
-    color: #F4E9CD;
-}
-
-.sidebar-nav .tab.active {
-    background: #77ACA2;
-    color: #031926;
-    border-left-color: #9DBEBB;
-}
-
-.tab-text {
-    font-size: 0.9375em;
-}
-
-.sidebar-footer {
-    padding: 20px;
-    border-top: 1px solid #468189;
-}
-
-.logo-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid rgba(70, 129, 137, 0.3);
-}
-
-.footer-logo {
-    height: 35px;
-    width: auto;
-    object-fit: contain;
-    opacity: 0.8;
-    transition: opacity 0.2s ease;
-}
-
-.footer-logo:hover {
-    opacity: 1;
-}
-
-/* MAIN CONTENT */
-.main-content {
-    flex: 1;
-    margin-left: 260px;
-    padding: 40px;
-    min-height: 100vh;
-    background: #ffffff;
-}
-
-.tab-content {
-    display: none;
-    background: #ffffff;
-    border-radius: 8px;
-    padding: 32px;
-    border: 1px solid #e2e8f0;
-}
-
-.tab-content.active {
-    display: block;
-    animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-h2 {
-    color: #0f172a;
-    font-size: 1.75em;
-    font-weight: 600;
-    margin-bottom: 24px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid #e2e8f0;
-}
-
-h3 {
-    color: #1e293b;
-    font-size: 1em;
-    font-weight: 600;
-    margin-bottom: 12px;
-}
-
-.status {
-    padding: 10px 18px;
-    border-radius: 6px;
-    font-weight: 500;
-    font-size: 0.8125em;
-    text-align: center;
-    border: 1px solid;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.status.disconnected {
-    background: #fef2f2;
-    color: #dc2626;
-    border-color: #fecaca;
-}
-
-.status.connected {
-    background: #f0fdf4;
-    color: #16a34a;
-    border-color: #bbf7d0;
-}
-
-.status.connecting {
-    background: #fefce8;
-    color: #ca8a04;
-    border-color: #fef08a;
-}
-
-.input-group {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 20px;
-}
-
-input[type="text"] {
-    flex: 1;
-    padding: 12px 16px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    font-size: 0.9375em;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    transition: all 0.15s ease;
-    background: #ffffff;
-    color: #0f172a;
-}
-
-input[type="text"]:focus {
-    outline: none;
-    border-color: #468189;
-    box-shadow: 0 0 0 3px rgba(70, 129, 137, 0.1);
-}
-
-input[type="text"]::placeholder {
-    color: #94a3b8;
-}
-
-button {
-    padding: 12px 24px;
-    background: #468189;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.875em;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-
-button:hover {
-    background: #77ACA2;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(70, 129, 137, 0.25);
-}
-
-button:active {
-    transform: translateY(0);
-}
-
-button:disabled {
-    background: #cbd5e1;
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
-    opacity: 0.6;
-}
-
-.console {
-    background: #f8f9fa;
-    color: #1e293b;
-    border-radius: 6px;
-    padding: 20px;
-    height: 420px;
-    overflow-y: auto;
-    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-    font-size: 0.8125em;
-    border: 1px solid #e2e8f0;
-    line-height: 1.6;
-}
-
-.console::-webkit-scrollbar {
-    width: 8px;
-}
-
-.console::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 4px;
-}
-
-.console::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
-}
-
-.console::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-}
-
-.console-line {
-    margin-bottom: 6px;
-    padding: 8px 10px;
-    border-left: 3px solid transparent;
-    border-radius: 3px;
-    font-size: 0.8125em;
-}
-
-.console-line.sent {
-    color: #031926;
-    border-left-color: #468189;
-    background: #e8f4f5;
-}
-
-.console-line.received {
-    color: #047857;
-    border-left-color: #77ACA2;
-    background: #f0fdf4;
-}
-
-.console-line.system {
-    color: #475569;
-    border-left-color: #94a3b8;
-}
-
-.console-line.error {
-    color: #dc2626;
-    border-left-color: #ef4444;
-    background: #fef2f2;
-}
-
-.timestamp {
-    color: #94a3b8;
-    font-size: 0.75em;
-    margin-right: 10px;
-    font-weight: 500;
-}
-
-.clear-btn {
-    background: #64748b;
-    padding: 10px 20px;
-    font-size: 0.8125em;
-    margin-top: 12px;
-}
-
-.clear-btn:hover {
-    background: #475569;
-}
-
-.info-box {
-    background: #f8f9fa;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 20px 24px;
-    margin-bottom: 20px;
-    color: #475569;
-}
-
-.info-box h3 {
-    color: #0f172a;
-    margin-bottom: 12px;
-    font-size: 1em;
-    font-weight: 600;
-}
-
-.info-box p {
-    line-height: 1.7;
-    margin-bottom: 8px;
-    font-size: 0.875em;
-    color: #475569;
-}
-
-.info-box p.note {
-    color: #64748b;
-    font-style: italic;
-    margin-top: 8px;
-}
-
-.info-box p strong {
-    color: #0f172a;
-    font-weight: 600;
-}
-
-.info-box ul {
-    margin-left: 20px;
-    margin-top: 8px;
-}
-
-.info-box ul li {
-    margin-bottom: 6px;
-    line-height: 1.6;
-}
-
-.legend-color {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 2px;
-    margin-right: 6px;
-    vertical-align: middle;
-}
-
-/* Estilos para el módulo de laberinto */
-.maze-controls {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-}
-
-.maze-controls button {
-    padding: 10px 20px;
-}
-
-.solver-controls {
-    background: #fef3c7;
-    border: 1px solid #fde68a;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
-}
-
-.solver-group {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.solver-group label {
-    color: #92400e;
-    font-weight: 600;
-    font-size: 0.875em;
-}
-
-.solver-group select {
-    padding: 10px 16px;
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    color: #0f172a;
-    font-size: 0.875em;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-
-.solver-group select:hover {
-    border-color: #f59e0b;
-}
-
-.solver-group select:focus {
-    outline: none;
-    border-color: #f59e0b;
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
-}
-
-#solveBtn {
-    background: #f59e0b;
-    color: #ffffff;
-    font-weight: 600;
-}
-
-#solveBtn:hover {
-    background: #d97706;
-}
-
-#toggleSolutionBtn {
-    background: #64748b;
-}
-
-#toggleSolutionBtn:hover {
-    background: #475569;
-}
-
-.maze-settings {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
-    flex-wrap: wrap;
-}
-
-.maze-settings label {
-    color: #475569;
-    font-size: 0.875em;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 500;
-}
-
-.maze-settings input[type="number"] {
-    width: 80px;
-    padding: 8px 12px;
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    border-radius: 4px;
-    color: #0f172a;
-    font-size: 0.875em;
-}
-
-.maze-settings input[type="number"]:focus {
-    outline: none;
-    border-color: #468189;
-    box-shadow: 0 0 0 3px rgba(70, 129, 137, 0.1);
-}
-
-.canvas-container {
-    background: #f8f9fa;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 400px;
-    overflow: auto;
-}
-
-#mazeCanvas {
-    display: block;
-    image-rendering: crisp-edges;
-}
-
-/* Estilos para control manual */
-.control-status {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.control-enabled {
-    background: #f0fdf4;
-    color: #16a34a;
-    border: 1px solid #bbf7d0;
-    padding: 14px 28px;
-    border-radius: 8px;
-    font-size: 0.9375em;
-    font-weight: 600;
-    display: inline-block;
-}
-
-.control-disabled {
-    background: #fef2f2;
-    color: #dc2626;
-    border: 1px solid #fecaca;
-    padding: 14px 28px;
-    border-radius: 8px;
-    font-size: 0.9375em;
-    font-weight: 600;
-    display: inline-block;
-}
-
-.mode-selector {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 30px;
-    justify-content: center;
-}
-
-.mode-btn {
-    padding: 12px 24px;
-    background: #e2e8f0;
-    color: #475569;
-}
-
-.mode-btn.active {
-    background: #468189;
-    color: white;
-}
-
-.control-section {
-    display: block;
-}
-
-.control-panel {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    margin: 40px 0;
-    padding: 30px;
-    background: #f8f9fa;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-}
-
-.control-row {
-    display: flex;
-    gap: 15px;
-}
-
-.control-btn {
-    width: 130px;
-    height: 130px;
-    background: #ffffff;
-    border: 2px solid #cbd5e1;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.control-btn:not(:disabled):hover {
-    background: #e8f4f5;
-    border-color: #468189;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(70, 129, 137, 0.2);
-}
-
-.control-btn:not(:disabled):active,
-.control-btn.active-control {
-    background: #d4ebec;
-    border-color: #77ACA2;
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(70, 129, 137, 0.3);
-}
-
-.control-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    transform: none !important;
-}
-
-.control-btn .arrow {
-    font-size: 32px;
-    color: #1e293b;
-}
-
-.control-btn .label {
-    font-size: 0.8125em;
-    font-weight: 600;
-    color: #475569;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.control-btn .key {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: #f1f5f9;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.6875em;
-    font-weight: 700;
-    color: #64748b;
-    border: 1px solid #cbd5e1;
-}
-
-.control-settings {
-    background: #f8f9fa;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 20px;
-    margin: 30px 0;
-}
-
-.control-settings label {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    color: #1e293b;
-    font-size: 0.9375em;
-    font-weight: 600;
-}
-
-.control-settings input[type="range"] {
-    flex: 1;
-    height: 6px;
-    background: #e2e8f0;
-    border-radius: 3px;
-    outline: none;
-    -webkit-appearance: none;
-}
-
-.control-settings input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    background: #468189;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-
-.control-settings input[type="range"]::-webkit-slider-thumb:hover {
-    background: #77ACA2;
-    transform: scale(1.15);
-}
-
-.control-settings input[type="range"]:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-.control-settings input[type="range"]:disabled::-webkit-slider-thumb {
-    cursor: not-allowed;
-    transform: none;
-}
-
-.control-settings span {
-    min-width: 50px;
-    text-align: right;
-    color: #468189;
-    font-weight: 700;
-    font-size: 1.125em;
-}
-
-.automatic-status {
-    text-align: center;
-    padding: 30px;
-}
-
-.status-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: #f0fdf4;
-    border: 2px solid #22c55e;
-    padding: 15px 30px;
-    border-radius: 8px;
-    font-weight: 600;
-    color: #166534;
-}
-
-.indicator-dot {
-    width: 12px;
-    height: 12px;
-    background: #22c55e;
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-/* Estilos para sección de descargas */
-.download-section {
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-    border: 2px solid #468189;
-}
-
-.download-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.download-item {
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    padding: 20px;
-    display: flex;
-    gap: 15px;
-    transition: all 0.2s ease;
-}
-
-.download-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(70, 129, 137, 0.2);
-    border-color: #468189;
-}
-
-.download-icon {
-    font-size: 2.5em;
-    line-height: 1;
-}
-
-.download-info {
-    flex: 1;
-}
-
-.download-info h4 {
-    color: #0f172a;
-    font-size: 1.0625em;
-    font-weight: 600;
-    margin-bottom: 6px;
-}
-
-.download-info p {
-    color: #64748b;
-    font-size: 0.8125em;
-    margin-bottom: 12px;
-    line-height: 1.5;
-}
-
-.download-btn {
-    display: inline-block;
-    padding: 10px 18px;
-    background: #468189;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    font-size: 0.8125em;
-    font-weight: 600;
-    transition: all 0.15s ease;
-}
-
-.download-btn:hover {
-    background: #77ACA2;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(70, 129, 137, 0.3);
-}
-
-/* Estilos para GitHub link */
-.github-link {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 15px;
-    background: #f8f9fa;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    margin-top: 12px;
-}
-
-.github-link svg {
-    color: #1e293b;
-    flex-shrink: 0;
-}
-
-.github-link a {
-    color: #468189;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9375em;
-    word-break: break-all;
-}
-
-.github-link a:hover {
-    color: #77ACA2;
-    text-decoration: underline;
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-    .sidebar {
-        width: 240px;
-    }
-    
-    .main-content {
-        margin-left: 240px;
-        padding: 30px;
-    }
-}
-
-@media (max-width: 768px) {
-    .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-        border-right: none;
-        border-bottom: 1px solid #468189;
-    }
-    
-    .sidebar-header {
-        padding: 20px;
-    }
-    
-    .sidebar-header h1 {
-        font-size: 1.125em;
-    }
-    
-    .sidebar-nav {
-        display: flex;
-        overflow-x: auto;
-        padding: 10px 0;
-    }
-    
-    .sidebar-nav .tab {
-        flex-direction: column;
-        padding: 12px 20px;
-        min-width: 100px;
-        text-align: center;
-        gap: 8px;
-        border-left: none;
-        border-bottom: 3px solid transparent;
-    }
-    
-    .sidebar-nav .tab.active {
-        border-left: none;
-        border-bottom-color: #9DBEBB;
-    }
-    
-    .tab-text {
-        font-size: 0.8125em;
-    }
-    
-    .sidebar-footer {
-        padding: 15px;
-    }
-    
-    .logo-container {
-        gap: 10px;
-        margin-top: 10px;
-        padding-top: 10px;
-    }
-    
-    .footer-logo {
-        height: 28px;
-    }
-    
-    .main-content {
-        margin-left: 0;
-        padding: 20px;
-    }
-    
-    .tab-content {
-        padding: 24px 20px;
-    }
-    
-    h2 {
-        font-size: 1.5em;
-        margin-bottom: 20px;
-    }
-    
-    .input-group, .maze-controls, .solver-group {
-        flex-direction: column;
-    }
-    
-    button, .solver-group select {
-        width: 100%;
-    }
-    
-    .maze-settings {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .control-btn {
-        width: 100px;
-        height: 100px;
-    }
-    
-    .control-btn .arrow {
-        font-size: 26px;
-    }
-    
-    .control-btn .label {
-        font-size: 0.6875em;
-    }
-    
-    .control-panel {
-        padding: 20px;
-    }
-    
-    .control-row {
-        gap: 10px;
-    }
-    
-    .download-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .download-item {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .github-link {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .info-box {
-        padding: 16px 18px;
-    }
-    
-    .info-box h3 {
-        font-size: 0.9375em;
-    }
-    
-    .info-box p {
-        font-size: 0.8125em;
-    }
-
-    .mode-selector {
-        flex-direction: column;
-    }
-
-    .mode-btn {
-        width: 100%;
-    }
-}
-    </style>
 </head>
 <body>
     <div class="app-container">
@@ -1026,6 +46,7 @@ button:disabled {
 
         <!-- Main Content -->
         <main class="main-content">
+            <!-- FORO TAB (PREDETERMINADA) -->
             <div id="info-tab" class="tab-content active">
                 <h2>Foro del Proyecto</h2>
                 
@@ -1041,4 +62,331 @@ button:disabled {
                     <p><strong>Hardware:</strong> Placa de desarrollo ESP32 con conectividad WiFi integrada, sensores ultrasónicos HC-SR04 para detección de obstáculos, sensores infrarrojos para seguimiento de línea, encoders para odometría precisa y motores DC con driver L298N.</p>
                     <p><strong>Comunicación:</strong> Protocolo MQTT (Message Queuing Telemetry Transport), un protocolo ultraligero de mensajería publish/subscribe ideal para aplicaciones IoT. Utilizamos HiveMQ Cloud como broker para garantizar comunicación confiable y de baja latencia.</p>
                     <p><strong>Software:</strong> Frontend desarrollado con HTML5, CSS3 y JavaScript vanilla para máxima compatibilidad. Backend embebido en ESP32 programado con Arduino IDE. Algoritmos de resolución de laberintos implementados: A* (heurístico), Dijkstra (óptimo) y BFS (amplitud).</p>
-                    <p><strong>Matemática de Optimización:</strong> Implementación de grafos para representación del laberinto, funciones heurísticas para A*, y algoritmos de búsqueda en grafos para encont
+                    <p><strong>Matemática de Optimización:</strong> Implementación de grafos para representación del laberinto, funciones heurísticas para A*, y algoritmos de búsqueda en grafos para encontrar el camino más corto entre dos puntos.</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>Características del Robot</h3>
+                    <p>• <strong>Navegación Autónoma:</strong> Capacidad de explorar laberintos sin intervención humana utilizando sensores ultrasónicos e infrarrojos.</p>
+                    <p>• <strong>Control Remoto:</strong> Operación manual desde la interfaz web con controles de teclado (W, A, S, D, X) o botones táctiles.</p>
+                    <p>• <strong>Odometría Precisa:</strong> Sistema de encoders que registra cada movimiento del robot con precisión de centímetros.</p>
+                    <p>• <strong>Visualización en Tiempo Real:</strong> Gráfico dinámico de la trayectoria recorrida con escala ajustable.</p>
+                    <p>• <strong>Algoritmos Inteligentes:</strong> Tres algoritmos de resolución disponibles para comparar eficiencia y rendimiento.</p>
+                </div>
+
+                <div class="info-box download-section">
+                    <h3>📥 Descargas</h3>
+                    <div class="download-grid">
+                        <div class="download-item">
+                            <div class="download-icon">📄</div>
+                            <div class="download-info">
+                                <h4>Manual de Usuario</h4>
+                                <p>Guía completa de instalación, configuración y uso del sistema RataLab</p>
+                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/Manual_RataLab.pdf" download class="download-btn">
+                                    Descargar Manual (PDF)
+                                </a>
+                            </div>
+                        </div>
+                        <div class="download-item">
+                            <div class="download-icon">💾</div>
+                            <div class="download-info">
+                                <h4>Firmware ESP32</h4>
+                                <p>Código fuente para cargar en la placa ESP32 del robot</p>
+                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_esp32.ino" download class="download-btn">
+                                    Descargar Firmware (.ino)
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3>🐙 Repositorio GitHub</h3>
+                    <p>El código completo del proyecto está disponible como open source en GitHub. Incluye el frontend web, firmware para ESP32, documentación técnica y ejemplos de uso.</p>
+                    <div class="github-link">
+                        <svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                        </svg>
+                        <a href="https://github.com/Eltomyalfonzo/RataLab" target="_blank" rel="noopener">
+                            https://github.com/Eltomyalfonzo/RataLab
+                        </a>
+                    </div>
+                    <p style="margin-top: 12px; font-size: 0.875em; color: #64748b;">⭐ Si te gusta el proyecto, no olvides darle una estrella en GitHub</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>Configuración del Broker MQTT</h3>
+                    <p><strong>Proveedor:</strong> HiveMQ Cloud (Servicio de broker MQTT en la nube)</p>
+                    <p><strong>Host:</strong> f9d90e4c488c4716ac1e5862b9c8a708.s1.eu.hivemq.cloud</p>
+                    <p><strong>Puerto:</strong> 8884 (WebSocket Secure - wss://)</p>
+                    <p><strong>Protocolo:</strong> MQTT v3.1.1 sobre WebSockets seguros</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>Estructura de Topics MQTT</h3>
+                    <p><strong>[nombre_robot]/cmd</strong> - Topic para enviar comandos al robot (F=adelante, B=atrás, L=izquierda, R=derecha, S=detener, V###=velocidad)</p>
+                    <p><strong>[nombre_robot]/data</strong> - Topic para recibir datos del robot (coordenadas X,Y, estado de sensores, confirmaciones)</p>
+                    <p><strong>Ejemplo:</strong> Para un robot llamado "robot01", los topics serían "robot01/cmd" y "robot01/data"</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>Comandos Especiales</h3>
+                    <p><strong>CONNECT</strong> - Comando enviado por la web app para iniciar la conexión con el robot</p>
+                    <p><strong>CONNECTED</strong> - Respuesta del robot confirmando que está listo para recibir comandos</p>
+                    <p><strong>V###</strong> - Comando para ajustar velocidad de los motores (0-255)</p>
+                    <p><strong>F, B, L, R, S</strong> - Comandos de movimiento (Forward, Backward, Left, Right, Stop)</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>Algoritmos de Resolución de Laberintos</h3>
+                    <p><strong>A* (A-Star):</strong> Algoritmo de búsqueda heurística que utiliza una función de costo f(n) = g(n) + h(n), donde g(n) es el costo desde el inicio hasta el nodo actual y h(n) es la heurística (estimación) del costo hasta el objetivo. Es eficiente y encuentra rutas casi óptimas rápidamente.</p>
+                    <p><strong>Dijkstra:</strong> Algoritmo clásico que garantiza encontrar el camino más corto. Explora todos los nodos en orden de distancia desde el origen. Más lento que A* pero asegura la solución óptima sin depender de heurísticas.</p>
+                    <p><strong>BFS (Breadth-First Search):</strong> Búsqueda en amplitud que explora el grafo nivel por nivel. Garantiza encontrar el camino con menor número de pasos, ideal para laberintos sin pesos en las aristas.</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>Equipo de Desarrollo</h3>
+                    <p><strong>Institución:</strong> Universidad Tecnológica Nacional - Facultad Regional Santa Fe</p>
+                    <p><strong>Carrera:</strong> Ingeniería Electrónica</p>
+                    <p><strong>Integrantes:</strong> Alfonzo, Olmos y Ceballos</p>
+                    <p><strong>Versión:</strong> Beta 1.0 (Diciembre 2025)</p>
+                    <p style="margin-top: 12px; font-style: italic; color: #64748b;">Proyecto desarrollado como parte de la formación académica en sistemas embebidos, robótica e IoT.</p>
+                </div>
+            </div>
+
+            <!-- CONNECTION TAB -->
+            <div id="connection-tab" class="tab-content">
+                <h2>Conectividad</h2>
+                <div class="input-group">
+                    <input type="text" id="robotName" placeholder="Nombre del Robot (Topic)" value="robot01">
+                    <button id="connectBtn">Conectar</button>
+                </div>
+                <div class="info-box">
+                    <h3>Instrucciones:</h3>
+                    <p>1. Ingresa el nombre del robot (este será el topic MQTT)</p>
+                    <p>2. Asegúrate de que tu ESP32 esté encendido y conectado</p>
+                    <p>3. Haz clic en "Conectar" para establecer la conexión</p>
+                    <p>4. Espera la confirmación del robot</p>
+                </div>
+            </div>
+
+            <!-- CONTROL TAB -->
+            <div id="control-tab" class="tab-content">
+                <h2>Control Manual del Robot</h2>
+                
+                <div class="control-status">
+                    <div id="controlStatus" class="control-disabled">
+                        ⚠️ Conecta el robot primero
+                    </div>
+                </div>
+
+                <div class="mode-selector">
+                    <button id="btnManual" class="mode-btn active">Control Manual</button>
+                    <button id="btnAutomatic" class="mode-btn">Modo Automático</button>
+                </div>
+
+                <div id="manualControls" class="control-section">
+                    <div class="control-panel">
+                        <div class="control-row">
+                            <button class="control-btn" id="btnForward" disabled>
+                                <span class="arrow">▲</span>
+                                <span class="label">Adelante</span>
+                                <span class="key">W</span>
+                            </button>
+                        </div>
+                        <div class="control-row">
+                            <button class="control-btn" id="btnLeft" disabled>
+                                <span class="arrow">◄</span>
+                                <span class="label">Izquierda</span>
+                                <span class="key">A</span>
+                            </button>
+                            <button class="control-btn" id="btnStop" disabled>
+                                <span class="arrow">■</span>
+                                <span class="label">Detener</span>
+                                <span class="key">S</span>
+                            </button>
+                            <button class="control-btn" id="btnRight" disabled>
+                                <span class="arrow">►</span>
+                                <span class="label">Derecha</span>
+                                <span class="key">D</span>
+                            </button>
+                        </div>
+                        <div class="control-row">
+                            <button class="control-btn" id="btnBackward" disabled>
+                                <span class="arrow">▼</span>
+                                <span class="label">Atrás</span>
+                                <span class="key">X</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="control-settings">
+                        <label>
+                            Velocidad: 
+                            <input type="range" id="speedSlider" min="0" max="255" value="150" disabled>
+                            <span id="speedValue">150</span>
+                        </label>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>Controles de teclado:</h3>
+                        <p><strong>W</strong> - Avanzar</p>
+                        <p><strong>S</strong> - Detener</p>
+                        <p><strong>A</strong> - Girar izquierda</p>
+                        <p><strong>D</strong> - Girar derecha</p>
+                        <p><strong>X</strong> - Retroceder</p>
+                        <p class="note">Los controles solo funcionan cuando estás conectado al robot</p>
+                    </div>
+                </div>
+
+                <div id="automaticControls" class="control-section" style="display: none;">
+                    <div class="info-box">
+                        <h3>Modo Automático Activado</h3>
+                        <p>El robot está funcionando de manera autónoma utilizando:</p>
+                        <ul>
+                            <li><strong>3 Sensores Ultrasónicos</strong> - Detección de obstáculos</li>
+                            <li><strong>Sensor Infrarrojo</strong> - Seguimiento de línea (negro/blanco)</li>
+                        </ul>
+                        <p class="note">El robot se detendrá automáticamente al detectar línea blanca</p>
+                    </div>
+                    
+                    <div class="automatic-status">
+                        <div class="status-indicator">
+                            <div class="indicator-dot"></div>
+                            <span>Sistema Autónomo Activo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAZE TAB -->
+            <div id="maze-tab" class="tab-content">
+                <h2>Trayectoria del Robot</h2>
+                <div class="maze-controls">
+                    <input type="file" id="mazeFile" accept=".txt" style="display: none;">
+                    <button id="loadMazeBtn" onclick="document.getElementById('mazeFile').click()">
+                        Cargar Datos
+                    </button>
+                    <button id="clearMazeBtn" onclick="Maze.clear(); Console.logSystem('Trayectoria borrada')">
+                        Limpiar
+                    </button>
+                    <button id="exportMazeBtn" onclick="exportMazeData()">
+                        Exportar
+                    </button>
+                </div>
+                
+                <div class="solver-controls">
+                    <div class="solver-group">
+                        <label for="algorithmSelect">Algoritmo:</label>
+                        <select id="algorithmSelect">
+                            <option value="astar">A* (Heurístico)</option>
+                            <option value="dijkstra">Dijkstra (Óptimo)</option>
+                            <option value="bfs">BFS (Amplitud)</option>
+                        </select>
+                        <button id="solveBtn" onclick="solveMaze()">
+                            Resolver Laberinto
+                        </button>
+                        <button id="toggleSolutionBtn" onclick="toggleSolution()" style="display: none;">
+                            Ocultar Solución
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="maze-settings">
+                    <label>
+                        Ancho del trazo (cm): 
+                        <input type="number" id="wallWidth" value="2" min="0.5" max="10" step="0.5" 
+                               onchange="Maze.setWallWidth(parseFloat(this.value))">
+                    </label>
+                    <label>
+                        Escala (px/cm): 
+                        <input type="number" id="scale" value="20" min="5" max="50" step="5"
+                               onchange="Maze.setScale(parseFloat(this.value))">
+                    </label>
+                </div>
+                
+                <div class="canvas-container">
+                    <canvas id="mazeCanvas"></canvas>
+                </div>
+                
+                <div class="info-box">
+                    <h3>Formato de datos:</h3>
+                    <p>Cada línea representa una coordenada (X,Y) en centímetros:</p>
+                    <pre style="background: #f8f9fa; padding: 10px; border-radius: 4px; color: #1e293b; border: 1px solid #e2e8f0;">0,0
+0.5,0
+1.2,0.3
+2.5,1.8
+...</pre>
+                    <p><span class="legend-color" style="background: #10b981;"></span> <strong>Verde:</strong> Punto de inicio</p>
+                    <p><span class="legend-color" style="background: #ef4444;"></span> <strong>Rojo:</strong> Posición final</p>
+                    <p><span class="legend-color" style="background: #3b82f6;"></span> <strong>Azul:</strong> Trayectoria recorrida</p>
+                    <p><span class="legend-color" style="background: #f59e0b;"></span> <strong>Amarillo:</strong> Solución del algoritmo</p>
+                </div>
+            </div>
+
+            <!-- CONSOLE TAB -->
+            <div id="console-tab" class="tab-content">
+                <h2>Puerto Serial Virtual</h2>
+                <div id="console" class="console"></div>
+                <div class="input-group" style="margin-top: 15px;">
+                    <input type="text" id="messageInput" placeholder="Escribe un mensaje..." disabled>
+                    <button id="sendBtn" disabled>Enviar</button>
+                </div>
+                <button class="clear-btn">Limpiar Consola</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="console.js"></script>
+    <script src="maze.js"></script>
+    <script src="solver.js"></script>
+    <script src="control.js"></script>
+    <script src="ui.js"></script>
+    <script src="mqtt.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('mazeFile').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    Maze.loadFromFile(file);
+                }
+            });
+        });
+
+        function exportMazeData() {
+            const data = Maze.exportData();
+            if (!data) {
+                Console.logError('No hay datos para exportar');
+                return;
+            }
+            
+            const blob = new Blob([data], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `trayectoria_${new Date().getTime()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            Console.logSystem('Datos exportados exitosamente');
+        }
+
+        function solveMaze() {
+            const algorithm = document.getElementById('algorithmSelect').value;
+            const solution = MazeSolver.solve(algorithm);
+            
+            if (solution) {
+                Maze.setSolution(solution);
+                document.getElementById('toggleSolutionBtn').style.display = 'inline-block';
+                Console.logSystem(`✓ Laberinto resuelto con ${algorithm.toUpperCase()}`);
+            }
+        }
+
+        function toggleSolution() {
+            Maze.toggleSolution();
+            const btn = document.getElementById('toggleSolutionBtn');
+            btn.textContent = Maze.showSolution ? 'Ocultar Solución' : 'Mostrar Solución';
+        }
+    </script>
+</body>
+</html>
