@@ -13,6 +13,53 @@ body {
     color: #1e293b;
 }
 
+/* Botón hamburguesa */
+.hamburger-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1001;
+    width: 45px;
+    height: 45px;
+    background: #468189;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    padding: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.hamburger-btn:hover {
+    background: #77ACA2;
+    transform: scale(1.05);
+}
+
+.hamburger-btn span {
+    width: 22px;
+    height: 3px;
+    background: white;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.hamburger-btn.active span:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+}
+
+.hamburger-btn.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-btn.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+}
+
 .app-container {
     display: flex;
     min-height: 100vh;
@@ -29,6 +76,12 @@ body {
     height: 100vh;
     left: 0;
     top: 0;
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
+
+.sidebar.sidebar-hidden {
+    transform: translateX(-100%);
 }
 
 .sidebar-header {
@@ -117,6 +170,11 @@ body {
     padding: 40px;
     min-height: 100vh;
     background: #ffffff;
+    transition: margin-left 0.3s ease;
+}
+
+.main-content.sidebar-hidden {
+    margin-left: 0;
 }
 
 .tab-content {
@@ -727,56 +785,144 @@ button:disabled {
     50% { opacity: 0.5; }
 }
 
-/* Estilos para sección de descargas */
+/* Estilos para sección de descargas mejorada */
 .download-section {
     background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
     border: 2px solid #468189;
 }
 
-.download-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.download-item {
+.download-category {
     background: #ffffff;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
     padding: 20px;
-    display: flex;
-    gap: 15px;
+    margin-bottom: 15px;
     transition: all 0.2s ease;
 }
 
-.download-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(70, 129, 137, 0.2);
-    border-color: #468189;
+.download-category:hover {
+    box-shadow: 0 4px 12px rgba(70, 129, 137, 0.15);
 }
 
-.download-icon {
+.category-header {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+.category-header .download-icon {
     font-size: 2.5em;
     line-height: 1;
+    flex-shrink: 0;
 }
 
-.download-info {
+.category-info {
     flex: 1;
 }
 
-.download-info h4 {
+.category-info h4 {
     color: #0f172a;
     font-size: 1.0625em;
     font-weight: 600;
     margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.download-info p {
+.expand-arrow {
+    font-size: 0.75em;
+    color: #468189;
+    transition: transform 0.3s ease;
+}
+
+.category-info p {
     color: #64748b;
     font-size: 0.8125em;
-    margin-bottom: 12px;
+    margin-bottom: 0;
     line-height: 1.5;
+}
+
+.firmware-list {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e2e8f0;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.firmware-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: #f8f9fa;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    gap: 15px;
+    transition: all 0.2s ease;
+}
+
+.firmware-item:hover {
+    background: #f1f5f9;
+    border-color: #468189;
+    transform: translateX(5px);
+}
+
+.firmware-info {
+    flex: 1;
+}
+
+.firmware-info strong {
+    display: block;
+    color: #0f172a;
+    font-size: 0.9375em;
+    margin-bottom: 4px;
+}
+
+.firmware-info p {
+    color: #64748b;
+    font-size: 0.75em;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.firmware-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #22c55e;
+    color: white;
+    font-size: 0.625em;
+    font-weight: 700;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 8px;
+}
+
+.firmware-tag-beta {
+    background: #f59e0b;
+}
+
+.firmware-tag-new {
+    background: #3b82f6;
+}
+
+.firmware-tag-recommended {
+    background: #8b5cf6;
 }
 
 .download-btn {
@@ -792,6 +938,25 @@ button:disabled {
 }
 
 .download-btn:hover {
+    background: #77ACA2;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(70, 129, 137, 0.3);
+}
+
+.download-btn-small {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #468189;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.75em;
+    font-weight: 600;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.download-btn-small:hover {
     background: #77ACA2;
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(70, 129, 137, 0.3);
@@ -829,27 +994,34 @@ button:disabled {
 
 /* Responsive */
 @media (max-width: 1024px) {
-    .sidebar {
-        width: 240px;
+    .main-content {
+        margin-left: 260px;
+        padding: 30px;
     }
     
-    .main-content {
-        margin-left: 240px;
-        padding: 30px;
+    .main-content.sidebar-hidden {
+        margin-left: 0;
     }
 }
 
 @media (max-width: 768px) {
+    .hamburger-btn {
+        top: 15px;
+        left: 15px;
+    }
+    
     .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-        border-right: none;
-        border-bottom: 1px solid #468189;
+        width: 280px;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .sidebar.sidebar-hidden {
+        transform: translateX(-100%);
     }
     
     .sidebar-header {
         padding: 20px;
+        margin-top: 50px;
     }
     
     .sidebar-header h1 {
@@ -858,27 +1030,18 @@ button:disabled {
     
     .sidebar-nav {
         display: flex;
-        overflow-x: auto;
+        flex-direction: column;
+        overflow-y: auto;
         padding: 10px 0;
     }
     
     .sidebar-nav .tab {
-        flex-direction: column;
         padding: 12px 20px;
-        min-width: 100px;
-        text-align: center;
-        gap: 8px;
-        border-left: none;
-        border-bottom: 3px solid transparent;
-    }
-    
-    .sidebar-nav .tab.active {
-        border-left: none;
-        border-bottom-color: #9DBEBB;
+        text-align: left;
     }
     
     .tab-text {
-        font-size: 0.8125em;
+        font-size: 0.9375em;
     }
     
     .sidebar-footer {
@@ -897,7 +1060,11 @@ button:disabled {
     
     .main-content {
         margin-left: 0;
-        padding: 20px;
+        padding: 80px 20px 20px;
+    }
+    
+    .main-content.sidebar-hidden {
+        margin-left: 0;
     }
     
     .tab-content {
@@ -943,12 +1110,13 @@ button:disabled {
         gap: 10px;
     }
     
-    .download-grid {
-        grid-template-columns: 1fr;
+    .firmware-item {
+        flex-direction: column;
+        align-items: flex-start;
     }
     
-    .download-item {
-        flex-direction: column;
+    .download-btn-small {
+        width: 100%;
         text-align: center;
     }
     
@@ -962,18 +1130,26 @@ button:disabled {
     }
     
     .info-box h3 {
-        font-size: 0.9375em;
-    }
-    
-    .info-box p {
-        font-size: 0.8125em;
-    }
-
-    .mode-selector {
-        flex-direction: column;
-    }
-
-    .mode-btn {
-        width: 100%;
-    }
+<function_calls>
+<invoke name="artifacts">
+<parameter name="command">update</parameter>
+<parameter name="id">styles_css_complete</parameter>
+<parameter name="new_str">
+.info-box h3 {
+font-size: 0.9375em;
 }
+        .info-box p {
+    font-size: 0.8125em;
+}
+
+.mode-selector {
+    flex-direction: column;
+}
+
+.mode-btn {
+    width: 100%;
+}
+        }</parameter>
+<parameter name="old_str">
+.info-box h3 {
+</parameter>
