@@ -401,29 +401,36 @@
     <script src="ui.js"></script>
     <script src="mqtt.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Menú hamburguesa
+        // Menú hamburguesa - debe ejecutarse ANTES de DOMContentLoaded
+        window.addEventListener('load', () => {
             const hamburgerBtn = document.getElementById('hamburgerBtn');
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.querySelector('.main-content');
             
-            hamburgerBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('sidebar-hidden');
-                mainContent.classList.toggle('sidebar-hidden');
-                hamburgerBtn.classList.toggle('active');
-            });
-            
-            // Cerrar sidebar al hacer click en una tab (en móviles)
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    if (window.innerWidth <= 768) {
-                        sidebar.classList.add('sidebar-hidden');
-                        mainContent.classList.add('sidebar-hidden');
-                        hamburgerBtn.classList.remove('active');
-                    }
+            if (hamburgerBtn && sidebar && mainContent) {
+                hamburgerBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    sidebar.classList.toggle('sidebar-hidden');
+                    mainContent.classList.toggle('sidebar-hidden');
+                    hamburgerBtn.classList.toggle('active');
+                    console.log('Hamburger clicked, sidebar hidden:', sidebar.classList.contains('sidebar-hidden'));
                 });
-            });
-            
+                
+                // Cerrar sidebar al hacer click en una tab (en móviles)
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        if (window.innerWidth <= 768) {
+                            sidebar.classList.add('sidebar-hidden');
+                            mainContent.classList.add('sidebar-hidden');
+                            hamburgerBtn.classList.remove('active');
+                        }
+                    });
+                });
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', () => {
             // Archivo de laberinto
             document.getElementById('mazeFile').addEventListener('change', (e) => {
                 const file = e.target.files[0];
