@@ -42,6 +42,13 @@ body {
     object-fit: contain;
 }
 
+.header-logo-large {
+    height: 55px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
 .header-title h1 {
     color: #9DBEBB;
     font-size: 1.25em;
@@ -1005,6 +1012,10 @@ button:disabled {
 
     .header-logo {
         height: 35px;
+    }
+
+    .header-logo-large {
+        height: 42px;
     }
 
     .header-title h1 {
