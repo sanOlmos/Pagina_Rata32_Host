@@ -9,36 +9,42 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
 </head>
 <body>
-    <!-- Botón hamburguesa -->
-    <button class="hamburger-btn" id="hamburgerBtn">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
+    <!-- Barra superior con logo y título -->
+    <header class="top-header">
+        <!-- Botón hamburguesa integrado en el header -->
+        <button class="hamburger-btn" id="hamburgerBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        
+        <div class="header-content">
+            <img src="20251213_180758.png" alt="RataLab Logo" class="header-logo">
+            <div class="header-title">
+                <h1>RataLab - UTN - FRSF</h1>
+                <p class="subtitle">Web App</p>
+            </div>
+        </div>
+    </header>
 
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h1>RataLab - UTN - FRSF</h1>
-                <p class="subtitle">Web App</p>
-            </div>
-
             <nav class="sidebar-nav">
                 <div class="tab active" data-tab="info">
-                    <span class="tab-text">Foro</span>
+                    <span class="tab-text">📋 Foro</span>
                 </div>
                 <div class="tab" data-tab="connection">
-                    <span class="tab-text">Conexión</span>
+                    <span class="tab-text">🔌 Conexión</span>
                 </div>
                 <div class="tab" data-tab="control">
-                    <span class="tab-text">Control Manual</span>
+                    <span class="tab-text">🎮 Control Manual</span>
                 </div>
                 <div class="tab" data-tab="maze">
-                    <span class="tab-text">Trayectoria</span>
+                    <span class="tab-text">🗺️ Trayectoria</span>
                 </div>
                 <div class="tab" data-tab="console">
-                    <span class="tab-text">Consola Serial</span>
+                    <span class="tab-text">💻 Consola Serial</span>
                 </div>
             </nav>
 
@@ -87,7 +93,7 @@
                     <!-- Manual de Usuario -->
                     <div class="download-category">
                         <div class="category-header">
-                            <div class="download-icon"></div>
+                            <div class="download-icon">📄</div>
                             <div class="category-info">
                                 <h4>Manual de Usuario</h4>
                                 <p>Guía completa de instalación, configuración y uso del sistema RataLab</p>
@@ -101,7 +107,7 @@
                     <!-- Firmwares -->
                     <div class="download-category">
                         <div class="category-header" onclick="toggleFirmwareList()">
-                            <div class="download-icon"></div>
+                            <div class="download-icon">💾</div>
                             <div class="category-info">
                                 <h4>Firmwares ESP32 <span class="expand-arrow" id="firmwareArrow">▼</span></h4>
                                 <p>Código fuente para cargar en la placa ESP32 del robot</p>
@@ -154,75 +160,55 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="info-box">
-                    <h3>🔧 Repositorio GitHub</h3>
-                    <p>El código completo del proyecto está disponible como open source en GitHub. Incluye el frontend web, firmware para ESP32, documentación técnica y ejemplos de uso.</p>
-                    <div class="github-link">
-                        <svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor">
-                            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-                        </svg>
-                        <a href="https://github.com/Eltomyalfonzo/RataLab" target="_blank" rel="noopener">
-                            https://github.com/Eltomyalfonzo/RataLab
-                        </a>
+                    
+                    <!-- Recursos Adicionales -->
+                    <div class="download-category">
+                        <div class="category-header">
+                            <div class="download-icon">🔧</div>
+                            <div class="category-info">
+                                <h4>Recursos Adicionales</h4>
+                                <p>Bibliotecas, esquemáticos y archivos de soporte</p>
+                            </div>
+                        </div>
+                        <div class="github-link">
+                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                            </svg>
+                            <a href="https://github.com/Eltomyalfonzo/RataLab" target="_blank" rel="noopener noreferrer">github.com/Eltomyalfonzo/RataLab</a>
+                        </div>
                     </div>
-                    <p style="margin-top: 12px; font-size: 0.875em; color: #64748b;">⭐ Si te gusta el proyecto, no olvides darle una estrella en GitHub</p>
-                </div>
-
-                <div class="info-box">
-                    <h3>Configuración del Broker MQTT</h3>
-                    <p><strong>Proveedor:</strong> HiveMQ Cloud (Servicio de broker MQTT en la nube)</p>
-                    <p><strong>Host:</strong> f9d90e4c488c4716ac1e5862b9c8a708.s1.eu.hivemq.cloud</p>
-                    <p><strong>Puerto:</strong> 8884 (WebSocket Secure - wss://)</p>
-                    <p><strong>Protocolo:</strong> MQTT v3.1.1 sobre WebSockets seguros</p>
-                </div>
-
-                <div class="info-box">
-                    <h3>Estructura de Topics MQTT</h3>
-                    <p><strong>[nombre_robot]/cmd</strong> - Topic para enviar comandos al robot (F=adelante, B=atrás, L=izquierda, R=derecha, S=detener, V###=velocidad)</p>
-                    <p><strong>[nombre_robot]/data</strong> - Topic para recibir datos del robot (coordenadas X,Y, estado de sensores, confirmaciones)</p>
-                    <p><strong>Ejemplo:</strong> Para un robot llamado "robot01", los topics serían "robot01/cmd" y "robot01/data"</p>
-                </div>
-
-                <div class="info-box">
-                    <h3>Comandos Especiales</h3>
-                    <p><strong>CONNECT</strong> - Comando enviado por la web app para iniciar la conexión con el robot</p>
-                    <p><strong>CONNECTED</strong> - Respuesta del robot confirmando que está listo para recibir comandos</p>
-                    <p><strong>V###</strong> - Comando para ajustar velocidad de los motores (0-255)</p>
-                    <p><strong>F, B, L, R, S</strong> - Comandos de movimiento (Forward, Backward, Left, Right, Stop)</p>
-                </div>
-
-                <div class="info-box">
-                    <h3>Algoritmos de Resolución de Laberintos</h3>
-                    <p><strong>A* (A-Star):</strong> Algoritmo de búsqueda heurística que utiliza una función de costo f(n) = g(n) + h(n), donde g(n) es el costo desde el inicio hasta el nodo actual y h(n) es la heurística (estimación) del costo hasta el objetivo. Es eficiente y encuentra rutas casi óptimas rápidamente.</p>
-                    <p><strong>Dijkstra:</strong> Algoritmo clásico que garantiza encontrar el camino más corto. Explora todos los nodos en orden de distancia desde el origen. Más lento que A* pero asegura la solución óptima sin depender de heurísticas.</p>
-                    <p><strong>BFS (Breadth-First Search):</strong> Búsqueda en amplitud que explora el grafo nivel por nivel. Garantiza encontrar el camino con menor número de pasos, ideal para laberintos sin pesos en las aristas.</p>
-                </div>
-
-                <div class="info-box">
-                    <h3>Equipo de Desarrollo</h3>
-                    <p><strong>Institución:</strong> Universidad Tecnológica Nacional - Facultad Regional Santa Fe</p>
-                    <p><strong>Carrera:</strong> Ingeniería Electrónica</p>
-                    <p><strong>Integrantes:</strong> Alfonzo, Olmos y Ceballos</p>
-                    <p><strong>Versión:</strong> Beta 1.0 (Diciembre 2025)</p>
-                    <p style="margin-top: 12px; font-style: italic; color: #64748b;">Proyecto desarrollado como parte de la formación académica en sistemas embebidos, robótica e IoT.</p>
                 </div>
             </div>
 
             <!-- CONNECTION TAB -->
             <div id="connection-tab" class="tab-content">
-                <h2>Conectividad</h2>
+                <h2>Conexión MQTT</h2>
+                
+                <div class="info-box">
+                    <h3>Estado de la Conexión</h3>
+                    <p>Introduce el nombre de tu robot y presiona "Conectar" para establecer la comunicación.</p>
+                </div>
+                
                 <div class="input-group">
-                    <input type="text" id="robotName" placeholder="Nombre del Robot (Topic)" value="robot01">
+                    <input type="text" id="robotName" placeholder="Nombre del robot (ej: robot01)">
                     <button id="connectBtn">Conectar</button>
                 </div>
+                
                 <div class="info-box">
-                    <h3>Instrucciones:</h3>
-                    <p>1. Ingresa el nombre del robot (este será el topic MQTT)</p>
-                    <p>2. Asegúrate de que tu ESP32 esté encendido y conectado</p>
-                    <p>3. Haz clic en "Conectar" para establecer la conexión</p>
-                    <p>4. Espera la confirmación del robot</p>
+                    <h3>Configuración del Broker</h3>
+                    <p><strong>Broker:</strong> HiveMQ Cloud</p>
+                    <p><strong>URL:</strong> f9d90e4c488c4716ac1e5862b9c8a708.s1.eu.hivemq.cloud</p>
+                    <p><strong>Puerto:</strong> 8884 (WSS)</p>
+                    <p><strong>Topic de comandos:</strong> [nombre_robot]/cmd</p>
+                    <p><strong>Topic de datos:</strong> [nombre_robot]/data</p>
+                </div>
+                
+                <div class="info-box">
+                    <h3>Instrucciones</h3>
+                    <p>1. Asegúrate de que tu robot ESP32 esté encendido y conectado a WiFi</p>
+                    <p>2. El robot debe estar programado con el mismo nombre que introduces arriba</p>
+                    <p>3. Una vez conectado, podrás enviar comandos y recibir datos del robot</p>
+                    <p>4. El indicador de estado mostrará "Conectado" cuando la comunicación esté establecida</p>
                 </div>
             </div>
 
@@ -230,117 +216,86 @@
             <div id="control-tab" class="tab-content">
                 <h2>Control Manual del Robot</h2>
                 
-                <div class="control-status">
-                    <div id="controlStatus" class="control-disabled">
-                        ⚠️ Conecta el robot primero
-                    </div>
+                <div class="control-status-box">
+                    <div id="controlStatus" class="control-disabled">⚠️ Conecta el robot primero</div>
                 </div>
-
-                <div class="mode-selector">
-                    <button id="btnManual" class="mode-btn active">Control Manual</button>
-                    <button id="btnAutomatic" class="mode-btn">Modo Automático</button>
-                </div>
-
-                <div id="manualControls" class="control-section">
-                    <div class="control-panel">
-                        <div class="control-row">
-                            <button class="control-btn" id="btnForward" disabled>
-                                <span class="arrow">▲</span>
-                                <span class="label">Adelante</span>
-                                <span class="key">W</span>
-                            </button>
-                        </div>
-                        <div class="control-row">
-                            <button class="control-btn" id="btnLeft" disabled>
-                                <span class="arrow">◄</span>
-                                <span class="label">Izquierda</span>
-                                <span class="key">A</span>
-                            </button>
-                            <button class="control-btn" id="btnStop" disabled>
-                                <span class="arrow">■</span>
-                                <span class="label">Detener</span>
-                                <span class="key">S</span>
-                            </button>
-                            <button class="control-btn" id="btnRight" disabled>
-                                <span class="arrow">►</span>
-                                <span class="label">Derecha</span>
-                                <span class="key">D</span>
-                            </button>
-                        </div>
-                        <div class="control-row">
-                            <button class="control-btn" id="btnBackward" disabled>
-                                <span class="arrow">▼</span>
-                                <span class="label">Atrás</span>
-                                <span class="key">X</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="control-settings">
-                        <label>
-                            Velocidad: 
-                            <input type="range" id="speedSlider" min="0" max="255" value="150" disabled>
-                            <span id="speedValue">150</span>
-                        </label>
-                    </div>
-
-                    <div class="info-box">
-                        <h3>Controles de teclado:</h3>
-                        <p><strong>W</strong> - Avanzar</p>
-                        <p><strong>S</strong> - Detener</p>
-                        <p><strong>A</strong> - Girar izquierda</p>
-                        <p><strong>D</strong> - Girar derecha</p>
-                        <p><strong>X</strong> - Retroceder</p>
-                        <p class="note">Los controles solo funcionan cuando estás conectado al robot</p>
-                    </div>
-                </div>
-
-                <div id="automaticControls" class="control-section" style="display: none;">
-                    <div class="info-box">
-                        <h3>Modo Automático Activado</h3>
-                        <p>El robot está funcionando de manera autónoma utilizando:</p>
-                        <ul>
-                            <li><strong>3 Sensores Ultrasónicos</strong> - Detección de obstáculos</li>
-                            <li><strong>Sensor Infrarrojo</strong> - Seguimiento de línea (negro/blanco)</li>
-                        </ul>
-                        <p class="note">El robot se detendrá automáticamente al detectar línea blanca</p>
+                
+                <div class="control-panel">
+                    <div class="control-row">
+                        <div class="control-spacer"></div>
+                        <button class="control-btn" id="btnForward" disabled>
+                            <div class="arrow">▲</div>
+                            <div class="label">Adelante<br>(W)</div>
+                        </button>
+                        <div class="control-spacer"></div>
                     </div>
                     
-                    <div class="automatic-status">
-                        <div class="status-indicator">
-                            <div class="indicator-dot"></div>
-                            <span>Sistema Autónomo Activo</span>
-                        </div>
+                    <div class="control-row">
+                        <button class="control-btn" id="btnLeft" disabled>
+                            <div class="arrow">◄</div>
+                            <div class="label">Izquierda<br>(A)</div>
+                        </button>
+                        <button class="control-btn stop-btn" id="btnStop" disabled>
+                            <div class="arrow">■</div>
+                            <div class="label">Detener<br>(S)</div>
+                        </button>
+                        <button class="control-btn" id="btnRight" disabled>
+                            <div class="arrow">►</div>
+                            <div class="label">Derecha<br>(D)</div>
+                        </button>
                     </div>
+                    
+                    <div class="control-row">
+                        <div class="control-spacer"></div>
+                        <button class="control-btn" id="btnBackward" disabled>
+                            <div class="arrow">▼</div>
+                            <div class="label">Atrás<br>(X)</div>
+                        </button>
+                        <div class="control-spacer"></div>
+                    </div>
+                </div>
+                
+                <div class="control-settings">
+                    <label>
+                        Velocidad del Robot:
+                        <input type="range" id="speedSlider" min="50" max="255" value="150" disabled>
+                        <span id="speedValue">150</span>
+                    </label>
+                </div>
+                
+                <div class="info-box">
+                    <h3>Controles de Teclado</h3>
+                    <p><strong>W</strong> - Adelante</p>
+                    <p><strong>A</strong> - Izquierda</p>
+                    <p><strong>S</strong> - Detener</p>
+                    <p><strong>D</strong> - Derecha</p>
+                    <p><strong>X</strong> - Atrás</p>
+                    <p class="note">Los controles de teclado solo funcionan cuando el robot está conectado.</p>
                 </div>
             </div>
 
             <!-- MAZE TAB -->
             <div id="maze-tab" class="tab-content">
-                <h2>Trayectoria del Robot</h2>
+                <h2>Visualización de Trayectoria</h2>
+                
                 <div class="maze-controls">
-                    <input type="file" id="mazeFile" accept=".txt" style="display: none;">
-                    <button id="loadMazeBtn" onclick="document.getElementById('mazeFile').click()">
-                        Cargar Datos
-                    </button>
-                    <button id="clearMazeBtn" onclick="Maze.clear(); Console.logSystem('Trayectoria borrada')">
-                        Limpiar
-                    </button>
-                    <button id="exportMazeBtn" onclick="exportMazeData()">
-                        Exportar
-                    </button>
+                    <button onclick="Maze.clear()">🗑️ Limpiar Canvas</button>
+                    <input type="file" id="mazeFile" accept=".txt,.csv" style="display: none;">
+                    <button onclick="document.getElementById('mazeFile').click()">📂 Cargar Archivo</button>
+                    <button onclick="exportMazeData()">💾 Exportar Datos</button>
                 </div>
                 
                 <div class="solver-controls">
+                    <h3>🤖 Resolución Automática</h3>
                     <div class="solver-group">
-                        <label for="algorithmSelect">Algoritmo:</label>
+                        <label>Algoritmo:</label>
                         <select id="algorithmSelect">
                             <option value="astar">A* (Heurístico)</option>
                             <option value="dijkstra">Dijkstra (Óptimo)</option>
                             <option value="bfs">BFS (Amplitud)</option>
                         </select>
-                        <button id="solveBtn" onclick="solveMaze()">
-                            Resolver Laberinto
+                        <button onclick="solveMaze()">
+                            ▶️ Resolver Laberinto
                         </button>
                         <button id="toggleSolutionBtn" onclick="toggleSolution()" style="display: none;">
                             Ocultar Solución
