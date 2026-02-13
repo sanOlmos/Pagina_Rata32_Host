@@ -34,9 +34,18 @@ const MQTTClient = {
     onConnect() {
         Console.logSystem('Conectado al broker HiveMQ Cloud');
 
-        AppState.client.subscribe(`${AppState.currentTopic}/data`, (err) => {
+        // Suscribirse a múltiples topics para recibir todos los mensajes
+        const topics = [
+            `${AppState.currentTopic}/data`,
+            `${AppState.currentTopic}/cmd`,
+            `${AppState.currentTopic}/status`,
+            `${AppState.currentTopic}/#` // Wildcard para recibir todo
+        ];
+
+        AppState.client.subscribe(topics, (err) => {
             if (!err) {
-                Console.logSystem(`Suscrito al topic: ${AppState.currentTopic}/data`);
+                Console.logSystem(`📡 Suscrito a topics:`);
+                topics.forEach(topic => Console.logSystem(`  • ${topic}`));
 
                 AppState.client.publish(`${AppState.currentTopic}/cmd`, 'CONNECT', (err) => {
                     if (!err) {
@@ -50,8 +59,11 @@ const MQTTClient = {
 
     onMessage(topic, message) {
         const msg = message.toString();
-        Console.logReceived(msg);
+        
+        // SIEMPRE mostrar el mensaje recibido en la consola
+        Console.logReceived(`[${topic}] ${msg}`);
 
+        // Procesamiento específico por tipo de mensaje
         if (msg === 'CONNECTED') {
             AppState.isConnected = true;
             UI.updateStatus(`Conectado al robot: ${AppState.currentTopic}`, 'connected');
@@ -62,11 +74,13 @@ const MQTTClient = {
                 RobotControl.enable();
             }
             
-            Console.logSystem('Conexión exitosa con el robot');
-        } else if (msg.includes(',') && !isNaN(parseFloat(msg.split(',')[0]))) {
+            Console.logSystem('✅ Conexión exitosa con el robot');
+        } 
+        else if (msg.includes(',') && !isNaN(parseFloat(msg.split(',')[0]))) {
             // Recibir coordenadas (X,Y) del encoder
             Maze.processLine(msg);
         }
+        // Si no coincide con ningún patrón conocido, igual ya se mostró arriba
     },
 
     onError(err) {
@@ -110,8 +124,9 @@ const MQTTClient = {
 
     sendMessage(message) {
         if (AppState.client && AppState.isConnected) {
-            AppState.client.publish(`${AppState.currentTopic}/cmd`, message);
-            Console.logSent(message);
+            const topic = `${AppState.currentTopic}/cmd`;
+            AppState.client.publish(topic, message);
+            Console.logSent(`[${topic}] ${message}`);
         }
     }
 };
