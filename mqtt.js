@@ -59,21 +59,17 @@ const MQTTClient = {
 
     onMessage(topic, message) {
         const msg = message.toString();
-        
+
         // SIEMPRE mostrar el mensaje recibido en la consola
         Console.logReceived(`[${topic}] ${msg}`);
 
-        // Procesamiento específico por tipo de mensaje
-        else if (msg === 'CONNECTED') {
+        if (msg === 'CONNECTED') {
             AppState.isConnected = true;
             UI.updateStatus(`Conectado al robot: ${AppState.currentTopic}`, 'connected');
             UI.setConnectedState(true);
-            
-            // Habilitar controles manuales
             if (typeof RobotControl !== 'undefined') {
                 RobotControl.enable();
             }
-            
             Console.logSystem('✅ Conexión exitosa con el robot');
         }
         else if (msg.startsWith('STEPS:')) {
@@ -83,17 +79,15 @@ const MQTTClient = {
             const der = parseFloat(parts[1]);
             if (!isNaN(izq) && !isNaN(der) && typeof RobotControl !== 'undefined') {
                 RobotControl.onStepsReceived(izq, der);
-                // Solo logear si está ejecutando ruta (evitar spam en consola)
                 if (RobotControl.autoPathRunning) {
                     Console.logReceived(`📡 STEPS Izq:${izq} Der:${der} Avg:${((izq+der)/2).toFixed(1)}`);
                 }
             }
-        } 
+        }
         else if (msg.includes(',') && !isNaN(parseFloat(msg.split(',')[0]))) {
-            // Recibir coordenadas (X,Y) del encoder
+            // Coordenadas (X,Y) del encoder → graficar celda
             Maze.processLine(msg);
         }
-        // Si no coincide con ningún patrón conocido, igual ya se mostró arriba
     },
 
     onError(err) {
