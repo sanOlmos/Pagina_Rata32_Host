@@ -64,7 +64,7 @@ const MQTTClient = {
         Console.logReceived(`[${topic}] ${msg}`);
 
         // Procesamiento específico por tipo de mensaje
-        if (msg === 'CONNECTED') {
+        else if (msg === 'CONNECTED') {
             AppState.isConnected = true;
             UI.updateStatus(`Conectado al robot: ${AppState.currentTopic}`, 'connected');
             UI.setConnectedState(true);
@@ -75,6 +75,19 @@ const MQTTClient = {
             }
             
             Console.logSystem('✅ Conexión exitosa con el robot');
+        }
+        else if (msg.startsWith('STEPS:')) {
+            // Confirmación de encoder: STEPS:pulsosIzq,pulsosDer
+            const parts = msg.substring(6).split(',');
+            const izq = parseFloat(parts[0]);
+            const der = parseFloat(parts[1]);
+            if (!isNaN(izq) && !isNaN(der) && typeof RobotControl !== 'undefined') {
+                RobotControl.onStepsReceived(izq, der);
+                // Solo logear si está ejecutando ruta (evitar spam en consola)
+                if (RobotControl.autoPathRunning) {
+                    Console.logReceived(`📡 STEPS Izq:${izq} Der:${der} Avg:${((izq+der)/2).toFixed(1)}`);
+                }
+            }
         } 
         else if (msg.includes(',') && !isNaN(parseFloat(msg.split(',')[0]))) {
             // Recibir coordenadas (X,Y) del encoder
