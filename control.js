@@ -8,6 +8,45 @@ const RobotControl = {
     autoPathRunning: false,
     autoPathAborted: false,
 
+    // ===== CONTROL POR ENCODER =====
+    // Pulsos por celda de 25 cm:
+    //   CM_POR_PULSO = π*5/30 ≈ 0.5236 cm  →  25/0.5236 ≈ 47.7 → usamos 46 con margen
+    PULSOS_POR_CELDA: 46,
+    _stepResolvers: [],
+    _stepPulsosActuales: 0,
+
+    // Llamado por mqtt.js cada vez que llega STEPS:izq,der
+    onStepsReceived(izq, der) {
+        const avg = (izq + der) / 2;
+        this._stepPulsosActuales = avg;
+        this._stepResolvers = this._stepResolvers.filter(({ resolve, target }) => {
+            if (avg >= target) { resolve(avg); return false; }
+            return true;
+        });
+    },
+
+    // Promesa que se resuelve cuando encoder promedio >= target, con timeout de seguridad
+    waitForSteps(target, timeoutMs = 6000) {
+        return new Promise(resolve => {
+            if (this._stepPulsosActuales >= target) { resolve(this._stepPulsosActuales); return; }
+            const entry = { resolve, target };
+            this._stepResolvers.push(entry);
+            setTimeout(() => {
+                const idx = this._stepResolvers.indexOf(entry);
+                if (idx !== -1) {
+                    this._stepResolvers.splice(idx, 1);
+                    Console.logSystem(`⏱️ Timeout paso (${this._stepPulsosActuales.toFixed(0)}/${target} pulsos)`);
+                    resolve(this._stepPulsosActuales);
+                }
+            }, timeoutMs);
+        });
+    },
+
+    resetStepCounter() {
+        this._stepPulsosActuales = 0;
+        this._stepResolvers = [];
+    },
+
     init() {
         this.attachButtonListeners();
         this.attachKeyboardListeners();
@@ -64,7 +103,7 @@ const RobotControl = {
         document.getElementById('btnAbortarRuta').style.display = 'inline-flex';
         this.updatePathStatus('running', `Ejecutando: 0 / ${path.length - 1} pasos`);
 
-        Console.logSystem(`🗺️ Iniciando ruta automática: ${path.length} puntos`);
+        Console.logSystem(`🗺️ Iniciando ruta automática: ${path.length} puntos — control por encoder`);
         await this.sleep(500);
 
         for (let i = 0; i < path.length - 1 && !this.autoPathAborted; i++) {
@@ -73,27 +112,38 @@ const RobotControl = {
 
             const dx = next.x - current.x;
             const dy = next.y - current.y;
-            const distancia = Math.sqrt(dx * dx + dy * dy);
+            const distancia = Math.sqrt(dx * dx + dy * dy);  // siempre 25 cm en grilla de celdas
 
-            // Factor calibrable: a PWM 150 ≈ 20 cm/s
-            const velocidadCmSeg = this.speed * 0.13;
-            const tiempoMs = Math.max(100, (distancia / velocidadCmSeg) * 1000);
+            // Pulsos objetivo proporcionales a la distancia
+            const pulsosObj = Math.round(this.PULSOS_POR_CELDA * distancia / 25);
 
             const angulo  = Math.atan2(dy, dx) * (180 / Math.PI);
             const comando = this.anguloAComando(angulo);
 
             this.updatePathStatus('running',
-                `Paso ${i + 1}/${path.length - 1} | ${comando} | ${distancia.toFixed(1)} cm`
+                `Paso ${i + 1}/${path.length - 1} | ${comando} | ${distancia.toFixed(0)} cm | espera ${pulsosObj} pulsos`
             );
             Console.logSystem(
-                `   Paso ${i + 1}: (${current.x.toFixed(1)},${current.y.toFixed(1)}) → ` +
-                `(${next.x.toFixed(1)},${next.y.toFixed(1)}) | ${comando} | ${tiempoMs.toFixed(0)} ms`
+                `   Paso ${i + 1}: (${current.x.toFixed(0)},${current.y.toFixed(0)}) → ` +
+                `(${next.x.toFixed(0)},${next.y.toFixed(0)}) | ${comando} | obj: ${pulsosObj} pulsos`
             );
 
+            // 1. Resetear contador de steps en el cliente y en el robot
+            this.resetStepCounter();
+            MQTTClient.sendMessage('Z_STEPS');  // Robot resetea contadores de paso
+
+            await this.sleep(80);   // breve pausa para que el robot procese el reset
+
+            // 2. Enviar movimiento
             this.sendCommand(comando);
-            await this.sleep(tiempoMs);
+
+            // 3. Esperar confirmación por encoder
+            const pulsosReales = await this.waitForSteps(pulsosObj);
+
+            // 4. Detener
             this.sendCommand('S');
-            await this.sleep(200);
+            Console.logSystem(`   ✓ Paso ${i + 1} completado: ${pulsosReales.toFixed(0)} pulsos`);
+            await this.sleep(220);  // pausa mecánica entre pasos
         }
 
         this.sendCommand('S');
