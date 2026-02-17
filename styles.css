@@ -1193,3 +1193,153 @@ button:disabled {
         font-size: 0.625em;
     }
 }
+
+/* ============================================
+   BOTONES MODO AUTÓNOMO Y RUTA AUTOMÁTICA
+   ============================================ */
+
+.auto-panel {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 18px;
+}
+
+.auto-panel h3 {
+    font-size: 1em;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 6px;
+}
+
+.auto-panel p {
+    font-size: 0.85em;
+    color: #64748b;
+    margin-bottom: 14px;
+    line-height: 1.5;
+}
+
+.auto-panel p code {
+    background: #e2e8f0;
+    color: #0f172a;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.95em;
+}
+
+.auto-panel-route {
+    border-color: #bfdbfe;
+    background: #eff6ff;
+}
+
+.auto-btn-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.auto-btn {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 14px 22px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    min-width: 155px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.auto-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none;
+}
+
+.auto-btn:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 14px rgba(0,0,0,0.15);
+}
+
+.auto-btn:not(:disabled):active {
+    transform: translateY(0);
+}
+
+.auto-btn-icon  { font-size: 1.6em; line-height: 1; }
+.auto-btn-label { font-size: 0.82em; font-weight: 700; color: #fff; text-align: center; }
+.auto-btn-sub   { font-size: 0.7em;  color: rgba(255,255,255,0.8); text-align: center; }
+
+/* MV - Verde */
+.auto-btn-mv {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+}
+.auto-btn-mv:not(:disabled):hover {
+    background: linear-gradient(135deg, #15803d, #166534);
+}
+
+/* Stop autónomo - Rojo oscuro */
+.auto-btn-stop-mv {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+.auto-btn-stop-mv:not(:disabled):hover {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+}
+
+/* Ejecutar ruta - Azul */
+.auto-btn-route {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+.auto-btn-route:not(:disabled):hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+}
+
+/* Abortar - Naranja */
+.auto-btn-abort {
+    background: linear-gradient(135deg, #ea580c, #c2410c);
+}
+.auto-btn-abort:not(:disabled):hover {
+    background: linear-gradient(135deg, #c2410c, #9a3412);
+}
+
+/* Pulso al activar modo autónomo */
+@keyframes pulse-green {
+    0%   { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.6); }
+    70%  { box-shadow: 0 0 0 12px rgba(22, 163, 74, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+}
+.btn-active-pulse {
+    animation: pulse-green 0.7s ease-out 2;
+}
+
+/* Estado de ruta */
+.path-status {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 600;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+}
+.path-status-idle    { background: #e2e8f0; color: #475569; }
+.path-status-running { background: #dbeafe; color: #1d4ed8; animation: blink-blue 1s infinite; }
+.path-status-done    { background: #dcfce7; color: #15803d; }
+.path-status-aborted { background: #fee2e2; color: #b91c1c; }
+
+@keyframes blink-blue {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.6; }
+}
+
+.route-info {
+    margin-top: 10px;
+    font-size: 0.8em;
+    color: #64748b;
+}
+
