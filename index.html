@@ -350,14 +350,10 @@
                 
                 <div class="maze-settings">
                     <label>
-                        Ancho del trazo (cm): 
-                        <input type="number" id="wallWidth" value="2" min="0.5" max="10" step="0.5" 
-                               onchange="Maze.setWallWidth(parseFloat(this.value))">
-                    </label>
-                    <label>
                         Escala (px/cm): 
-                        <input type="number" id="scale" value="20" min="5" max="50" step="5"
+                        <input type="number" id="scale" value="4" min="1" max="20" step="1"
                                onchange="Maze.setScale(parseFloat(this.value))">
+                        <span style="font-size:0.8em;color:#64748b;">(celda = valor × 25 px)</span>
                     </label>
                 </div>
                 
@@ -367,16 +363,16 @@
                 
                 <div class="info-box">
                     <h3>Formato de datos:</h3>
-                    <p>Cada línea representa una coordenada (X,Y) en centímetros:</p>
+                    <p>Cada línea representa una coordenada (X,Y) en centímetros. Los puntos se agrupan en celdas de <strong>25×25 cm</strong> (reglamento):</p>
                     <pre style="background: #f8f9fa; padding: 10px; border-radius: 4px; color: #1e293b; border: 1px solid #e2e8f0;">0,0
 0.5,0
 1.2,0.3
 2.5,1.8
 ...</pre>
-                    <p><span class="legend-color" style="background: #10b981;"></span> <strong>Verde:</strong> Punto de inicio</p>
-                    <p><span class="legend-color" style="background: #ef4444;"></span> <strong>Rojo:</strong> Posición final</p>
-                    <p><span class="legend-color" style="background: #3b82f6;"></span> <strong>Azul:</strong> Trayectoria recorrida</p>
-                    <p><span class="legend-color" style="background: #f59e0b;"></span> <strong>Amarillo:</strong> Solución del algoritmo</p>
+                    <p><span class="legend-color" style="background: #22c55e;"></span> <strong>Verde:</strong> Celda de inicio</p>
+                    <p><span class="legend-color" style="background: #ef4444;"></span> <strong>Rojo:</strong> Celda final</p>
+                    <p><span class="legend-color" style="background: #3b82f6;"></span> <strong>Azul:</strong> Celdas recorridas (centro a centro)</p>
+                    <p><span class="legend-color" style="background: #f59e0b;"></span> <strong>Amarillo:</strong> Camino óptimo del algoritmo (por centros de celda)</p>
                 </div>
             </div>
 
