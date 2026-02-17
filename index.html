@@ -219,6 +219,51 @@
                 <div class="control-status-box">
                     <div id="controlStatus" class="control-disabled">⚠️ Conecta el robot primero</div>
                 </div>
+
+                <!-- ===== PANEL: MODO AUTÓNOMO ===== -->
+                <div class="auto-panel">
+                    <h3>🤖 Modo Autónomo</h3>
+                    <p>Envía la señal <code>MV</code> al robot para que inicie la navegación autónoma con sus sensores.</p>
+                    <div class="auto-btn-row">
+                        <button class="auto-btn auto-btn-mv" id="btnModoAutonomo" disabled>
+                            <span class="auto-btn-icon">🚀</span>
+                            <span class="auto-btn-label">Iniciar Modo Autónomo</span>
+                            <span class="auto-btn-sub">Envía MV</span>
+                        </button>
+                        <button class="auto-btn auto-btn-stop-mv" onclick="MQTTClient.sendMessage('S')" disabled id="btnStopAutonomo">
+                            <span class="auto-btn-icon">⏹️</span>
+                            <span class="auto-btn-label">Detener Autónomo</span>
+                            <span class="auto-btn-sub">Envía S</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ===== PANEL: EJECUTAR RUTA DEL ALGORITMO ===== -->
+                <div class="auto-panel auto-panel-route">
+                    <h3>🗺️ Ejecutar Ruta del Algoritmo</h3>
+                    <p>Mueve el robot físicamente siguiendo el camino óptimo calculado por el algoritmo de resolución. <strong>Resuelve el laberinto primero</strong> desde la pestaña Trayectoria.</p>
+
+                    <div id="pathStatus" class="path-status path-status-idle">
+                        Listo para ejecutar
+                    </div>
+
+                    <div class="auto-btn-row">
+                        <button class="auto-btn auto-btn-route" id="btnEjecutarRuta" disabled>
+                            <span class="auto-btn-icon">▶️</span>
+                            <span class="auto-btn-label">Ejecutar Ruta</span>
+                            <span class="auto-btn-sub">Sigue el camino óptimo</span>
+                        </button>
+                        <button class="auto-btn auto-btn-abort" id="btnAbortarRuta" disabled style="display:none;">
+                            <span class="auto-btn-icon">⛔</span>
+                            <span class="auto-btn-label">Abortar Ruta</span>
+                            <span class="auto-btn-sub">Detiene inmediatamente</span>
+                        </button>
+                    </div>
+
+                    <div class="route-info">
+                        <span id="routeStepsInfo">Sin ruta cargada — ve a Trayectoria y resuelve el laberinto</span>
+                    </div>
+                </div>
                 
                 <div class="control-panel">
                     <div class="control-row">
@@ -432,7 +477,9 @@
             if (solution) {
                 Maze.setSolution(solution);
                 document.getElementById('toggleSolutionBtn').style.display = 'inline-block';
-                Console.logSystem(`✓ Laberinto resuelto con ${algorithm.toUpperCase()}`);
+                Console.logSystem(`✓ Laberinto resuelto con ${algorithm.toUpperCase()} — ${solution.length - 1} pasos`);
+                // Notificar al control para que muestre la info de ruta
+                RobotControl.actualizarInfoRuta();
             }
         }
 
