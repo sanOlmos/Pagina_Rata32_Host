@@ -11,7 +11,6 @@
 <body>
     <!-- Barra superior con logo y título -->
     <header class="top-header">
-        <!-- Botón hamburguesa integrado en el header -->
         <button class="hamburger-btn" id="hamburgerBtn">
             <span></span>
             <span></span>
@@ -59,7 +58,8 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- FORO TAB (PREDETERMINADA) -->
+
+            <!-- ═══════════════════════════════════════════ FORO TAB -->
             <div id="info-tab" class="tab-content active">
                 <h2>Foro del Proyecto</h2>
                 
@@ -75,22 +75,21 @@
                     <p><strong>Hardware:</strong> Placa de desarrollo ESP32 con conectividad WiFi integrada, sensores ultrasónicos HC-SR04 para detección de obstáculos, sensores infrarrojos para seguimiento de línea, encoders para odometría precisa y motores DC con driver L298N.</p>
                     <p><strong>Comunicación:</strong> Protocolo MQTT (Message Queuing Telemetry Transport), un protocolo ultraligero de mensajería publish/subscribe ideal para aplicaciones IoT. Utilizamos HiveMQ Cloud como broker para garantizar comunicación confiable y de baja latencia.</p>
                     <p><strong>Software:</strong> Frontend desarrollado con HTML5, CSS3 y JavaScript vanilla para máxima compatibilidad. Backend embebido en ESP32 programado con Arduino IDE. Algoritmos de resolución de laberintos implementados: A* (heurístico), Dijkstra (óptimo) y BFS (amplitud).</p>
-                    <p><strong>Matemática de Optimización:</strong> Implementación de grafos para representación del laberinto, funciones heurísticas para A*, y algoritmos de búsqueda en grafos para encontrar el camino más corto entre dos puntos.</p>
+                    <p><strong>Algoritmo de Mapeo:</strong> Implementación del algoritmo <strong>Tremouse</strong> con 3 sensores ultrasonido (izquierdo, frontal, derecho) usando la regla de mano izquierda. El robot publica en tiempo real la posición de cada celda y sus paredes detectadas.</p>
                 </div>
 
                 <div class="info-box">
                     <h3>Características del Robot</h3>
-                    <p>• <strong>Navegación Autónoma:</strong> Capacidad de explorar laberintos sin intervención humana utilizando sensores ultrasónicos e infrarrojos.</p>
+                    <p>• <strong>Mapeo Tremouse:</strong> Exploración celda a celda con 3 sensores ultrasonido. El robot detecta paredes a izquierda, frente y derecha y las transmite en tiempo real a la web.</p>
                     <p>• <strong>Control Remoto:</strong> Operación manual desde la interfaz web con controles de teclado (W, A, S, D, X) o botones táctiles.</p>
                     <p>• <strong>Odometría Precisa:</strong> Sistema de encoders que registra cada movimiento del robot con precisión de centímetros.</p>
-                    <p>• <strong>Visualización en Tiempo Real:</strong> Gráfico dinámico de la trayectoria recorrida con escala ajustable.</p>
+                    <p>• <strong>Visualización en Tiempo Real:</strong> Gráfico dinámico del laberinto con paredes (naranja), trayectoria (azul) y posición del robot.</p>
                     <p>• <strong>Algoritmos Inteligentes:</strong> Tres algoritmos de resolución disponibles para comparar eficiencia y rendimiento.</p>
                 </div>
 
                 <div class="info-box download-section">
                     <h3>Descargas</h3>
                     
-                    <!-- Manual de Usuario -->
                     <div class="download-category">
                         <div class="category-header">
                             <div class="download-icon">📄</div>
@@ -104,7 +103,6 @@
                         </a>
                     </div>
 
-                    <!-- Firmwares -->
                     <div class="download-category">
                         <div class="category-header" onclick="toggleFirmwareList()">
                             <div class="download-icon">💾</div>
@@ -121,47 +119,35 @@
                                     <span class="firmware-tag">Estable</span>
                                     <p>Control manual y modo automático con sensores ultrasónicos</p>
                                 </div>
-                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_esp32.ino" download class="download-btn-small">
-                                    Descargar
-                                </a>
+                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_esp32.ino" download class="download-btn-small">Descargar</a>
                             </div>
-                            
                             <div class="firmware-item">
                                 <div class="firmware-info">
                                     <strong>Firmware v1.1 - Encoders</strong>
                                     <span class="firmware-tag firmware-tag-beta">Beta</span>
                                     <p>Incluye soporte para encoders y odometría avanzada</p>
                                 </div>
-                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_esp32_v1.1.ino" download class="download-btn-small">
-                                    Descargar
-                                </a>
+                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_esp32_v1.1.ino" download class="download-btn-small">Descargar</a>
                             </div>
-                            
                             <div class="firmware-item">
                                 <div class="firmware-info">
                                     <strong>Firmware v2.0 - Laberintos</strong>
                                     <span class="firmware-tag firmware-tag-new">Nuevo</span>
                                     <p>Algoritmos de resolución de laberintos integrados (A*, Dijkstra, BFS)</p>
                                 </div>
-                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_esp32_v2.0.ino" download class="download-btn-small">
-                                    Descargar
-                                </a>
+                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_esp32_v2.0.ino" download class="download-btn-small">Descargar</a>
                             </div>
-                            
                             <div class="firmware-item">
                                 <div class="firmware-info">
-                                    <strong>Firmware v2.1 - Completo</strong>
+                                    <strong>Firmware v3.0 - Tremouse</strong>
                                     <span class="firmware-tag firmware-tag-recommended">Recomendado</span>
-                                    <p>Versión completa con todas las características optimizadas</p>
+                                    <p>Mapeo Tremouse con 3 sensores ultrasonido + publicación de paredes por MQTT</p>
                                 </div>
-                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_esp32_v2.1.ino" download class="download-btn-small">
-                                    Descargar
-                                </a>
+                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_tremouse.ino" download class="download-btn-small">Descargar</a>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Recursos Adicionales -->
                     <div class="download-category">
                         <div class="category-header">
                             <div class="download-icon">🔧</div>
@@ -180,7 +166,7 @@
                 </div>
             </div>
 
-            <!-- CONNECTION TAB -->
+            <!-- ═══════════════════════════════════════ CONNECTION TAB -->
             <div id="connection-tab" class="tab-content">
                 <h2>Conexión MQTT</h2>
                 
@@ -212,7 +198,7 @@
                 </div>
             </div>
 
-            <!-- CONTROL TAB -->
+            <!-- ═══════════════════════════════════════════ CONTROL TAB -->
             <div id="control-tab" class="tab-content">
                 <h2>Control Manual del Robot</h2>
                 
@@ -220,10 +206,47 @@
                     <div id="controlStatus" class="control-disabled">⚠️ Conecta el robot primero</div>
                 </div>
 
-                <!-- ===== PANEL: MODO AUTÓNOMO ===== -->
+                <!-- ── PANEL TREMOUSE ─────────────────────────────────────── -->
+                <div class="auto-panel auto-panel-tremouse">
+                    <h3>🐭 Modo Tremouse — Mapeo con 3 Ultrasonidos</h3>
+                    <p>El robot explora el laberinto celda a celda usando la <strong>regla de mano izquierda</strong>. Los 3 sensores ultrasonido (izquierdo, frontal, derecho) detectan paredes y las envían en tiempo real al mapa.</p>
+
+                    <!-- Estado Tremouse -->
+                    <div id="tremouseStatus" class="path-status path-status-idle" style="margin-bottom:12px;">
+                        En espera
+                    </div>
+
+                    <div class="auto-btn-row">
+                        <button class="auto-btn auto-btn-tremouse" id="btnTremouse" disabled onclick="iniciarTremouse()">
+                            <span class="auto-btn-icon">🐭</span>
+                            <span class="auto-btn-label">Iniciar Tremouse</span>
+                            <span class="auto-btn-sub">Envía TM al robot</span>
+                        </button>
+                        <button class="auto-btn auto-btn-stop-mv" onclick="MQTTClient.sendMessage('S')" disabled id="btnStopTremouse">
+                            <span class="auto-btn-icon">⏹️</span>
+                            <span class="auto-btn-label">Detener</span>
+                            <span class="auto-btn-sub">Envía S</span>
+                        </button>
+                    </div>
+
+                    <div class="tremouse-info-row">
+                        <span class="tremouse-info-label">Protocolo MQTT:</span>
+                        <code>CELL:col,row,wN,wE,wS,wW</code>
+                    </div>
+                    <div class="tremouse-info-row">
+                        <span class="tremouse-info-label">Orientación inicial:</span>
+                        <code>Norte (fija)</code>
+                    </div>
+                    <div class="tremouse-info-row">
+                        <span class="tremouse-info-label">Tamaño de celda:</span>
+                        <code>25 × 25 cm</code>
+                    </div>
+                </div>
+
+                <!-- ── MODO AUTÓNOMO CLÁSICO ─────────────────────────────── -->
                 <div class="auto-panel">
-                    <h3>🤖 Modo Autónomo</h3>
-                    <p>Envía la señal <code>MV</code> al robot para que inicie la navegación autónoma con sus sensores.</p>
+                    <h3>🤖 Modo Autónomo Clásico</h3>
+                    <p>Envía la señal <code>MV</code> al robot para que inicie la navegación autónoma con sus sensores (sin mapeo de paredes).</p>
                     <div class="auto-btn-row">
                         <button class="auto-btn auto-btn-mv" id="btnModoAutonomo" disabled>
                             <span class="auto-btn-icon">🚀</span>
@@ -238,10 +261,10 @@
                     </div>
                 </div>
 
-                <!-- ===== PANEL: EJECUTAR RUTA DEL ALGORITMO ===== -->
+                <!-- ── EJECUTAR RUTA ──────────────────────────────────────── -->
                 <div class="auto-panel auto-panel-route">
                     <h3>🗺️ Ejecutar Ruta del Algoritmo</h3>
-                    <p>Mueve el robot físicamente siguiendo el camino óptimo calculado por el algoritmo de resolución. <strong>Resuelve el laberinto primero</strong> desde la pestaña Trayectoria.</p>
+                    <p>Mueve el robot físicamente siguiendo el camino óptimo calculado. <strong>Resuelve el laberinto primero</strong> desde la pestaña Trayectoria.</p>
 
                     <div id="pathStatus" class="path-status path-status-idle">
                         Listo para ejecutar
@@ -265,6 +288,7 @@
                     </div>
                 </div>
                 
+                <!-- ── CONTROL MANUAL ─────────────────────────────────────── -->
                 <div class="control-panel">
                     <div class="control-row">
                         <div class="control-spacer"></div>
@@ -310,24 +334,26 @@
                 
                 <div class="info-box">
                     <h3>Controles de Teclado</h3>
-                    <p><strong>W</strong> - Adelante</p>
-                    <p><strong>A</strong> - Izquierda</p>
-                    <p><strong>S</strong> - Detener</p>
-                    <p><strong>D</strong> - Derecha</p>
-                    <p><strong>X</strong> - Atrás</p>
+                    <p><strong>W</strong> - Adelante &nbsp; <strong>A</strong> - Izquierda &nbsp; <strong>S</strong> - Detener &nbsp; <strong>D</strong> - Derecha &nbsp; <strong>X</strong> - Atrás</p>
                     <p class="note">Los controles de teclado solo funcionan cuando el robot está conectado.</p>
                 </div>
             </div>
 
-            <!-- MAZE TAB -->
+            <!-- ═══════════════════════════════════════════════ MAZE TAB -->
             <div id="maze-tab" class="tab-content">
-                <h2>Visualización de Trayectoria</h2>
+                <h2>Visualización de Trayectoria y Paredes</h2>
+
+                <!-- Indicador Tremouse activo -->
+                <div id="mazeMapNotice" class="tremouse-map-notice" style="display:none;">
+                    🐭 <strong>Tremouse activo</strong> — recibiendo paredes en tiempo real
+                </div>
                 
                 <div class="maze-controls">
                     <button onclick="Maze.clear()">🗑️ Limpiar Canvas</button>
                     <input type="file" id="mazeFile" accept=".txt,.csv" style="display: none;">
                     <button onclick="document.getElementById('mazeFile').click()">📂 Cargar Archivo</button>
                     <button onclick="exportMazeData()">💾 Exportar Datos</button>
+                    <button id="toggleWallsBtn" onclick="toggleWalls()" class="btn-walls-active">🧱 Ocultar Paredes</button>
                 </div>
                 
                 <div class="solver-controls">
@@ -339,12 +365,8 @@
                             <option value="dijkstra">Dijkstra (Óptimo)</option>
                             <option value="bfs">BFS (Amplitud)</option>
                         </select>
-                        <button onclick="solveMaze()">
-                            ▶️ Resolver Laberinto
-                        </button>
-                        <button id="toggleSolutionBtn" onclick="toggleSolution()" style="display: none;">
-                            Ocultar Solución
-                        </button>
+                        <button onclick="solveMaze()">▶️ Resolver Laberinto</button>
+                        <button id="toggleSolutionBtn" onclick="toggleSolution()" style="display: none;">Ocultar Solución</button>
                     </div>
                 </div>
                 
@@ -362,21 +384,28 @@
                 </div>
                 
                 <div class="info-box">
-                    <h3>Formato de datos:</h3>
-                    <p>Cada línea representa una coordenada (X,Y) en centímetros. Los puntos se agrupan en celdas de <strong>25×25 cm</strong> (reglamento):</p>
-                    <pre style="background: #f8f9fa; padding: 10px; border-radius: 4px; color: #1e293b; border: 1px solid #e2e8f0;">0,0
-0.5,0
-1.2,0.3
-2.5,1.8
-...</pre>
-                    <p><span class="legend-color" style="background: #22c55e;"></span> <strong>Verde:</strong> Celda de inicio</p>
-                    <p><span class="legend-color" style="background: #ef4444;"></span> <strong>Rojo:</strong> Celda final</p>
-                    <p><span class="legend-color" style="background: #3b82f6;"></span> <strong>Azul:</strong> Celdas recorridas (centro a centro)</p>
-                    <p><span class="legend-color" style="background: #f59e0b;"></span> <strong>Amarillo:</strong> Camino óptimo del algoritmo (por centros de celda)</p>
+                    <h3>Leyenda del mapa:</h3>
+                    <p><span class="legend-color" style="background: #22c55e;"></span> <strong>Verde (S):</strong> Celda de inicio</p>
+                    <p><span class="legend-color" style="background: #ef4444;"></span> <strong>Rojo (E):</strong> Última celda visitada / fin</p>
+                    <p><span class="legend-color" style="background: rgba(96,165,250,0.5);"></span> <strong>Azul claro:</strong> Celdas recorridas por el robot</p>
+                    <p><span class="legend-color" style="background: #3b82f6;"></span> <strong>Línea azul:</strong> Trayectoria (centro a centro de celdas)</p>
+                    <p><span class="legend-color" style="background: #f97316;"></span> <strong>Naranja:</strong> Paredes detectadas por los sensores Tremouse</p>
+                    <p><span class="legend-color" style="background: rgba(245,158,11,0.5);"></span> <strong>Amarillo:</strong> Camino óptimo calculado por el algoritmo</p>
+                    <p><span class="legend-color" style="background: #ef4444; border-radius:50%;"></span> <strong>Círculo rojo:</strong> Posición actual del robot con flecha de orientación</p>
+
+                    <h3 style="margin-top:16px;">Protocolo Tremouse (MQTT):</h3>
+                    <pre style="background:#f1f5f9;padding:10px;border-radius:4px;color:#1e293b;border:1px solid #e2e8f0;font-size:0.8em;">
+Mensaje recibido:  CELL:col,row,wN,wE,wS,wW
+Ejemplo:           CELL:2,3,1,0,0,1
+                   → celda (2,3), pared N, libre E, libre S, pared W
+
+Comando inicio:    TM   → inicia Tremouse
+Comando stop:      S    → detiene el robot
+Orientación:       Norte fija (heading 0 en todo momento al arrancar)</pre>
                 </div>
             </div>
 
-            <!-- CONSOLE TAB -->
+            <!-- ═══════════════════════════════════════════ CONSOLE TAB -->
             <div id="console-tab" class="tab-content">
                 <h2>Puerto Serial Virtual</h2>
                 <div id="console" class="console"></div>
@@ -386,6 +415,7 @@
                 </div>
                 <button class="clear-btn">Limpiar Consola</button>
             </div>
+
         </main>
     </div>
 
@@ -397,7 +427,7 @@
     <script src="ui.js"></script>
     <script src="mqtt.js"></script>
     <script>
-        // Menú hamburguesa - debe ejecutarse ANTES de DOMContentLoaded
+        // ── Menú hamburguesa ──────────────────────────────────────────
         window.addEventListener('load', () => {
             const hamburgerBtn = document.getElementById('hamburgerBtn');
             const sidebar = document.getElementById('sidebar');
@@ -405,15 +435,11 @@
             
             if (hamburgerBtn && sidebar && mainContent) {
                 hamburgerBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+                    e.preventDefault(); e.stopPropagation();
                     sidebar.classList.toggle('sidebar-hidden');
                     mainContent.classList.toggle('sidebar-hidden');
                     hamburgerBtn.classList.toggle('active');
-                    console.log('Hamburger clicked, sidebar hidden:', sidebar.classList.contains('sidebar-hidden'));
                 });
-                
-                // Cerrar sidebar al hacer click en una tab (en móviles)
                 document.querySelectorAll('.tab').forEach(tab => {
                     tab.addEventListener('click', () => {
                         if (window.innerWidth <= 768) {
@@ -427,62 +453,70 @@
         });
         
         document.addEventListener('DOMContentLoaded', () => {
-            // Archivo de laberinto
             document.getElementById('mazeFile').addEventListener('change', (e) => {
                 const file = e.target.files[0];
-                if (file) {
-                    Maze.loadFromFile(file);
-                }
+                if (file) Maze.loadFromFile(file);
             });
         });
 
-        function toggleFirmwareList() {
-            const list = document.getElementById('firmwareList');
-            const arrow = document.getElementById('firmwareArrow');
-            
-            if (list.style.display === 'none') {
-                list.style.display = 'block';
-                arrow.textContent = '▲';
-            } else {
-                list.style.display = 'none';
-                arrow.textContent = '▼';
-            }
-        }
-
-        function exportMazeData() {
-            const data = Maze.exportData();
-            if (!data) {
-                Console.logError('No hay datos para exportar');
+        // ── Tremouse ──────────────────────────────────────────────────
+        function iniciarTremouse() {
+            if (!AppState.isConnected) {
+                Console.logError('⚠️ Conecta el robot primero');
                 return;
             }
-            
-            const blob = new Blob([data], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `trayectoria_${new Date().getTime()}.txt`;
-            a.click();
-            URL.revokeObjectURL(url);
-            Console.logSystem('Datos exportados exitosamente');
+            MQTTClient.sendMessage('TM');
+            Console.logSystem('🐭 Tremouse iniciado (TM enviado)');
+            document.getElementById('tremouseStatus').textContent = '🐭 Tremouse en ejecución...';
+            document.getElementById('tremouseStatus').className = 'path-status path-status-running';
+            // Cambiar a pestaña del mapa
+            UI.switchTab('maze');
         }
 
+        // ── Toggle paredes ────────────────────────────────────────────
+        function toggleWalls() {
+            const visible = Maze.toggleWalls();
+            const btn = document.getElementById('toggleWallsBtn');
+            btn.textContent = visible ? '🧱 Ocultar Paredes' : '🧱 Mostrar Paredes';
+            btn.className   = visible ? 'btn-walls-active' : '';
+        }
+
+        // ── Firmware list ─────────────────────────────────────────────
+        function toggleFirmwareList() {
+            const list  = document.getElementById('firmwareList');
+            const arrow = document.getElementById('firmwareArrow');
+            if (list.style.display === 'none') { list.style.display = 'block'; arrow.textContent = '▲'; }
+            else                                { list.style.display = 'none';  arrow.textContent = '▼'; }
+        }
+
+        // ── Exportar ──────────────────────────────────────────────────
+        function exportMazeData() {
+            const data = Maze.exportData();
+            if (!data) { Console.logError('No hay datos para exportar'); return; }
+            const blob = new Blob([data], { type: 'text/plain' });
+            const url  = URL.createObjectURL(blob);
+            const a    = document.createElement('a');
+            a.href = url; a.download = `mapa_tremouse_${new Date().getTime()}.txt`; a.click();
+            URL.revokeObjectURL(url);
+            Console.logSystem('Mapa exportado exitosamente');
+        }
+
+        // ── Resolver laberinto ────────────────────────────────────────
         function solveMaze() {
             const algorithm = document.getElementById('algorithmSelect').value;
-            const solution = MazeSolver.solve(algorithm);
-            
+            const solution  = MazeSolver.solve(algorithm);
             if (solution) {
                 Maze.setSolution(solution);
                 document.getElementById('toggleSolutionBtn').style.display = 'inline-block';
                 Console.logSystem(`✓ Laberinto resuelto con ${algorithm.toUpperCase()} — ${solution.length - 1} pasos`);
-                // Notificar al control para que muestre la info de ruta
                 RobotControl.actualizarInfoRuta();
             }
         }
 
         function toggleSolution() {
             Maze.toggleSolution();
-            const btn = document.getElementById('toggleSolutionBtn');
-            btn.textContent = Maze.showSolution ? 'Ocultar Solución' : 'Mostrar Solución';
+            document.getElementById('toggleSolutionBtn').textContent =
+                Maze.showSolution ? 'Ocultar Solución' : 'Mostrar Solución';
         }
     </script>
 </body>
