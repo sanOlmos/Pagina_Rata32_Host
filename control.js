@@ -8,12 +8,17 @@ const RobotControl = {
     autoPathRunning: false,
     autoPathAborted: false,
 
-    // ===== CONTROL POR ENCODER =====
-    // CM_POR_PULSO = π*5/30 ≈ 0.5236 cm  →  25/0.5236 ≈ 47.7 → usamos 46 con margen
-    PULSOS_POR_CELDA: 46,
-    // Para un giro de 90° en el lugar (ambas ruedas opuestas):
-    // arco de cada rueda = π * DISTANCIA_ENTRE_RUEDAS / 4 = π*15/4 ≈ 11.8 cm → ~23 pulsos
-    PULSOS_POR_GIRO_90: 23,
+    // ===== CALIBRACIÓN — PULSOS (leídos dinámicamente desde los inputs del UI) =====
+    // CM_POR_PULSO = π*5/30 ≈ 0.5236 cm  → 25 cm / 0.5236 ≈ 47.7 → default 46
+    // Para giro 90°: arco = π*15/4 ≈ 11.78 cm → ~23 teórico, pero ajustar según robot real
+    get PULSOS_POR_CELDA() {
+        const el = document.getElementById('inputPulsosCelda');
+        return el ? Math.max(10, parseInt(el.value) || 46) : 46;
+    },
+    get PULSOS_POR_GIRO_90() {
+        const el = document.getElementById('inputPulsosGiro');
+        return el ? Math.max(5, parseInt(el.value) || 30) : 30;
+    },
 
     _stepResolvers: [],
     _stepPulsosActuales: 0,
@@ -67,10 +72,16 @@ const RobotControl = {
         const btnMV      = document.getElementById('btnModoAutonomo');
         const btnRuta    = document.getElementById('btnEjecutarRuta');
         const btnAbortar = document.getElementById('btnAbortarRuta');
+        const btnTestG   = document.getElementById('btnTestGiro');
+        const btnTestA   = document.getElementById('btnTestAvance');
 
         if (btnMV)      btnMV.addEventListener('click',    () => this.enviarModoAutonomo());
         if (btnRuta)    btnRuta.addEventListener('click',  () => this.ejecutarRutaAlgoritmo());
         if (btnAbortar) btnAbortar.addEventListener('click', () => this.abortarRuta());
+
+        // Botones de calibración
+        if (btnTestG) btnTestG.addEventListener('click', () => this.testGiro90());
+        if (btnTestA) btnTestA.addEventListener('click', () => this.testAvance25cm());
     },
 
     // ===== ENVIAR COMANDO MV (MODO AUTÓNOMO) =====
@@ -106,11 +117,15 @@ const RobotControl = {
         this.autoPathRunning = true;
         this.autoPathAborted = false;
 
-        // ── Usar la orientación inicial con la que el robot exploró el laberinto ──
-        // Tremouse: 0=N, 1=E, 2=S, 3=W  →  Control: 270, 0, 90, 180  (grados)
-        const TM_TO_DEG = [270, 0, 90, 180];
-        const tmH = (typeof Maze !== 'undefined') ? Maze.initialRobotHeading : 0;
-        this.headingDeg = TM_TO_DEG[tmH] ?? 270;
+        // ── El robot fue colocado MANUALMENTE en el inicio ────────────────
+        // Pedir orientación inicial al usuario (el mapa NO se borra)
+        const headingInicial = this._pedirOrientacionInicial(path);
+        if (headingInicial === null) {
+            // Usuario canceló
+            this.autoPathRunning = false;
+            return;
+        }
+        this.headingDeg = headingInicial;
 
         document.getElementById('btnEjecutarRuta').disabled = true;
         document.getElementById('btnAbortarRuta').disabled  = false;
@@ -118,7 +133,8 @@ const RobotControl = {
         this.updatePathStatus('running', `Iniciando — orientación: ${this._headingLabel(this.headingDeg)}`);
 
         Console.logSystem(`🗺️ ══════════ RUTA AUTOMÁTICA INICIADA ══════════`);
-        Console.logSystem(`   Orientación inicial (del mapeo): ${this._headingLabel(this.headingDeg)} (TM heading ${tmH})`);
+        Console.logSystem(`   Robot colocado manualmente en celda de inicio`);
+        Console.logSystem(`   Orientación inicial: ${this._headingLabel(this.headingDeg)}`);
         Console.logSystem(`   Total de pasos: ${path.length - 1}`);
 
         // Resetear SOLO la odometría del robot (no el mapa visual)
@@ -205,10 +221,41 @@ const RobotControl = {
         }, 5000);
     },
 
-    // ===== CONVIERTE HEADING TREMOUSE (0-3) → LABEL LEGIBLE =====
-    // Tremouse: 0=N, 1=E, 2=S, 3=W  →  Control degrees: 270, 0, 90, 180
-    _tmHeadingToControlDeg(tmH) {
-        return [270, 0, 90, 180][tmH] ?? 270;
+    // ===== DIÁLOGO: ORIENTACIÓN INICIAL DEL ROBOT =====
+    _pedirOrientacionInicial(path) {
+        // Sugerir la orientación del primer segmento de la ruta
+        let sugerenciaIdx = 0;
+        if (path && path.length >= 2) {
+            const dx = path[1].x - path[0].x;
+            const dy = path[1].y - path[0].y;
+            const h  = this._xyToHeading(dx, dy);
+            sugerenciaIdx = h / 90;  // 0,1,2,3
+        }
+
+        const msg =
+            `╔══════════════════════════════════╗\n` +
+            `  ORIENTACIÓN INICIAL DEL ROBOT\n` +
+            `╚══════════════════════════════════╝\n\n` +
+            `El robot fue colocado manualmente en el INICIO.\n` +
+            `¿Hacia dónde apunta la NARIZ del robot?\n\n` +
+            `  0 → Este   (+X, derecha en el mapa) →\n` +
+            `  1 → Sur    (+Y, abajo en el mapa)   ↓\n` +
+            `  2 → Oeste  (-X, izquierda en mapa)  ←\n` +
+            `  3 → Norte  (-Y, arriba en el mapa)  ↑\n\n` +
+            `Sugerencia (según primer paso): ${sugerenciaIdx}\n\n` +
+            `Ingresa 0, 1, 2 o 3:`;
+
+        const resp = prompt(msg, String(sugerenciaIdx));
+        if (resp === null) {
+            Console.logSystem('❌ Ejecución cancelada por el usuario');
+            return null;
+        }
+        const idx = parseInt(resp);
+        if (isNaN(idx) || idx < 0 || idx > 3) {
+            Console.logError('Orientación inválida — se usará la sugerencia automática');
+            return sugerenciaIdx * 90;
+        }
+        return idx * 90;
     },
 
     // ===== dx,dy del canvas → HEADING absoluto (0=E, 90=S, 180=O, 270=N) =====
@@ -233,6 +280,56 @@ const RobotControl = {
     _headingLabel(deg) {
         const m = { 0: '→ Este', 90: '↓ Sur', 180: '← Oeste', 270: '↑ Norte' };
         return m[((deg % 360) + 360) % 360] || `${deg}°`;
+    },
+
+    // ===== TEST DE CALIBRACIÓN: GIRO 90° =====
+    async testGiro90() {
+        if (!AppState.isConnected) { Console.logError('⚠️ Conecta el robot primero'); return; }
+        if (this.autoPathRunning)  { Console.logError('⚠️ Hay una ruta en ejecución'); return; }
+
+        const pulsos = this.PULSOS_POR_GIRO_90;
+        Console.logSystem(`🔄 TEST GIRO 90° — objetivo: ${pulsos} pulsos`);
+        document.getElementById('btnTestGiro').disabled  = true;
+        document.getElementById('btnTestAvance').disabled = true;
+
+        this.resetStepCounter();
+        MQTTClient.sendMessage('Z_STEPS');
+        await this.sleep(150);
+        MQTTClient.sendMessage('R');  // giro derecha
+        const pReal = await this.waitForSteps(pulsos, 6000);
+        MQTTClient.sendMessage('S');
+        await this.sleep(200);
+
+        Console.logSystem(`   ✓ Giro completado — pulsos reales: ${pReal.toFixed(1)} / objetivo: ${pulsos}`);
+        Console.logSystem(`   Si giró menos de 90° → aumentá el valor. Si giró más → reducilo.`);
+
+        document.getElementById('btnTestGiro').disabled  = false;
+        document.getElementById('btnTestAvance').disabled = false;
+    },
+
+    // ===== TEST DE CALIBRACIÓN: AVANCE 25 CM (1 celda) =====
+    async testAvance25cm() {
+        if (!AppState.isConnected) { Console.logError('⚠️ Conecta el robot primero'); return; }
+        if (this.autoPathRunning)  { Console.logError('⚠️ Hay una ruta en ejecución'); return; }
+
+        const pulsos = this.PULSOS_POR_CELDA;
+        Console.logSystem(`▶️ TEST AVANCE 25cm — objetivo: ${pulsos} pulsos`);
+        document.getElementById('btnTestGiro').disabled  = true;
+        document.getElementById('btnTestAvance').disabled = true;
+
+        this.resetStepCounter();
+        MQTTClient.sendMessage('Z_STEPS');
+        await this.sleep(150);
+        MQTTClient.sendMessage('F');
+        const pReal = await this.waitForSteps(pulsos, 8000);
+        MQTTClient.sendMessage('S');
+        await this.sleep(200);
+
+        Console.logSystem(`   ✓ Avance completado — pulsos reales: ${pReal.toFixed(1)} / objetivo: ${pulsos}`);
+        Console.logSystem(`   Si avanzó menos de 25cm → aumentá el valor. Si avanzó más → reducilo.`);
+
+        document.getElementById('btnTestGiro').disabled  = false;
+        document.getElementById('btnTestAvance').disabled = false;
     },
 
     // ===== ABORTAR RUTA =====
@@ -333,6 +430,11 @@ const RobotControl = {
         document.getElementById('btnModoAutonomo').disabled = false;
         document.getElementById('btnStopAutonomo').disabled = false;
         document.getElementById('btnEjecutarRuta').disabled = false;
+        // Habilitar botones de calibración
+        const bg = document.getElementById('btnTestGiro');
+        const ba = document.getElementById('btnTestAvance');
+        if (bg) bg.disabled = false;
+        if (ba) ba.disabled = false;
         this.actualizarInfoRuta();
         const statusEl = document.getElementById('controlStatus');
         statusEl.textContent = '✅ Controles activos';
@@ -351,6 +453,11 @@ const RobotControl = {
         document.getElementById('btnEjecutarRuta').disabled = true;
         document.getElementById('btnAbortarRuta').disabled  = true;
         document.getElementById('btnAbortarRuta').style.display = 'none';
+        // Deshabilitar botones de calibración
+        const bg = document.getElementById('btnTestGiro');
+        const ba = document.getElementById('btnTestAvance');
+        if (bg) bg.disabled = true;
+        if (ba) ba.disabled = true;
         const statusEl = document.getElementById('controlStatus');
         statusEl.textContent = '⚠️ Conecta el robot primero';
         statusEl.className = 'control-disabled';
