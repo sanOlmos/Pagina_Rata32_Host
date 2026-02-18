@@ -100,7 +100,8 @@ const MQTTClient = {
         if (msg.startsWith('TM_CFG:')) {
             const cfg = msg.substring(7);
             const pairs = { vel:'tmVelAvance', gvel:'tmVelGiro', tavance:'tmTiempoAvance',
-                            tgiro:'tmTiempoGiro', pared:'tmDistPared', pausa:'tmPausaMs' };
+                            tgiro:'tmTiempoGiro', pared:'tmDistPared', pausa:'tmPausaMs',
+                            muestras:'tmMuestras' };
             cfg.split(',').forEach(pair => {
                 const [k, v] = pair.split('=');
                 const inputId = pairs[k.trim()];
