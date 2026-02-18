@@ -88,6 +88,12 @@ const UI = {
 
     // Actualiza el estado visual del modo Tremouse
     notifyTremouseActive(active) {
+        // ── FIX: al detener Tremouse, fijar E en la última posición real del robot ──
+        if (!active && typeof Maze !== 'undefined' && Maze.robotCell) {
+            Maze.endCell = { col: Maze.robotCell.col, row: Maze.robotCell.row };
+            Maze.draw();
+        }
+
         const statusEl = document.getElementById('tremouseStatus');
         const notice   = document.getElementById('mazeMapNotice');
         
