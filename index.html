@@ -286,6 +286,26 @@
                     <div class="route-info">
                         <span id="routeStepsInfo">Sin ruta cargada — ve a Trayectoria y resuelve el laberinto</span>
                     </div>
+
+                    <!-- ── CALIBRACIÓN DE PULSOS ───────────────────────── -->
+                    <div class="calibration-panel">
+                        <div class="calibration-title">⚙️ Calibración de movimiento</div>
+                        <div class="calibration-row">
+                            <div class="calibration-field">
+                                <label for="inputPulsosCelda">Pulsos / celda (25 cm)</label>
+                                <input type="number" id="inputPulsosCelda" value="46" min="10" max="200" step="1">
+                            </div>
+                            <div class="calibration-field">
+                                <label for="inputPulsosGiro">Pulsos / giro 90°</label>
+                                <input type="number" id="inputPulsosGiro" value="30" min="5" max="200" step="1">
+                            </div>
+                        </div>
+                        <div class="calibration-btns">
+                            <button class="calib-btn" id="btnTestGiro" disabled>🔄 Test Giro 90°</button>
+                            <button class="calib-btn" id="btnTestAvance" disabled>▶️ Test Avance 25cm</button>
+                            <span class="calibration-hint">Ajustá los valores hasta que el movimiento sea exacto</span>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- ── CONTROL MANUAL ─────────────────────────────────────── -->
