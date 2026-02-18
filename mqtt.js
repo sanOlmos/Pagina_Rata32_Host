@@ -1,4 +1,4 @@
-// Cliente MQTT
+// Cliente MQTT — con soporte para mensajes CELL: del algoritmo Tremouse
 const MQTTClient = {
     connect() {
         const robotName = UI.getRobotName();
@@ -34,12 +34,11 @@ const MQTTClient = {
     onConnect() {
         Console.logSystem('Conectado al broker HiveMQ Cloud');
 
-        // Suscribirse a múltiples topics para recibir todos los mensajes
         const topics = [
             `${AppState.currentTopic}/data`,
             `${AppState.currentTopic}/cmd`,
             `${AppState.currentTopic}/status`,
-            `${AppState.currentTopic}/#` // Wildcard para recibir todo
+            `${AppState.currentTopic}/#`
         ];
 
         AppState.client.subscribe(topics, (err) => {
@@ -60,20 +59,51 @@ const MQTTClient = {
     onMessage(topic, message) {
         const msg = message.toString();
 
-        // SIEMPRE mostrar el mensaje recibido en la consola
-        Console.logReceived(`[${topic}] ${msg}`);
+        // Mostrar en consola SIEMPRE (excepto coordenadas X,Y que son muy frecuentes en Tremouse)
+        const isCoord = !msg.startsWith('CELL:') && msg.includes(',') && !isNaN(parseFloat(msg.split(',')[0]));
+        if (!isCoord) {
+            Console.logReceived(`[${topic}] ${msg}`);
+        }
 
+        // ── CONEXIÓN ──────────────────────────────────────────────────────
         if (msg === 'CONNECTED') {
             AppState.isConnected = true;
             UI.updateStatus(`Conectado al robot: ${AppState.currentTopic}`, 'connected');
             UI.setConnectedState(true);
-            if (typeof RobotControl !== 'undefined') {
-                RobotControl.enable();
-            }
+            if (typeof RobotControl !== 'undefined') RobotControl.enable();
             Console.logSystem('✅ Conexión exitosa con el robot');
+            return;
         }
-        else if (msg.startsWith('STEPS:')) {
-            // Confirmación de encoder: STEPS:pulsosIzq,pulsosDer
+
+        // ── TREMOUSE CELL: col,row,wN,wE,wS,wW ───────────────────────────
+        // Ejemplo: CELL:2,3,1,0,0,1
+        if (msg.startsWith('CELL:')) {
+            const parts = msg.substring(5).split(',');
+            if (parts.length === 6) {
+                const col = parseInt(parts[0]);
+                const row = parseInt(parts[1]);
+                const wN  = parts[2] === '1';
+                const wE  = parts[3] === '1';
+                const wS  = parts[4] === '1';
+                const wW  = parts[5] === '1';
+                if (!isNaN(col) && !isNaN(row)) {
+                    Maze.addWallData(col, row, wN, wE, wS, wW);
+                    // Cambiar automáticamente al tab del mapa si no está visible
+                    UI.notifyMapUpdate();
+                }
+            }
+            return;
+        }
+
+        // ── TREMOUSE START ────────────────────────────────────────────────
+        if (msg === 'TREMOUSE_START') {
+            Console.logSystem('🐭 Modo Tremouse iniciado en el robot');
+            UI.notifyTremouseActive(true);
+            return;
+        }
+
+        // ── STEPS (encoder) ───────────────────────────────────────────────
+        if (msg.startsWith('STEPS:')) {
             const parts = msg.substring(6).split(',');
             const izq = parseFloat(parts[0]);
             const der = parseFloat(parts[1]);
@@ -83,10 +113,32 @@ const MQTTClient = {
                     Console.logReceived(`📡 STEPS Izq:${izq} Der:${der} Avg:${((izq+der)/2).toFixed(1)}`);
                 }
             }
+            return;
         }
-        else if (msg.includes(',') && !isNaN(parseFloat(msg.split(',')[0]))) {
-            // Coordenadas (X,Y) del encoder → graficar celda
+
+        // ── STATUS extendido (X:|Y:|ANG:|MODO:...) ───────────────────────
+        if (msg.startsWith('X:') && msg.includes('TM_COL:')) {
+            // Extraer heading del status para actualizar robot en mapa
+            const hdgMatch = msg.match(/TM_HDG:(\d)/);
+            const colMatch = msg.match(/TM_COL:(-?\d+)/);
+            const rowMatch = msg.match(/TM_ROW:(-?\d+)/);
+            if (hdgMatch && colMatch && rowMatch) {
+                Maze.robotHeading = parseInt(hdgMatch[1]);
+                // No redibujar aquí; se redibuja con el próximo CELL:
+            }
+            return;
+        }
+
+        // ── STOP ─────────────────────────────────────────────────────────
+        if (msg === 'STOP') {
+            UI.notifyTremouseActive(false);
+            return;
+        }
+
+        // ── COORDENADAS X,Y (odometría clásica) ──────────────────────────
+        if (isCoord) {
             Maze.processLine(msg);
+            return;
         }
     },
 
@@ -114,19 +166,13 @@ const MQTTClient = {
         AppState.isConnected = false;
         UI.updateStatus('Desconectado del broker', 'disconnected');
         UI.setConnectedState(false);
-        
-        // Deshabilitar controles manuales
-        if (typeof RobotControl !== 'undefined') {
-            RobotControl.disable();
-        }
+        UI.notifyTremouseActive(false);
+        if (typeof RobotControl !== 'undefined') RobotControl.disable();
     },
 
     toggleConnection() {
-        if (AppState.isConnected) {
-            this.disconnect();
-        } else {
-            this.connect();
-        }
+        if (AppState.isConnected) this.disconnect();
+        else this.connect();
     },
 
     sendMessage(message) {
