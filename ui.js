@@ -57,6 +57,11 @@ const UI = {
         this.elements.messageInput.disabled = !connected;
         this.elements.sendBtn.disabled = !connected;
         this.elements.robotName.disabled = connected;
+        // Botones de calibración Tremouse
+        ['btnEnviarCalibTM','btnTestTM','btnInfoTM','btnTremouse'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.disabled = !connected;
+        });
     },
 
     sendMessage() {
