@@ -1358,6 +1358,98 @@ button:disabled {
     color: #9a3412;
 }
 
+/* ── PANEL DE CALIBRACIÓN ──────────────────────────────── */
+.calibration-panel {
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: #f0f9ff;
+    border: 1.5px solid #bae6fd;
+    border-radius: 10px;
+}
+
+.calibration-title {
+    font-size: 0.82em;
+    font-weight: 700;
+    color: #0369a1;
+    margin-bottom: 10px;
+}
+
+.calibration-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.calibration-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 130px;
+}
+
+.calibration-field label {
+    font-size: 0.75em;
+    color: #475569;
+    font-weight: 600;
+}
+
+.calibration-field input[type="number"] {
+    padding: 6px 10px;
+    border: 1.5px solid #bae6fd;
+    border-radius: 7px;
+    font-size: 0.9em;
+    font-weight: 700;
+    color: #0f172a;
+    background: #fff;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.calibration-field input[type="number"]:focus {
+    outline: none;
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+}
+
+.calibration-btns {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.calib-btn {
+    padding: 7px 14px;
+    border: none;
+    border-radius: 7px;
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    color: #fff;
+    font-size: 0.78em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+}
+
+.calib-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+    transform: translateY(-1px);
+}
+
+.calib-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.calibration-hint {
+    font-size: 0.72em;
+    color: #64748b;
+    font-style: italic;
+}
 /* Botón Tremouse */
 .auto-btn-tremouse {
     background: linear-gradient(135deg, #ea580c, #c2410c);
