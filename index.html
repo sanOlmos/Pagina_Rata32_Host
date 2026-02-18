@@ -241,6 +241,47 @@
                         <span class="tremouse-info-label">Tamaño de celda:</span>
                         <code>25 × 25 cm</code>
                     </div>
+
+                    <!-- ── CALIBRACIÓN TREMOUSE ───────────────────────── -->
+                    <div class="calibration-panel" style="margin-top:14px;">
+                        <div class="calibration-title">⚙️ Calibración del Robot (Tremouse)</div>
+                        <div class="calibration-row">
+                            <div class="calibration-field">
+                                <label for="tmVelAvance">Velocidad avance (PWM)</label>
+                                <input type="number" id="tmVelAvance" value="200" min="60" max="255" step="5">
+                            </div>
+                            <div class="calibration-field">
+                                <label for="tmVelGiro">Velocidad giro (PWM)</label>
+                                <input type="number" id="tmVelGiro" value="190" min="60" max="255" step="5">
+                            </div>
+                        </div>
+                        <div class="calibration-row">
+                            <div class="calibration-field">
+                                <label for="tmTiempoAvance">Tiempo avance 1 celda (ms)</label>
+                                <input type="number" id="tmTiempoAvance" value="800" min="100" max="5000" step="50">
+                            </div>
+                            <div class="calibration-field">
+                                <label for="tmTiempoGiro">Tiempo giro 90° (ms)</label>
+                                <input type="number" id="tmTiempoGiro" value="550" min="100" max="3000" step="25">
+                            </div>
+                        </div>
+                        <div class="calibration-row">
+                            <div class="calibration-field">
+                                <label for="tmDistPared">Distancia detección pared (cm)</label>
+                                <input type="number" id="tmDistPared" value="18" min="5" max="60" step="1">
+                            </div>
+                            <div class="calibration-field">
+                                <label for="tmPausaMs">Pausa entre movimientos (ms)</label>
+                                <input type="number" id="tmPausaMs" value="300" min="50" max="2000" step="50">
+                            </div>
+                        </div>
+                        <div class="calibration-btns">
+                            <button class="calib-btn" id="btnEnviarCalibTM" disabled onclick="enviarCalibracionTremouse()">📡 Enviar al Robot</button>
+                            <button class="calib-btn" id="btnTestTM" disabled onclick="testTremouse()">🔄 Test Movimiento</button>
+                            <button class="calib-btn" id="btnInfoTM" disabled onclick="MQTTClient.sendMessage('TM_INFO')">ℹ️ Leer Config Actual</button>
+                            <span class="calibration-hint">Ajustá los tiempos hasta que gire exactamente 90° y avance 25 cm</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- ── MODO AUTÓNOMO CLÁSICO ─────────────────────────────── -->
@@ -478,6 +519,34 @@ Orientación:       Norte fija (heading 0 en todo momento al arrancar)</pre>
                 if (file) Maze.loadFromFile(file);
             });
         });
+
+        // ── Calibración Tremouse ──────────────────────────────────────
+        function enviarCalibracionTremouse() {
+            if (!AppState.isConnected) { Console.logError('Conecta el robot primero'); return; }
+            const vel     = document.getElementById('tmVelAvance').value;
+            const gvel    = document.getElementById('tmVelGiro').value;
+            const tavance = document.getElementById('tmTiempoAvance').value;
+            const tgiro   = document.getElementById('tmTiempoGiro').value;
+            const pared   = document.getElementById('tmDistPared').value;
+            const pausa   = document.getElementById('tmPausaMs').value;
+            MQTTClient.sendMessage('TM_VEL:'     + vel);
+            MQTTClient.sendMessage('TM_GVEL:'    + gvel);
+            MQTTClient.sendMessage('TM_TAVANCE:' + tavance);
+            MQTTClient.sendMessage('TM_TGIRO:'   + tgiro);
+            MQTTClient.sendMessage('TM_PARED:'   + pared);
+            MQTTClient.sendMessage('TM_PAUSA:'   + pausa);
+            Console.logSystem('Calibracion Tremouse enviada: vel=' + vel + ' gvel=' + gvel +
+                ' tavance=' + tavance + 'ms tgiro=' + tgiro + 'ms pared=' + pared + 'cm pausa=' + pausa + 'ms');
+        }
+
+        function testTremouse() {
+            if (!AppState.isConnected) { Console.logError('Conecta el robot primero'); return; }
+            enviarCalibracionTremouse();
+            setTimeout(() => {
+                MQTTClient.sendMessage('TM_TEST');
+                Console.logSystem('Test de movimiento Tremouse enviado (avance + giro izq + giro der)');
+            }, 500);
+        }
 
         // ── Tremouse ──────────────────────────────────────────────────
         function iniciarTremouse() {
