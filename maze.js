@@ -32,6 +32,9 @@ const Maze = {
     robotHeading: 0,
     robotCell: null,        // {col, row} — última celda Tremouse
 
+    // Cuando true, endCell queda fijo en el último punto real del robot
+    endCellLocked: false,
+
     // ─────────────────────────────────────────────────
     init() {
         this.canvas = document.getElementById('mazeCanvas');
@@ -102,7 +105,8 @@ const Maze = {
                 if (row < this.minRow) this.minRow = row;
                 if (row > this.maxRow) this.maxRow = row;
             }
-            this.endCell = { col, row };
+            // Solo actualizar endCell si no está bloqueado
+            if (!this.endCellLocked) this.endCell = { col, row };
         }
 
         // Actualizar posición robot
@@ -141,7 +145,8 @@ const Maze = {
                 if (row < this.minRow) this.minRow = row;
                 if (row > this.maxRow) this.maxRow = row;
             }
-            this.endCell = { col, row };
+            // Solo actualizar endCell si no está bloqueado
+            if (!this.endCellLocked) this.endCell = { col, row };
             this.draw();
         }
         return this.points.length;
@@ -487,6 +492,15 @@ const Maze = {
         this.ctx.textAlign = 'left';
     },
 
+    // Fija endCell en la posición actual del robot y bloquea futuras actualizaciones
+    lockEndCell() {
+        if (this.robotCell) {
+            this.endCell = { col: this.robotCell.col, row: this.robotCell.row };
+        }
+        this.endCellLocked = true;
+        this.draw();
+    },
+
     // ─────────────────────────────────────────────────
     clear() {
         this.points        = [];
@@ -499,6 +513,7 @@ const Maze = {
         this.wallMap       = {};
         this.robotCell     = null;
         this.robotHeading  = 0;
+        this.endCellLocked = false;
         this.minCol = this.maxCol = this.minRow = this.maxRow = 0;
         if (this.ctx) this._drawEmpty();
     },
