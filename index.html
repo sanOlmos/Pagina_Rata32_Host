@@ -275,6 +275,12 @@
                                 <input type="number" id="tmPausaMs" value="300" min="50" max="2000" step="50">
                             </div>
                         </div>
+                        <div class="calibration-row">
+                            <div class="calibration-field">
+                                <label for="tmMuestras">Lecturas por sensor (promedio)</label>
+                                <input type="number" id="tmMuestras" value="5" min="1" max="20" step="1">
+                            </div>
+                        </div>
                         <div class="calibration-btns">
                             <button class="calib-btn" id="btnEnviarCalibTM" disabled onclick="enviarCalibracionTremouse()">📡 Enviar al Robot</button>
                             <button class="calib-btn" id="btnTestTM" disabled onclick="testTremouse()">🔄 Test Movimiento</button>
@@ -523,20 +529,23 @@ Orientación:       Norte fija (heading 0 en todo momento al arrancar)</pre>
         // ── Calibración Tremouse ──────────────────────────────────────
         function enviarCalibracionTremouse() {
             if (!AppState.isConnected) { Console.logError('Conecta el robot primero'); return; }
-            const vel     = document.getElementById('tmVelAvance').value;
-            const gvel    = document.getElementById('tmVelGiro').value;
-            const tavance = document.getElementById('tmTiempoAvance').value;
-            const tgiro   = document.getElementById('tmTiempoGiro').value;
-            const pared   = document.getElementById('tmDistPared').value;
-            const pausa   = document.getElementById('tmPausaMs').value;
-            MQTTClient.sendMessage('TM_VEL:'     + vel);
-            MQTTClient.sendMessage('TM_GVEL:'    + gvel);
-            MQTTClient.sendMessage('TM_TAVANCE:' + tavance);
-            MQTTClient.sendMessage('TM_TGIRO:'   + tgiro);
-            MQTTClient.sendMessage('TM_PARED:'   + pared);
-            MQTTClient.sendMessage('TM_PAUSA:'   + pausa);
+            const vel      = document.getElementById('tmVelAvance').value;
+            const gvel     = document.getElementById('tmVelGiro').value;
+            const tavance  = document.getElementById('tmTiempoAvance').value;
+            const tgiro    = document.getElementById('tmTiempoGiro').value;
+            const pared    = document.getElementById('tmDistPared').value;
+            const pausa    = document.getElementById('tmPausaMs').value;
+            const muestras = document.getElementById('tmMuestras').value;
+            MQTTClient.sendMessage('TM_VEL:'      + vel);
+            MQTTClient.sendMessage('TM_GVEL:'     + gvel);
+            MQTTClient.sendMessage('TM_TAVANCE:'  + tavance);
+            MQTTClient.sendMessage('TM_TGIRO:'    + tgiro);
+            MQTTClient.sendMessage('TM_PARED:'    + pared);
+            MQTTClient.sendMessage('TM_PAUSA:'    + pausa);
+            MQTTClient.sendMessage('TM_MUESTRAS:' + muestras);
             Console.logSystem('Calibracion Tremouse enviada: vel=' + vel + ' gvel=' + gvel +
-                ' tavance=' + tavance + 'ms tgiro=' + tgiro + 'ms pared=' + pared + 'cm pausa=' + pausa + 'ms');
+                ' tavance=' + tavance + 'ms tgiro=' + tgiro + 'ms pared=' + pared +
+                'cm pausa=' + pausa + 'ms muestras=' + muestras);
         }
 
         function testTremouse() {
