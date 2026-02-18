@@ -95,6 +95,24 @@ const MQTTClient = {
             return;
         }
 
+        // ── TREMOUSE CFG: sync calibration inputs ────────────────────
+        // Formato: TM_CFG:vel=200,gvel=190,tavance=800,tgiro=550,pared=18.0,pausa=300
+        if (msg.startsWith('TM_CFG:')) {
+            const cfg = msg.substring(7);
+            const pairs = { vel:'tmVelAvance', gvel:'tmVelGiro', tavance:'tmTiempoAvance',
+                            tgiro:'tmTiempoGiro', pared:'tmDistPared', pausa:'tmPausaMs' };
+            cfg.split(',').forEach(pair => {
+                const [k, v] = pair.split('=');
+                const inputId = pairs[k.trim()];
+                if (inputId) {
+                    const el = document.getElementById(inputId);
+                    if (el) el.value = parseFloat(v);
+                }
+            });
+            Console.logSystem('Calibracion Tremouse sincronizada desde el robot');
+            return;
+        }
+
         // ── TREMOUSE START ────────────────────────────────────────────────
         if (msg === 'TREMOUSE_START') {
             Console.logSystem('🐭 Modo Tremouse iniciado en el robot');
