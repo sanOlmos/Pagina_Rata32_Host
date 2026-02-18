@@ -58,12 +58,36 @@ const MazeSolver = {
     _key(cell) { return `${cell.col},${cell.row}`; },
 
     _neighbors(col, row) {
-        return [
-            { col, row: row - 1 },
-            { col: col + 1, row },
-            { col, row: row + 1 },
-            { col: col - 1, row }
-        ].filter(n => Maze.visited.has(`${n.col},${n.row}`));
+        // Candidatos: las 4 celdas adyacentes que estén en visited
+        const dirs = [
+            { dc: 0, dr: -1, wallFrom: 'N', wallTo: 'S' },  // Norte
+            { dc: 1, dr:  0, wallFrom: 'E', wallTo: 'W' },  // Este
+            { dc: 0, dr:  1, wallFrom: 'S', wallTo: 'N' },  // Sur
+            { dc:-1, dr:  0, wallFrom: 'W', wallTo: 'E' },  // Oeste
+        ];
+
+        return dirs
+            .map(d => ({
+                col: col + d.dc,
+                row: row + d.dr,
+                wallFrom: d.wallFrom,
+                wallTo:   d.wallTo
+            }))
+            .filter(n => {
+                // 1. La celda vecina debe estar transitada
+                if (!Maze.visited.has(`${n.col},${n.row}`)) return false;
+
+                // 2. No debe haber pared entre la celda actual y la vecina
+                //    (comprobamos desde ambos lados por si hay datos parciales)
+                const curWalls = Maze.wallMap[`${col},${row}`];
+                if (curWalls && curWalls[n.wallFrom]) return false;
+
+                const nbWalls = Maze.wallMap[`${n.col},${n.row}`];
+                if (nbWalls && nbWalls[n.wallTo]) return false;
+
+                return true;
+            })
+            .map(n => ({ col: n.col, row: n.row }));
     },
 
     _h(a, b) {
