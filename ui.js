@@ -88,10 +88,14 @@ const UI = {
 
     // Actualiza el estado visual del modo Tremouse
     notifyTremouseActive(active) {
-        // ── FIX: al detener Tremouse, fijar E en la última posición real del robot ──
-        if (!active && typeof Maze !== 'undefined' && Maze.robotCell) {
-            Maze.endCell = { col: Maze.robotCell.col, row: Maze.robotCell.row };
-            Maze.draw();
+        // Al iniciar: desbloquear endCell para que siga al robot
+        // Al detener: bloquear endCell en la posición actual del robot
+        if (typeof Maze !== 'undefined') {
+            if (active) {
+                Maze.endCellLocked = false;
+            } else {
+                Maze.lockEndCell();
+            }
         }
 
         const statusEl = document.getElementById('tremouseStatus');
