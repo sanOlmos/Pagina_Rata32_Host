@@ -32,7 +32,10 @@ const Maze = {
     robotHeading: 0,
     robotCell: null,        // {col, row} — última celda Tremouse
 
-    // Cuando true, endCell queda fijo en el último punto real del robot
+    // Heading inicial del robot al comenzar el mapeo (guardado en la primera celda)
+    initialRobotHeading: 0,
+
+    // Cuando true, endCell queda fijo y no se actualiza automáticamente
     endCellLocked: false,
 
     // ─────────────────────────────────────────────────
@@ -99,13 +102,14 @@ const Maze = {
                 this.minCol = this.maxCol = col;
                 this.minRow = this.maxRow = row;
                 this.startCell = { col, row };
+                // Guardar heading inicial del robot (primer CELL: recibido)
+                this.initialRobotHeading = this.robotHeading;
             } else {
                 if (col < this.minCol) this.minCol = col;
                 if (col > this.maxCol) this.maxCol = col;
                 if (row < this.minRow) this.minRow = row;
                 if (row > this.maxRow) this.maxRow = row;
             }
-            // Solo actualizar endCell si no está bloqueado
             if (!this.endCellLocked) this.endCell = { col, row };
         }
 
@@ -145,7 +149,6 @@ const Maze = {
                 if (row < this.minRow) this.minRow = row;
                 if (row > this.maxRow) this.maxRow = row;
             }
-            // Solo actualizar endCell si no está bloqueado
             if (!this.endCellLocked) this.endCell = { col, row };
             this.draw();
         }
@@ -513,6 +516,7 @@ const Maze = {
         this.wallMap       = {};
         this.robotCell     = null;
         this.robotHeading  = 0;
+        this.initialRobotHeading = 0;
         this.endCellLocked = false;
         this.minCol = this.maxCol = this.minRow = this.maxRow = 0;
         if (this.ctx) this._drawEmpty();
