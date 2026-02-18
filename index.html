@@ -242,24 +242,29 @@
                             </p>
                             <div class="tm-calib-grid">
                                 <div class="tm-calib-row">
-                                    <label>PWM avance<br><small>100–255 (def: 210)</small></label>
-                                    <input type="number" id="tmVelAvance" value="210" min="100" max="255">
+                                    <label>PWM crucero avance<br><small>60–255 (def: 160)</small></label>
+                                    <input type="number" id="tmVelAvance" value="160" min="60" max="255">
                                     <button onclick="enviarCalib('TM_VEL', 'tmVelAvance')">Aplicar</button>
                                 </div>
                                 <div class="tm-calib-row">
-                                    <label>PWM giro<br><small>100–255 (def: 200)</small></label>
-                                    <input type="number" id="tmVelGiro" value="200" min="100" max="255">
+                                    <label>PWM crucero giro<br><small>60–255 (def: 150)</small></label>
+                                    <input type="number" id="tmVelGiro" value="150" min="60" max="255">
                                     <button onclick="enviarCalib('TM_GVEL', 'tmVelGiro')">Aplicar</button>
                                 </div>
                                 <div class="tm-calib-row">
-                                    <label>Kick duracion ms<br><small>0=off (def: 80)</small></label>
-                                    <input type="number" id="tmKickMs" value="80" min="0" max="500">
-                                    <button onclick="enviarCalib('TM_KICK', 'tmKickMs')">Aplicar</button>
+                                    <label>Rampa — PWM inicial<br><small>0–200 (def: 80)</small></label>
+                                    <input type="number" id="tmRampaMin" value="80" min="0" max="200">
+                                    <button onclick="enviarCalib('TM_RMIN', 'tmRampaMin')">Aplicar</button>
                                 </div>
                                 <div class="tm-calib-row">
-                                    <label>Kick PWM<br><small>0–255 (def: 255)</small></label>
-                                    <input type="number" id="tmKickPWM" value="255" min="0" max="255">
-                                    <button onclick="enviarCalib('TM_KPWM', 'tmKickPWM')">Aplicar</button>
+                                    <label>Rampa — paso PWM<br><small>1–50 (def: 8)</small></label>
+                                    <input type="number" id="tmRampaPaso" value="8" min="1" max="50">
+                                    <button onclick="enviarCalib('TM_RPAS', 'tmRampaPaso')">Aplicar</button>
+                                </div>
+                                <div class="tm-calib-row">
+                                    <label>Rampa — ms por paso<br><small>5–200 (def: 15)</small></label>
+                                    <input type="number" id="tmRampaMs" value="15" min="5" max="200">
+                                    <button onclick="enviarCalib('TM_RMS', 'tmRampaMs')">Aplicar</button>
                                 </div>
                                 <div class="tm-calib-row">
                                     <label>Pulsos celda<br><small>25cm (def: 47)</small></label>
@@ -277,8 +282,8 @@
                                     <button onclick="enviarCalib('TM_PARED', 'tmDistPared')">Aplicar</button>
                                 </div>
                                 <div class="tm-calib-row">
-                                    <label>Pausa entre pasos ms<br><small>(def: 250)</small></label>
-                                    <input type="number" id="tmPausaMs" value="250" min="50" max="2000">
+                                    <label>Pausa entre pasos ms<br><small>(def: 300)</small></label>
+                                    <input type="number" id="tmPausaMs" value="300" min="50" max="2000">
                                     <button onclick="enviarCalib('TM_PAUSA', 'tmPausaMs')">Aplicar</button>
                                 </div>
                             </div>
@@ -542,8 +547,9 @@ Orientación:       Norte fija (heading 0 en todo momento al arrancar)</pre>
             const params = [
                 ['TM_VEL',   'tmVelAvance'],
                 ['TM_GVEL',  'tmVelGiro'],
-                ['TM_KICK',  'tmKickMs'],
-                ['TM_KPWM',  'tmKickPWM'],
+                ['TM_RMIN',  'tmRampaMin'],
+                ['TM_RPAS',  'tmRampaPaso'],
+                ['TM_RMS',   'tmRampaMs'],
                 ['TM_CEL',   'tmPulsosCelda'],
                 ['TM_GIR',   'tmPulsosGiro'],
                 ['TM_PARED', 'tmDistPared'],
