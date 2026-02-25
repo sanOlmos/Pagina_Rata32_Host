@@ -4,13 +4,17 @@ const RobotControl = {
     isEnabled: false,
     pressedKeys: new Set(),
 
+    // FIX: Heartbeat para control manual
+    // Reenvía el comando activo cada 200ms para evitar que el timeout del firmware detenga el robot
+    _activeCommand: null,
+    _heartbeatInterval: null,
+    HEARTBEAT_MS: 200,  // debe ser < TIMEOUT_MANUAL_MS del firmware (500ms)
+
     // ===== VARIABLES PARA EJECUCIÓN DE RUTA =====
     autoPathRunning: false,
     autoPathAborted: false,
 
     // ===== CALIBRACIÓN — PULSOS (leídos dinámicamente desde los inputs del UI) =====
-    // CM_POR_PULSO = π*5/30 ≈ 0.5236 cm  → 25 cm / 0.5236 ≈ 47.7 → default 46
-    // Para giro 90°: arco = π*15/4 ≈ 11.78 cm → ~23 teórico, pero ajustar según robot real
     get PULSOS_POR_CELDA() {
         const el = document.getElementById('inputPulsosCelda');
         return el ? Math.max(10, parseInt(el.value) || 46) : 46;
@@ -24,11 +28,8 @@ const RobotControl = {
     _stepPulsosActuales: 0,
 
     // ===== ORIENTACIÓN ACTUAL DEL ROBOT =====
-    // Convenio: 0=Este(+X), 90=Sur(+Y), 180=Oeste(-X), 270=Norte(-Y)
-    // (en el canvas/odometría Y crece hacia abajo = Sur)
     headingDeg: 0,
 
-    // Llamado por mqtt.js cada vez que llega STEPS:izq,der
     onStepsReceived(izq, der) {
         const avg = (izq + der) / 2;
         this._stepPulsosActuales = avg;
@@ -38,7 +39,6 @@ const RobotControl = {
         });
     },
 
-    // Promesa que se resuelve cuando encoder promedio >= target
     waitForSteps(target, timeoutMs = 8000) {
         return new Promise(resolve => {
             if (this._stepPulsosActuales >= target) { resolve(this._stepPulsosActuales); return; }
@@ -67,6 +67,25 @@ const RobotControl = {
         this.attachAutoButtons();
     },
 
+    // ===== HEARTBEAT — mantiene el comando activo enviándolo periódicamente =====
+    _startHeartbeat(command) {
+        this._stopHeartbeat();
+        this._activeCommand = command;
+        this._heartbeatInterval = setInterval(() => {
+            if (this._activeCommand && this.isEnabled && AppState.isConnected) {
+                MQTTClient.sendMessage(this._activeCommand);
+            }
+        }, this.HEARTBEAT_MS);
+    },
+
+    _stopHeartbeat() {
+        if (this._heartbeatInterval) {
+            clearInterval(this._heartbeatInterval);
+            this._heartbeatInterval = null;
+        }
+        this._activeCommand = null;
+    },
+
     // ===== BOTONES MODO AUTÓNOMO Y RUTA AUTOMÁTICA =====
     attachAutoButtons() {
         const btnMV      = document.getElementById('btnModoAutonomo');
@@ -79,12 +98,10 @@ const RobotControl = {
         if (btnRuta)    btnRuta.addEventListener('click',  () => this.ejecutarRutaAlgoritmo());
         if (btnAbortar) btnAbortar.addEventListener('click', () => this.abortarRuta());
 
-        // Botones de calibración
         if (btnTestG) btnTestG.addEventListener('click', () => this.testGiro90());
         if (btnTestA) btnTestA.addEventListener('click', () => this.testAvance25cm());
     },
 
-    // ===== ENVIAR COMANDO MV (MODO AUTÓNOMO) =====
     enviarModoAutonomo() {
         if (!AppState.isConnected) {
             Console.logError('⚠️ Conecta el robot primero');
@@ -97,7 +114,6 @@ const RobotControl = {
         setTimeout(() => btn.classList.remove('btn-active-pulse'), 1500);
     },
 
-    // ===== EJECUTAR RUTA DEL ALGORITMO PASO A PASO =====
     async ejecutarRutaAlgoritmo() {
         if (!AppState.isConnected) {
             Console.logError('⚠️ Conecta el robot primero');
@@ -117,11 +133,12 @@ const RobotControl = {
         this.autoPathRunning = true;
         this.autoPathAborted = false;
 
-        // ── Usar la orientación inicial con la que el robot exploró el laberinto ──
-        // Tremouse: 0=N, 1=E, 2=S, 3=W  →  Control degrees: 270, 0, 90, 180
-        const TM_TO_DEG = [270, 0, 90, 180];
-        const tmH = (typeof Maze !== 'undefined') ? Maze.initialRobotHeading : 0;
-        this.headingDeg = TM_TO_DEG[tmH] ?? 270;
+        const headingInicial = this._pedirOrientacionInicial(path);
+        if (headingInicial === null) {
+            this.autoPathRunning = false;
+            return;
+        }
+        this.headingDeg = headingInicial;
 
         document.getElementById('btnEjecutarRuta').disabled = true;
         document.getElementById('btnAbortarRuta').disabled  = false;
@@ -129,10 +146,10 @@ const RobotControl = {
         this.updatePathStatus('running', `Iniciando — orientación: ${this._headingLabel(this.headingDeg)}`);
 
         Console.logSystem(`🗺️ ══════════ RUTA AUTOMÁTICA INICIADA ══════════`);
-        Console.logSystem(`   Orientación inicial (del mapeo): ${this._headingLabel(this.headingDeg)} (TM heading ${tmH})`);
+        Console.logSystem(`   Robot colocado manualmente en celda de inicio`);
+        Console.logSystem(`   Orientación inicial: ${this._headingLabel(this.headingDeg)}`);
         Console.logSystem(`   Total de pasos: ${path.length - 1}`);
 
-        // Resetear SOLO la odometría del robot (no el mapa visual)
         MQTTClient.sendMessage('Z');
         await this.sleep(350);
 
@@ -142,14 +159,10 @@ const RobotControl = {
 
             const dx = next.x - current.x;
             const dy = next.y - current.y;
-            const distancia = Math.sqrt(dx * dx + dy * dy);  // siempre 25 cm en grilla
+            const distancia = Math.sqrt(dx * dx + dy * dy);
 
-            // Heading absoluto del segmento (convenio canvas: Y hacia abajo)
             const targetHeading = this._xyToHeading(dx, dy);
-
-            // Giro necesario respecto a orientación actual
             const giro = this._calcularGiro(this.headingDeg, targetHeading);
-
             const pulsosAvance = Math.round(this.PULSOS_POR_CELDA * distancia / 25);
 
             this.updatePathStatus('running',
@@ -162,10 +175,8 @@ const RobotControl = {
                 `Rumbo: ${this._headingLabel(targetHeading)} | Giro: ${giro > 0 ? '+' : ''}${giro}°`
             );
 
-            // ── 1. GIRAR si es necesario ──────────────────────────────────
             if (giro !== 0) {
-                // Para 180° giramos dos veces a la izquierda (o derecha, igual)
-                const cmdGiro    = giro > 0 ? 'R' : 'L';   // +90=derecha, -90=izquierda
+                const cmdGiro    = giro > 0 ? 'R' : 'L';
                 const repeticiones = Math.abs(giro) / 90;
 
                 for (let g = 0; g < repeticiones && !this.autoPathAborted; g++) {
@@ -185,7 +196,6 @@ const RobotControl = {
 
             if (this.autoPathAborted) break;
 
-            // ── 2. AVANZAR una celda ──────────────────────────────────────
             Console.logSystem(`   Avanzando ${distancia.toFixed(0)} cm (obj: ${pulsosAvance} pulsos)`);
             this.resetStepCounter();
             MQTTClient.sendMessage('Z_STEPS');
@@ -216,37 +226,57 @@ const RobotControl = {
         }, 5000);
     },
 
-    // ===== CONVIERTE HEADING TREMOUSE (0-3) → GRADOS control.js =====
-    // Tremouse: 0=N, 1=E, 2=S, 3=W  →  Control degrees: 270, 0, 90, 180
-    _tmHeadingToControlDeg(tmH) {
-        return [270, 0, 90, 180][tmH] ?? 270;
+    _pedirOrientacionInicial(path) {
+        let sugerenciaIdx = 0;
+        if (path && path.length >= 2) {
+            const dx = path[1].x - path[0].x;
+            const dy = path[1].y - path[0].y;
+            const h  = this._xyToHeading(dx, dy);
+            sugerenciaIdx = h / 90;
+        }
+
+        const msg =
+            `╔══════════════════════════════════╗\n` +
+            `  ORIENTACIÓN INICIAL DEL ROBOT\n` +
+            `╚══════════════════════════════════╝\n\n` +
+            `El robot fue colocado manualmente en el INICIO.\n` +
+            `¿Hacia dónde apunta la NARIZ del robot?\n\n` +
+            `  0 → Este   (+X, derecha en el mapa) →\n` +
+            `  1 → Sur    (+Y, abajo en el mapa)   ↓\n` +
+            `  2 → Oeste  (-X, izquierda en mapa)  ←\n` +
+            `  3 → Norte  (-Y, arriba en el mapa)  ↑\n\n` +
+            `Sugerencia (según primer paso): ${sugerenciaIdx}\n\n` +
+            `Ingresa 0, 1, 2 o 3:`;
+
+        const resp = prompt(msg, String(sugerenciaIdx));
+        if (resp === null) {
+            Console.logSystem('❌ Ejecución cancelada por el usuario');
+            return null;
+        }
+        const idx = parseInt(resp);
+        if (isNaN(idx) || idx < 0 || idx > 3) {
+            Console.logError('Orientación inválida — se usará la sugerencia automática');
+            return sugerenciaIdx * 90;
+        }
+        return idx * 90;
     },
 
-    // ===== dx,dy del canvas → HEADING absoluto (0=E, 90=S, 180=O, 270=N) =====
     _xyToHeading(dx, dy) {
-        // atan2 con Y hacia abajo (convenio canvas)
-        const ang = Math.atan2(dy, dx) * (180 / Math.PI);  // -180..180
-        // Redondear al múltiplo de 90° más cercano y normalizar a 0..359
+        const ang = Math.atan2(dy, dx) * (180 / Math.PI);
         return ((Math.round(ang / 90) * 90) % 360 + 360) % 360;
     },
 
-    // ===== GIRO MÍNIMO EN MÚLTIPLOS DE 90° =====
-    // Positivo = derecha, negativo = izquierda
     _calcularGiro(desde, hacia) {
         let delta = ((hacia - desde) % 360 + 360) % 360;
-        // Elegir el sentido más corto (evita dar la vuelta completa)
-        if (delta === 270) delta = -90;  // girar izquierda 90° en vez de derecha 270°
-        // delta queda en {0, 90, 180, -90}
+        if (delta === 270) delta = -90;
         return delta;
     },
 
-    // ===== ETIQUETA DE HEADING =====
     _headingLabel(deg) {
         const m = { 0: '→ Este', 90: '↓ Sur', 180: '← Oeste', 270: '↑ Norte' };
         return m[((deg % 360) + 360) % 360] || `${deg}°`;
     },
 
-    // ===== TEST DE CALIBRACIÓN: GIRO 90° =====
     async testGiro90() {
         if (!AppState.isConnected) { Console.logError('⚠️ Conecta el robot primero'); return; }
         if (this.autoPathRunning)  { Console.logError('⚠️ Hay una ruta en ejecución'); return; }
@@ -259,7 +289,7 @@ const RobotControl = {
         this.resetStepCounter();
         MQTTClient.sendMessage('Z_STEPS');
         await this.sleep(150);
-        MQTTClient.sendMessage('R');  // giro derecha
+        MQTTClient.sendMessage('R');
         const pReal = await this.waitForSteps(pulsos, 6000);
         MQTTClient.sendMessage('S');
         await this.sleep(200);
@@ -271,7 +301,6 @@ const RobotControl = {
         document.getElementById('btnTestAvance').disabled = false;
     },
 
-    // ===== TEST DE CALIBRACIÓN: AVANCE 25 CM (1 celda) =====
     async testAvance25cm() {
         if (!AppState.isConnected) { Console.logError('⚠️ Conecta el robot primero'); return; }
         if (this.autoPathRunning)  { Console.logError('⚠️ Hay una ruta en ejecución'); return; }
@@ -296,7 +325,6 @@ const RobotControl = {
         document.getElementById('btnTestAvance').disabled = false;
     },
 
-    // ===== ABORTAR RUTA =====
     abortarRuta() {
         if (!this.autoPathRunning) return;
         this.autoPathAborted = true;
@@ -304,7 +332,6 @@ const RobotControl = {
         Console.logSystem('⛔ Abortando ruta...');
     },
 
-    // ===== ESTADO VISUAL DE RUTA =====
     updatePathStatus(state, text) {
         const el = document.getElementById('pathStatus');
         if (!el) return;
@@ -312,7 +339,6 @@ const RobotControl = {
         el.className = 'path-status path-status-' + state;
     },
 
-    // ===== SLEEP ASYNC =====
     sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     },
@@ -320,18 +346,63 @@ const RobotControl = {
     attachButtonListeners() {
         const bind = (id, cmd) => {
             const btn = document.getElementById(id);
-            btn.addEventListener('mousedown',  () => this.sendCommand(cmd));
-            btn.addEventListener('mouseup',    () => this.sendCommand('S'));
-            btn.addEventListener('mouseleave', () => this.sendCommand('S'));
-            // Soporte táctil
-            btn.addEventListener('touchstart', (e) => { e.preventDefault(); this.sendCommand(cmd); });
-            btn.addEventListener('touchend',   (e) => { e.preventDefault(); this.sendCommand('S'); });
+
+            // FIX: mousedown inicia heartbeat, mouseup/mouseleave detiene y envía S
+            btn.addEventListener('mousedown', () => {
+                this.sendCommandStart(cmd);
+            });
+            btn.addEventListener('mouseup', () => {
+                this.sendCommandStop();
+            });
+            btn.addEventListener('mouseleave', () => {
+                if (this._activeCommand === cmd) this.sendCommandStop();
+            });
+
+            // Soporte táctil con heartbeat
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                this.sendCommandStart(cmd);
+            });
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.sendCommandStop();
+            });
+            btn.addEventListener('touchcancel', (e) => {
+                e.preventDefault();
+                this.sendCommandStop();
+            });
         };
         bind('btnForward',  'F');
         bind('btnBackward', 'B');
         bind('btnLeft',     'L');
         bind('btnRight',    'R');
-        document.getElementById('btnStop').addEventListener('click', () => this.sendCommand('S'));
+        document.getElementById('btnStop').addEventListener('click', () => {
+            this._stopHeartbeat();
+            this.sendCommand('S');
+        });
+    },
+
+    // FIX: Inicia el movimiento y el heartbeat
+    sendCommandStart(command) {
+        if (!this.isEnabled || !AppState.isConnected) return;
+        MQTTClient.sendMessage(command);
+        this._startHeartbeat(command);
+        const names = { 'F': '⬆️ Adelante', 'B': '⬇️ Atrás', 'L': '⬅️ Izquierda', 'R': '➡️ Derecha' };
+        Console.logSent(names[command] || command);
+        this.highlightButton(
+            command === 'F' ? 'btnForward' :
+            command === 'B' ? 'btnBackward' :
+            command === 'L' ? 'btnLeft' : 'btnRight'
+        );
+    },
+
+    // FIX: Detiene el heartbeat y envía S
+    sendCommandStop() {
+        if (!this.isEnabled || !AppState.isConnected) return;
+        this._stopHeartbeat();
+        MQTTClient.sendMessage('S');
+        Console.logSent('⏹️ Detener');
+        this.removeHighlight();
     },
 
     attachKeyboardListeners() {
@@ -340,19 +411,18 @@ const RobotControl = {
             if (this.pressedKeys.has(e.key.toLowerCase())) return;
             this.pressedKeys.add(e.key.toLowerCase());
             switch (e.key.toLowerCase()) {
-                case 'w': this.sendCommand('F'); this.highlightButton('btnForward');  e.preventDefault(); break;
-                case 'x': this.sendCommand('B'); this.highlightButton('btnBackward'); e.preventDefault(); break;
-                case 'a': this.sendCommand('L'); this.highlightButton('btnLeft');     e.preventDefault(); break;
-                case 'd': this.sendCommand('R'); this.highlightButton('btnRight');    e.preventDefault(); break;
-                case 's': this.sendCommand('S'); this.highlightButton('btnStop');     e.preventDefault(); break;
+                case 'w': this.sendCommandStart('F'); this.highlightButton('btnForward');  e.preventDefault(); break;
+                case 'x': this.sendCommandStart('B'); this.highlightButton('btnBackward'); e.preventDefault(); break;
+                case 'a': this.sendCommandStart('L'); this.highlightButton('btnLeft');     e.preventDefault(); break;
+                case 'd': this.sendCommandStart('R'); this.highlightButton('btnRight');    e.preventDefault(); break;
+                case 's': this.sendCommandStop();     this.highlightButton('btnStop');     e.preventDefault(); break;
             }
         });
         document.addEventListener('keyup', (e) => {
             if (!this.isEnabled) return;
             this.pressedKeys.delete(e.key.toLowerCase());
             if (['w', 'x', 'a', 'd'].includes(e.key.toLowerCase())) {
-                this.sendCommand('S');
-                this.removeHighlight();
+                this.sendCommandStop();
                 e.preventDefault();
             }
         });
@@ -394,7 +464,6 @@ const RobotControl = {
         document.getElementById('btnModoAutonomo').disabled = false;
         document.getElementById('btnStopAutonomo').disabled = false;
         document.getElementById('btnEjecutarRuta').disabled = false;
-        // Habilitar botones de calibración
         const bg = document.getElementById('btnTestGiro');
         const ba = document.getElementById('btnTestAvance');
         if (bg) bg.disabled = false;
@@ -409,6 +478,7 @@ const RobotControl = {
     disable() {
         this.isEnabled = false;
         this.pressedKeys.clear();
+        this._stopHeartbeat();  // FIX: detener heartbeat al desconectar
         if (this.autoPathRunning) this.autoPathAborted = true;
         document.querySelectorAll('.control-btn').forEach(btn => btn.disabled = true);
         document.getElementById('speedSlider').disabled = true;
@@ -417,7 +487,6 @@ const RobotControl = {
         document.getElementById('btnEjecutarRuta').disabled = true;
         document.getElementById('btnAbortarRuta').disabled  = true;
         document.getElementById('btnAbortarRuta').style.display = 'none';
-        // Deshabilitar botones de calibración
         const bg = document.getElementById('btnTestGiro');
         const ba = document.getElementById('btnTestAvance');
         if (bg) bg.disabled = true;
