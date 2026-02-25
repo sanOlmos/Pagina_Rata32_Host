@@ -117,15 +117,11 @@ const RobotControl = {
         this.autoPathRunning = true;
         this.autoPathAborted = false;
 
-        // ── El robot fue colocado MANUALMENTE en el inicio ────────────────
-        // Pedir orientación inicial al usuario (el mapa NO se borra)
-        const headingInicial = this._pedirOrientacionInicial(path);
-        if (headingInicial === null) {
-            // Usuario canceló
-            this.autoPathRunning = false;
-            return;
-        }
-        this.headingDeg = headingInicial;
+        // ── Usar la orientación inicial con la que el robot exploró el laberinto ──
+        // Tremouse: 0=N, 1=E, 2=S, 3=W  →  Control degrees: 270, 0, 90, 180
+        const TM_TO_DEG = [270, 0, 90, 180];
+        const tmH = (typeof Maze !== 'undefined') ? Maze.initialRobotHeading : 0;
+        this.headingDeg = TM_TO_DEG[tmH] ?? 270;
 
         document.getElementById('btnEjecutarRuta').disabled = true;
         document.getElementById('btnAbortarRuta').disabled  = false;
@@ -133,8 +129,7 @@ const RobotControl = {
         this.updatePathStatus('running', `Iniciando — orientación: ${this._headingLabel(this.headingDeg)}`);
 
         Console.logSystem(`🗺️ ══════════ RUTA AUTOMÁTICA INICIADA ══════════`);
-        Console.logSystem(`   Robot colocado manualmente en celda de inicio`);
-        Console.logSystem(`   Orientación inicial: ${this._headingLabel(this.headingDeg)}`);
+        Console.logSystem(`   Orientación inicial (del mapeo): ${this._headingLabel(this.headingDeg)} (TM heading ${tmH})`);
         Console.logSystem(`   Total de pasos: ${path.length - 1}`);
 
         // Resetear SOLO la odometría del robot (no el mapa visual)
@@ -221,41 +216,10 @@ const RobotControl = {
         }, 5000);
     },
 
-    // ===== DIÁLOGO: ORIENTACIÓN INICIAL DEL ROBOT =====
-    _pedirOrientacionInicial(path) {
-        // Sugerir la orientación del primer segmento de la ruta
-        let sugerenciaIdx = 0;
-        if (path && path.length >= 2) {
-            const dx = path[1].x - path[0].x;
-            const dy = path[1].y - path[0].y;
-            const h  = this._xyToHeading(dx, dy);
-            sugerenciaIdx = h / 90;  // 0,1,2,3
-        }
-
-        const msg =
-            `╔══════════════════════════════════╗\n` +
-            `  ORIENTACIÓN INICIAL DEL ROBOT\n` +
-            `╚══════════════════════════════════╝\n\n` +
-            `El robot fue colocado manualmente en el INICIO.\n` +
-            `¿Hacia dónde apunta la NARIZ del robot?\n\n` +
-            `  0 → Este   (+X, derecha en el mapa) →\n` +
-            `  1 → Sur    (+Y, abajo en el mapa)   ↓\n` +
-            `  2 → Oeste  (-X, izquierda en mapa)  ←\n` +
-            `  3 → Norte  (-Y, arriba en el mapa)  ↑\n\n` +
-            `Sugerencia (según primer paso): ${sugerenciaIdx}\n\n` +
-            `Ingresa 0, 1, 2 o 3:`;
-
-        const resp = prompt(msg, String(sugerenciaIdx));
-        if (resp === null) {
-            Console.logSystem('❌ Ejecución cancelada por el usuario');
-            return null;
-        }
-        const idx = parseInt(resp);
-        if (isNaN(idx) || idx < 0 || idx > 3) {
-            Console.logError('Orientación inválida — se usará la sugerencia automática');
-            return sugerenciaIdx * 90;
-        }
-        return idx * 90;
+    // ===== CONVIERTE HEADING TREMOUSE (0-3) → GRADOS control.js =====
+    // Tremouse: 0=N, 1=E, 2=S, 3=W  →  Control degrees: 270, 0, 90, 180
+    _tmHeadingToControlDeg(tmH) {
+        return [270, 0, 90, 180][tmH] ?? 270;
     },
 
     // ===== dx,dy del canvas → HEADING absoluto (0=E, 90=S, 180=O, 270=N) =====
