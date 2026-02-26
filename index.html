@@ -9,44 +9,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
 </head>
 <body>
-    <!-- Barra superior con logo y título -->
     <header class="top-header">
-        <button class="hamburger-btn" id="hamburgerBtn">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-        
+        <button class="hamburger-btn" id="hamburgerBtn"><span></span><span></span><span></span></button>
         <div class="header-content">
             <img src="20251213_180758.png" alt="RataLab Logo" class="header-logo-large">
-            <div class="header-title">
-                <h1>RataLab - UTN - FRSF</h1>
-                <p class="subtitle">Web App</p>
-            </div>
+            <div class="header-title"><h1>RataLab - UTN - FRSF</h1><p class="subtitle">Web App</p></div>
         </div>
     </header>
-
     <div class="app-container">
-        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <nav class="sidebar-nav">
-                <div class="tab active" data-tab="info">
-                    <span class="tab-text">📋 Foro</span>
-                </div>
-                <div class="tab" data-tab="connection">
-                    <span class="tab-text">🔌 Conexión</span>
-                </div>
-                <div class="tab" data-tab="control">
-                    <span class="tab-text">🎮 Control Manual</span>
-                </div>
-                <div class="tab" data-tab="maze">
-                    <span class="tab-text">🗺️ Trayectoria</span>
-                </div>
-                <div class="tab" data-tab="console">
-                    <span class="tab-text">💻 Consola Serial</span>
-                </div>
+                <div class="tab active" data-tab="info"><span class="tab-text">📋 Foro</span></div>
+                <div class="tab" data-tab="connection"><span class="tab-text">🔌 Conexión</span></div>
+                <div class="tab" data-tab="control"><span class="tab-text">🎮 Control Manual</span></div>
+                <div class="tab" data-tab="maze"><span class="tab-text">🗺️ Trayectoria</span></div>
+                <div class="tab" data-tab="console"><span class="tab-text">💻 Consola Serial</span></div>
             </nav>
-
             <div class="sidebar-footer">
                 <div id="status" class="status disconnected">Desconectado</div>
                 <div class="logo-container">
@@ -55,167 +33,86 @@
                 </div>
             </div>
         </aside>
-
-        <!-- Main Content -->
         <main class="main-content">
 
-            <!-- ═══════════════════════════════════════════ FORO TAB -->
+            <!-- FORO TAB -->
             <div id="info-tab" class="tab-content active">
                 <h2>Foro del Proyecto</h2>
-                
                 <div class="info-box">
                     <h3>¿Qué es RataLab?</h3>
-                    <p>RataLab es una plataforma web innovadora desarrollada por estudiantes de la Universidad Tecnológica Nacional - Facultad Regional San Fransisco (UTN-FRSF) para el control, monitoreo y análisis de robots móviles autónomos especializados en la resolución de laberintos.</p>
-                    <p>Este proyecto integra múltiples disciplinas de la ingeniería electrónica, combinando programación de sistemas embebidos, comunicaciones IoT, algoritmos de optimización y desarrollo web para crear una solución completa de robótica educativa.</p>
-                    <p>El sistema permite la interacción en tiempo real con robots basados en ESP32, visualización de trayectorias, control manual mediante interfaz web o teclado, y la aplicación de algoritmos avanzados de pathfinding para encontrar rutas óptimas en laberintos complejos.</p>
+                    <p>RataLab es una plataforma web desarrollada por estudiantes de UTN-FRSF para el control, monitoreo y análisis de robots móviles autónomos especializados en resolución de laberintos.</p>
+                    <p>El sistema permite la interacción en tiempo real con robots basados en ESP32, visualización de trayectorias, control manual y la aplicación de algoritmos de pathfinding para encontrar rutas óptimas en laberintos complejos.</p>
                 </div>
-
                 <div class="info-box">
                     <h3>Tecnologías Utilizadas</h3>
-                    <p><strong>Hardware:</strong> Placa de desarrollo ESP32 con conectividad WiFi integrada, sensores ultrasónicos HC-SR04 para detección de obstáculos, sensores infrarrojos para seguimiento de línea, encoders para odometría precisa y motores DC con driver L298N.</p>
-                    <p><strong>Comunicación:</strong> Protocolo MQTT (Message Queuing Telemetry Transport), un protocolo ultraligero de mensajería publish/subscribe ideal para aplicaciones IoT. Utilizamos HiveMQ Cloud como broker para garantizar comunicación confiable y de baja latencia.</p>
-                    <p><strong>Software:</strong> Frontend desarrollado con HTML5, CSS3 y JavaScript vanilla para máxima compatibilidad. Backend embebido en ESP32 programado con Arduino IDE. Algoritmos de resolución de laberintos implementados: A* (heurístico), Dijkstra (óptimo) y BFS (amplitud).</p>
-                    <p><strong>Algoritmo de Mapeo:</strong> Implementación del algoritmo <strong>Tremouse</strong> con 3 sensores ultrasonido (izquierdo, frontal, derecho) usando la regla de mano izquierda. El robot publica en tiempo real la posición de cada celda y sus paredes detectadas.</p>
+                    <p><strong>Hardware:</strong> ESP32, sensores HC-SR04, encoders de rueda dentada (30 pulsos/rev, ⌀5cm), driver L298N.</p>
+                    <p><strong>Comunicación:</strong> MQTT sobre HiveMQ Cloud (WSS puerto 8884).</p>
+                    <p><strong>Algoritmo Tremouse:</strong> Exploración celda a celda con 3 sensores ultrasonido. Giros controlados por encoder: <strong>11 pulsos = 90°</strong> exacto (calculado geométricamente para eje de 7.5cm).</p>
+                    <p><strong>Algoritmos de resolución:</strong> A* (heurístico), Dijkstra (óptimo), BFS (amplitud).</p>
                 </div>
-
-                <div class="info-box">
-                    <h3>Características del Robot</h3>
-                    <p>• <strong>Mapeo Tremouse:</strong> Exploración celda a celda con 3 sensores ultrasonido. El robot detecta paredes a izquierda, frente y derecha y las transmite en tiempo real a la web.</p>
-                    <p>• <strong>Control Remoto:</strong> Operación manual desde la interfaz web con controles de teclado (W, A, S, D, X) o botones táctiles.</p>
-                    <p>• <strong>Odometría Precisa:</strong> Sistema de encoders que registra cada movimiento del robot con precisión de centímetros.</p>
-                    <p>• <strong>Visualización en Tiempo Real:</strong> Gráfico dinámico del laberinto con paredes (naranja), trayectoria (azul) y posición del robot.</p>
-                    <p>• <strong>Algoritmos Inteligentes:</strong> Tres algoritmos de resolución disponibles para comparar eficiencia y rendimiento.</p>
-                </div>
-
                 <div class="info-box download-section">
                     <h3>Descargas</h3>
-                    
-                    <div class="download-category">
-                        <div class="category-header">
-                            <div class="download-icon">📄</div>
-                            <div class="category-info">
-                                <h4>Manual de Usuario</h4>
-                                <p>Guía completa de instalación, configuración y uso del sistema RataLab</p>
-                            </div>
-                        </div>
-                        <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/Manual_RataLab.pdf" download class="download-btn">
-                            Descargar Manual (PDF)
-                        </a>
-                    </div>
-
                     <div class="download-category">
                         <div class="category-header" onclick="toggleFirmwareList()">
                             <div class="download-icon">💾</div>
                             <div class="category-info">
                                 <h4>Firmwares ESP32 <span class="expand-arrow" id="firmwareArrow">▼</span></h4>
-                                <p>Código fuente para cargar en la placa ESP32 del robot</p>
+                                <p>Código fuente para cargar en la placa ESP32</p>
                             </div>
                         </div>
-                        
-                        <div class="firmware-list" id="firmwareList" style="display: none;">
+                        <div class="firmware-list" id="firmwareList" style="display:none;">
                             <div class="firmware-item">
                                 <div class="firmware-info">
-                                    <strong>Firmware v1.0 - Básico</strong>
-                                    <span class="firmware-tag">Estable</span>
-                                    <p>Control manual y modo automático con sensores ultrasónicos</p>
-                                </div>
-                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_esp32.ino" download class="download-btn-small">Descargar</a>
-                            </div>
-                            <div class="firmware-item">
-                                <div class="firmware-info">
-                                    <strong>Firmware v1.1 - Encoders</strong>
-                                    <span class="firmware-tag firmware-tag-beta">Beta</span>
-                                    <p>Incluye soporte para encoders y odometría avanzada</p>
-                                </div>
-                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_esp32_v1.1.ino" download class="download-btn-small">Descargar</a>
-                            </div>
-                            <div class="firmware-item">
-                                <div class="firmware-info">
-                                    <strong>Firmware v2.0 - Laberintos</strong>
-                                    <span class="firmware-tag firmware-tag-new">Nuevo</span>
-                                    <p>Algoritmos de resolución de laberintos integrados (A*, Dijkstra, BFS)</p>
-                                </div>
-                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_esp32_v2.0.ino" download class="download-btn-small">Descargar</a>
-                            </div>
-                            <div class="firmware-item">
-                                <div class="firmware-info">
-                                    <strong>Firmware v3.0 - Tremouse</strong>
+                                    <strong>Firmware v4.0 - Tremouse Encoder</strong>
                                     <span class="firmware-tag firmware-tag-recommended">Recomendado</span>
-                                    <p>Mapeo Tremouse con 3 sensores ultrasonido + publicación de paredes por MQTT</p>
+                                    <p>Giros por encoder (11 pulsos = 90°), sin depender del tiempo</p>
                                 </div>
-                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_tremouse.ino" download class="download-btn-small">Descargar</a>
+                                <a href="https://raw.githubusercontent.com/Eltomyalfonzo/RataLab/main/firmware_v4.ino" download class="download-btn-small">Descargar</a>
                             </div>
                         </div>
                     </div>
-                    
                     <div class="download-category">
                         <div class="category-header">
                             <div class="download-icon">🔧</div>
-                            <div class="category-info">
-                                <h4>Recursos Adicionales</h4>
-                                <p>Bibliotecas, esquemáticos y archivos de soporte</p>
-                            </div>
+                            <div class="category-info"><h4>Repositorio</h4><p>Código fuente completo</p></div>
                         </div>
                         <div class="github-link">
-                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
-                            </svg>
-                            <a href="https://github.com/Eltomyalfonzo/RataLab" target="_blank" rel="noopener noreferrer">github.com/Eltomyalfonzo/RataLab</a>
+                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+                            <a href="https://github.com/Eltomyalfonzo/RataLab" target="_blank">github.com/Eltomyalfonzo/RataLab</a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- ═══════════════════════════════════════ CONNECTION TAB -->
+            <!-- CONNECTION TAB -->
             <div id="connection-tab" class="tab-content">
                 <h2>Conexión MQTT</h2>
-                
-                <div class="info-box">
-                    <h3>Estado de la Conexión</h3>
-                    <p>Introduce el nombre de tu robot y presiona "Conectar" para establecer la comunicación.</p>
-                </div>
-                
+                <div class="info-box"><h3>Estado de la Conexión</h3><p>Introduce el nombre de tu robot y presiona "Conectar".</p></div>
                 <div class="input-group">
                     <input type="text" id="robotName" placeholder="Nombre del robot (ej: robot01)">
                     <button id="connectBtn">Conectar</button>
                 </div>
-                
                 <div class="info-box">
                     <h3>Configuración del Broker</h3>
                     <p><strong>Broker:</strong> HiveMQ Cloud</p>
                     <p><strong>URL:</strong> f9d90e4c488c4716ac1e5862b9c8a708.s1.eu.hivemq.cloud</p>
                     <p><strong>Puerto:</strong> 8884 (WSS)</p>
-                    <p><strong>Topic de comandos:</strong> [nombre_robot]/cmd</p>
-                    <p><strong>Topic de datos:</strong> [nombre_robot]/data</p>
-                </div>
-                
-                <div class="info-box">
-                    <h3>Instrucciones</h3>
-                    <p>1. Asegúrate de que tu robot ESP32 esté encendido y conectado a WiFi</p>
-                    <p>2. El robot debe estar programado con el mismo nombre que introduces arriba</p>
-                    <p>3. Una vez conectado, podrás enviar comandos y recibir datos del robot</p>
-                    <p>4. El indicador de estado mostrará "Conectado" cuando la comunicación esté establecida</p>
+                    <p><strong>Topic de comandos:</strong> [nombre_robot]/cmd &nbsp; <strong>Topic de datos:</strong> [nombre_robot]/data</p>
                 </div>
             </div>
 
-            <!-- ═══════════════════════════════════════════ CONTROL TAB -->
+            <!-- CONTROL TAB -->
             <div id="control-tab" class="tab-content">
                 <h2>Control Manual del Robot</h2>
-                
                 <div class="control-status-box">
                     <div id="controlStatus" class="control-disabled">⚠️ Conecta el robot primero</div>
                 </div>
 
-                <!-- ── PANEL TREMOUSE ─────────────────────────────────────── -->
+                <!-- PANEL TREMOUSE -->
                 <div class="auto-panel auto-panel-tremouse">
                     <h3>🐭 Modo Tremouse — Mapeo con 3 Ultrasonidos</h3>
-                    <p>El robot explora el laberinto celda a celda usando la <strong>regla de mano izquierda</strong>. Los 3 sensores ultrasonido (izquierdo, frontal, derecho) detectan paredes y las envían en tiempo real al mapa.</p>
-
-                    <!-- Estado Tremouse -->
-                    <div id="tremouseStatus" class="path-status path-status-idle" style="margin-bottom:12px;">
-                        En espera
-                    </div>
-
+                    <p>Exploración celda a celda. Giros controlados por <strong>encoder</strong> (11 pulsos = 90° exacto, ajustable desde calibración).</p>
+                    <div id="tremouseStatus" class="path-status path-status-idle" style="margin-bottom:12px;">En espera</div>
                     <div class="auto-btn-row">
                         <button class="auto-btn auto-btn-tremouse" id="btnTremouse" disabled onclick="iniciarTremouse()">
                             <span class="auto-btn-icon">🐭</span>
@@ -228,47 +125,42 @@
                             <span class="auto-btn-sub">Envía S</span>
                         </button>
                     </div>
+                    <div class="tremouse-info-row"><span class="tremouse-info-label">Protocolo MQTT:</span><code>CELL:col,row,wN,wE,wS,wW</code></div>
+                    <div class="tremouse-info-row"><span class="tremouse-info-label">Control de giro:</span><code>Por encoder (11 pulsos = 90°)</code></div>
+                    <div class="tremouse-info-row"><span class="tremouse-info-label">Tamaño de celda:</span><code>25 × 25 cm (48 pulsos)</code></div>
 
-                    <div class="tremouse-info-row">
-                        <span class="tremouse-info-label">Protocolo MQTT:</span>
-                        <code>CELL:col,row,wN,wE,wS,wW</code>
-                    </div>
-                    <div class="tremouse-info-row">
-                        <span class="tremouse-info-label">Orientación inicial:</span>
-                        <code>Norte (fija)</code>
-                    </div>
-                    <div class="tremouse-info-row">
-                        <span class="tremouse-info-label">Tamaño de celda:</span>
-                        <code>25 × 25 cm</code>
-                    </div>
-
-                    <!-- ── CALIBRACIÓN TREMOUSE ───────────────────────── -->
+                    <!-- CALIBRACIÓN TREMOUSE POR ENCODER -->
                     <div class="calibration-panel" style="margin-top:14px;">
-                        <div class="calibration-title">⚙️ Calibración del Robot (Tremouse)</div>
+                        <div class="calibration-title">⚙️ Calibración del Robot (Tremouse) — Control por Encoder</div>
+                        <div style="font-size:0.75em;color:#0369a1;background:#e0f2fe;border-radius:6px;padding:7px 10px;margin-bottom:10px;">
+                            📐 <strong>Valores teóricos</strong> (rueda ⌀5cm, 30 pulsos/rev, eje 7.5cm):
+                            Giro 90° = <strong>11 pulsos</strong> | Avance 25cm = <strong>48 pulsos</strong><br>
+                            <em>Si gira de más → bajá pulsos giro. Si gira de menos → subílos.</em>
+                        </div>
                         <div class="calibration-row">
                             <div class="calibration-field">
-                                <label for="tmVelAvance">Velocidad avance (PWM)</label>
+                                <label for="tmVelAvance">Velocidad avance (PWM 60-255)</label>
                                 <input type="number" id="tmVelAvance" value="200" min="60" max="255" step="5">
                             </div>
                             <div class="calibration-field">
-                                <label for="tmVelGiro">Velocidad giro (PWM)</label>
+                                <label for="tmVelGiro">Velocidad giro (PWM 60-255)</label>
                                 <input type="number" id="tmVelGiro" value="190" min="60" max="255" step="5">
                             </div>
                         </div>
                         <div class="calibration-row">
                             <div class="calibration-field">
-                                <label for="tmTiempoAvance">Tiempo avance 1 celda (ms)</label>
-                                <input type="number" id="tmTiempoAvance" value="800" min="100" max="5000" step="50">
+                                <label for="tmPulsosGiro">🔄 Pulsos giro 90° (teórico: 11)</label>
+                                <input type="number" id="tmPulsosGiro" value="11" min="1" max="100" step="1">
                             </div>
                             <div class="calibration-field">
-                                <label for="tmTiempoGiro">Tiempo giro 90° (ms)</label>
-                                <input type="number" id="tmTiempoGiro" value="550" min="100" max="3000" step="25">
+                                <label for="tmPulsosAvance">▶️ Pulsos avance 25cm (teórico: 48)</label>
+                                <input type="number" id="tmPulsosAvance" value="48" min="1" max="200" step="1">
                             </div>
                         </div>
                         <div class="calibration-row">
                             <div class="calibration-field">
-                                <label for="tmDistPared">Distancia detección pared (cm)</label>
-                                <input type="number" id="tmDistPared" value="18" min="5" max="60" step="1">
+                                <label for="tmDistPared">Distancia detección pared (cm, max 20)</label>
+                                <input type="number" id="tmDistPared" value="18" min="5" max="20" step="1">
                             </div>
                             <div class="calibration-field">
                                 <label for="tmPausaMs">Pausa entre movimientos (ms)</label>
@@ -285,66 +177,49 @@
                             <button class="calib-btn" id="btnEnviarCalibTM" disabled onclick="enviarCalibracionTremouse()">📡 Enviar al Robot</button>
                             <button class="calib-btn" id="btnTestTM" disabled onclick="testTremouse()">🔄 Test Movimiento</button>
                             <button class="calib-btn" id="btnInfoTM" disabled onclick="MQTTClient.sendMessage('TM_INFO')">ℹ️ Leer Config Actual</button>
-                            <span class="calibration-hint">Ajustá los tiempos hasta que gire exactamente 90° y avance 25 cm</span>
+                            <span class="calibration-hint">Los valores aplican tanto al Test como al Tremouse real</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- ── MODO AUTÓNOMO CLÁSICO ─────────────────────────────── -->
+                <!-- MODO AUTÓNOMO -->
                 <div class="auto-panel">
                     <h3>🤖 Modo Autónomo Clásico</h3>
-                    <p>Envía la señal <code>MV</code> al robot para que inicie la navegación autónoma con sus sensores (sin mapeo de paredes).</p>
+                    <p>Envía <code>MV</code> para navegación autónoma con sensores (sin mapeo de paredes).</p>
                     <div class="auto-btn-row">
                         <button class="auto-btn auto-btn-mv" id="btnModoAutonomo" disabled>
-                            <span class="auto-btn-icon">🚀</span>
-                            <span class="auto-btn-label">Iniciar Modo Autónomo</span>
-                            <span class="auto-btn-sub">Envía MV</span>
+                            <span class="auto-btn-icon">🚀</span><span class="auto-btn-label">Iniciar Modo Autónomo</span><span class="auto-btn-sub">Envía MV</span>
                         </button>
                         <button class="auto-btn auto-btn-stop-mv" onclick="MQTTClient.sendMessage('S')" disabled id="btnStopAutonomo">
-                            <span class="auto-btn-icon">⏹️</span>
-                            <span class="auto-btn-label">Detener Autónomo</span>
-                            <span class="auto-btn-sub">Envía S</span>
+                            <span class="auto-btn-icon">⏹️</span><span class="auto-btn-label">Detener Autónomo</span><span class="auto-btn-sub">Envía S</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- ── EJECUTAR RUTA ──────────────────────────────────────── -->
+                <!-- EJECUTAR RUTA -->
                 <div class="auto-panel auto-panel-route">
                     <h3>🗺️ Ejecutar Ruta del Algoritmo</h3>
-                    <p>Mueve el robot físicamente siguiendo el camino óptimo calculado. <strong>Resuelve el laberinto primero</strong> desde la pestaña Trayectoria.</p>
-
-                    <div id="pathStatus" class="path-status path-status-idle">
-                        Listo para ejecutar
-                    </div>
-
+                    <p>Mueve el robot siguiendo el camino calculado. <strong>Resuelve el laberinto primero</strong> desde Trayectoria.</p>
+                    <div id="pathStatus" class="path-status path-status-idle">Listo para ejecutar</div>
                     <div class="auto-btn-row">
                         <button class="auto-btn auto-btn-route" id="btnEjecutarRuta" disabled>
-                            <span class="auto-btn-icon">▶️</span>
-                            <span class="auto-btn-label">Ejecutar Ruta</span>
-                            <span class="auto-btn-sub">Sigue el camino óptimo</span>
+                            <span class="auto-btn-icon">▶️</span><span class="auto-btn-label">Ejecutar Ruta</span><span class="auto-btn-sub">Sigue el camino óptimo</span>
                         </button>
                         <button class="auto-btn auto-btn-abort" id="btnAbortarRuta" disabled style="display:none;">
-                            <span class="auto-btn-icon">⛔</span>
-                            <span class="auto-btn-label">Abortar Ruta</span>
-                            <span class="auto-btn-sub">Detiene inmediatamente</span>
+                            <span class="auto-btn-icon">⛔</span><span class="auto-btn-label">Abortar Ruta</span><span class="auto-btn-sub">Detiene inmediatamente</span>
                         </button>
                     </div>
-
-                    <div class="route-info">
-                        <span id="routeStepsInfo">Sin ruta cargada — ve a Trayectoria y resuelve el laberinto</span>
-                    </div>
-
-                    <!-- ── CALIBRACIÓN DE PULSOS ───────────────────────── -->
+                    <div class="route-info"><span id="routeStepsInfo">Sin ruta cargada — ve a Trayectoria y resuelve el laberinto</span></div>
                     <div class="calibration-panel">
-                        <div class="calibration-title">⚙️ Calibración de movimiento</div>
+                        <div class="calibration-title">⚙️ Calibración de movimiento (Ruta Automática)</div>
                         <div class="calibration-row">
                             <div class="calibration-field">
                                 <label for="inputPulsosCelda">Pulsos / celda (25 cm)</label>
-                                <input type="number" id="inputPulsosCelda" value="46" min="10" max="200" step="1">
+                                <input type="number" id="inputPulsosCelda" value="48" min="10" max="200" step="1">
                             </div>
                             <div class="calibration-field">
                                 <label for="inputPulsosGiro">Pulsos / giro 90°</label>
-                                <input type="number" id="inputPulsosGiro" value="30" min="5" max="200" step="1">
+                                <input type="number" id="inputPulsosGiro" value="11" min="5" max="200" step="1">
                             </div>
                         </div>
                         <div class="calibration-btns">
@@ -354,51 +229,31 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- ── CONTROL MANUAL ─────────────────────────────────────── -->
+
+                <!-- CONTROL MANUAL -->
                 <div class="control-panel">
                     <div class="control-row">
                         <div class="control-spacer"></div>
-                        <button class="control-btn" id="btnForward" disabled>
-                            <div class="arrow">▲</div>
-                            <div class="label">Adelante<br>(W)</div>
-                        </button>
+                        <button class="control-btn" id="btnForward" disabled><div class="arrow">▲</div><div class="label">Adelante<br>(W)</div></button>
                         <div class="control-spacer"></div>
                     </div>
-                    
                     <div class="control-row">
-                        <button class="control-btn" id="btnLeft" disabled>
-                            <div class="arrow">◄</div>
-                            <div class="label">Izquierda<br>(A)</div>
-                        </button>
-                        <button class="control-btn stop-btn" id="btnStop" disabled>
-                            <div class="arrow">■</div>
-                            <div class="label">Detener<br>(S)</div>
-                        </button>
-                        <button class="control-btn" id="btnRight" disabled>
-                            <div class="arrow">►</div>
-                            <div class="label">Derecha<br>(D)</div>
-                        </button>
+                        <button class="control-btn" id="btnLeft" disabled><div class="arrow">◄</div><div class="label">Izquierda<br>(A)</div></button>
+                        <button class="control-btn stop-btn" id="btnStop" disabled><div class="arrow">■</div><div class="label">Detener<br>(S)</div></button>
+                        <button class="control-btn" id="btnRight" disabled><div class="arrow">►</div><div class="label">Derecha<br>(D)</div></button>
                     </div>
-                    
                     <div class="control-row">
                         <div class="control-spacer"></div>
-                        <button class="control-btn" id="btnBackward" disabled>
-                            <div class="arrow">▼</div>
-                            <div class="label">Atrás<br>(X)</div>
-                        </button>
+                        <button class="control-btn" id="btnBackward" disabled><div class="arrow">▼</div><div class="label">Atrás<br>(X)</div></button>
                         <div class="control-spacer"></div>
                     </div>
                 </div>
-                
                 <div class="control-settings">
-                    <label>
-                        Velocidad del Robot:
+                    <label>Velocidad del Robot:
                         <input type="range" id="speedSlider" min="50" max="255" value="150" disabled>
                         <span id="speedValue">150</span>
                     </label>
                 </div>
-                
                 <div class="info-box">
                     <h3>Controles de Teclado</h3>
                     <p><strong>W</strong> - Adelante &nbsp; <strong>A</strong> - Izquierda &nbsp; <strong>S</strong> - Detener &nbsp; <strong>D</strong> - Derecha &nbsp; <strong>X</strong> - Atrás</p>
@@ -406,23 +261,19 @@
                 </div>
             </div>
 
-            <!-- ═══════════════════════════════════════════════ MAZE TAB -->
+            <!-- MAZE TAB -->
             <div id="maze-tab" class="tab-content">
                 <h2>Visualización de Trayectoria y Paredes</h2>
-
-                <!-- Indicador Tremouse activo -->
                 <div id="mazeMapNotice" class="tremouse-map-notice" style="display:none;">
                     🐭 <strong>Tremouse activo</strong> — recibiendo paredes en tiempo real
                 </div>
-                
                 <div class="maze-controls">
                     <button onclick="Maze.clear()">🗑️ Limpiar Canvas</button>
-                    <input type="file" id="mazeFile" accept=".txt,.csv" style="display: none;">
+                    <input type="file" id="mazeFile" accept=".txt,.csv" style="display:none;">
                     <button onclick="document.getElementById('mazeFile').click()">📂 Cargar Archivo</button>
                     <button onclick="exportMazeData()">💾 Exportar Datos</button>
                     <button id="toggleWallsBtn" onclick="toggleWalls()" class="btn-walls-active">🧱 Ocultar Paredes</button>
                 </div>
-                
                 <div class="solver-controls">
                     <h3>🤖 Resolución Automática</h3>
                     <div class="solver-group">
@@ -433,56 +284,37 @@
                             <option value="bfs">BFS (Amplitud)</option>
                         </select>
                         <button onclick="solveMaze()">▶️ Resolver Laberinto</button>
-                        <button id="toggleSolutionBtn" onclick="toggleSolution()" style="display: none;">Ocultar Solución</button>
+                        <button id="toggleSolutionBtn" onclick="toggleSolution()" style="display:none;">Ocultar Solución</button>
                     </div>
                 </div>
-                
                 <div class="maze-settings">
-                    <label>
-                        Escala (px/cm): 
-                        <input type="number" id="scale" value="4" min="1" max="20" step="1"
-                               onchange="Maze.setScale(parseFloat(this.value))">
+                    <label>Escala (px/cm):
+                        <input type="number" id="scale" value="4" min="1" max="20" step="1" onchange="Maze.setScale(parseFloat(this.value))">
                         <span style="font-size:0.8em;color:#64748b;">(celda = valor × 25 px)</span>
                     </label>
                 </div>
-                
-                <div class="canvas-container">
-                    <canvas id="mazeCanvas"></canvas>
-                </div>
-                
+                <div class="canvas-container"><canvas id="mazeCanvas"></canvas></div>
                 <div class="info-box">
-                    <h3>Leyenda del mapa:</h3>
-                    <p><span class="legend-color" style="background: #22c55e;"></span> <strong>Verde (S):</strong> Celda de inicio</p>
-                    <p><span class="legend-color" style="background: #ef4444;"></span> <strong>Rojo (E):</strong> Última celda visitada / fin</p>
-                    <p><span class="legend-color" style="background: rgba(96,165,250,0.5);"></span> <strong>Azul claro:</strong> Celdas recorridas por el robot</p>
-                    <p><span class="legend-color" style="background: #3b82f6;"></span> <strong>Línea azul:</strong> Trayectoria (centro a centro de celdas)</p>
-                    <p><span class="legend-color" style="background: #f97316;"></span> <strong>Naranja:</strong> Paredes detectadas por los sensores Tremouse</p>
-                    <p><span class="legend-color" style="background: rgba(245,158,11,0.5);"></span> <strong>Amarillo:</strong> Camino óptimo calculado por el algoritmo</p>
-                    <p><span class="legend-color" style="background: #ef4444; border-radius:50%;"></span> <strong>Círculo rojo:</strong> Posición actual del robot con flecha de orientación</p>
-
-                    <h3 style="margin-top:16px;">Protocolo Tremouse (MQTT):</h3>
-                    <pre style="background:#f1f5f9;padding:10px;border-radius:4px;color:#1e293b;border:1px solid #e2e8f0;font-size:0.8em;">
-Mensaje recibido:  CELL:col,row,wN,wE,wS,wW
-Ejemplo:           CELL:2,3,1,0,0,1
-                   → celda (2,3), pared N, libre E, libre S, pared W
-
-Comando inicio:    TM   → inicia Tremouse
-Comando stop:      S    → detiene el robot
-Orientación:       Norte fija (heading 0 en todo momento al arrancar)</pre>
+                    <h3>Leyenda:</h3>
+                    <p><span class="legend-color" style="background:#22c55e;"></span> <strong>Verde (S):</strong> Inicio &nbsp; <span class="legend-color" style="background:#ef4444;"></span> <strong>Rojo (E):</strong> Fin</p>
+                    <p><span class="legend-color" style="background:rgba(96,165,250,0.5);"></span> Azul claro: celdas visitadas &nbsp; <span class="legend-color" style="background:#f97316;"></span> Naranja: paredes Tremouse</p>
+                    <p><span class="legend-color" style="background:rgba(245,158,11,0.5);"></span> Amarillo: camino óptimo &nbsp; <span class="legend-color" style="background:#ef4444;border-radius:50%;"></span> Círculo rojo: posición del robot</p>
+                    <h3 style="margin-top:16px;">Protocolo Tremouse:</h3>
+                    <pre style="background:#f1f5f9;padding:10px;border-radius:4px;color:#1e293b;border:1px solid #e2e8f0;font-size:0.8em;">CELL:col,row,wN,wE,wS,wW   Ejemplo: CELL:2,3,1,0,0,1
+TM → inicia Tremouse | S → detiene | Giro: 11 pulsos encoder = 90°</pre>
                 </div>
             </div>
 
-            <!-- ═══════════════════════════════════════════ CONSOLE TAB -->
+            <!-- CONSOLE TAB -->
             <div id="console-tab" class="tab-content">
                 <h2>Puerto Serial Virtual</h2>
                 <div id="console" class="console"></div>
-                <div class="input-group" style="margin-top: 15px;">
+                <div class="input-group" style="margin-top:15px;">
                     <input type="text" id="messageInput" placeholder="Escribe un mensaje..." disabled>
                     <button id="sendBtn" disabled>Enviar</button>
                 </div>
                 <button class="clear-btn">Limpiar Consola</button>
             </div>
-
         </main>
     </div>
 
@@ -494,12 +326,10 @@ Orientación:       Norte fija (heading 0 en todo momento al arrancar)</pre>
     <script src="ui.js"></script>
     <script src="mqtt.js"></script>
     <script>
-        // ── Menú hamburguesa ──────────────────────────────────────────
         window.addEventListener('load', () => {
-            const hamburgerBtn = document.getElementById('hamburgerBtn');
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.querySelector('.main-content');
-            
+            const hamburgerBtn  = document.getElementById('hamburgerBtn');
+            const sidebar       = document.getElementById('sidebar');
+            const mainContent   = document.querySelector('.main-content');
             if (hamburgerBtn && sidebar && mainContent) {
                 hamburgerBtn.addEventListener('click', (e) => {
                     e.preventDefault(); e.stopPropagation();
@@ -518,7 +348,7 @@ Orientación:       Norte fija (heading 0 en todo momento al arrancar)</pre>
                 });
             }
         });
-        
+
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('mazeFile').addEventListener('change', (e) => {
                 const file = e.target.files[0];
@@ -526,26 +356,26 @@ Orientación:       Norte fija (heading 0 en todo momento al arrancar)</pre>
             });
         });
 
-        // ── Calibración Tremouse ──────────────────────────────────────
+        // Calibración Tremouse — ENCODER BASED
+        // Aplica tanto a TM_TEST como a TM real (son los mismos parámetros en el firmware)
         function enviarCalibracionTremouse() {
             if (!AppState.isConnected) { Console.logError('Conecta el robot primero'); return; }
             const vel      = document.getElementById('tmVelAvance').value;
             const gvel     = document.getElementById('tmVelGiro').value;
-            const tavance  = document.getElementById('tmTiempoAvance').value;
-            const tgiro    = document.getElementById('tmTiempoGiro').value;
+            const pgiro    = document.getElementById('tmPulsosGiro').value;
+            const pavance  = document.getElementById('tmPulsosAvance').value;
             const pared    = document.getElementById('tmDistPared').value;
             const pausa    = document.getElementById('tmPausaMs').value;
             const muestras = document.getElementById('tmMuestras').value;
             MQTTClient.sendMessage('TM_VEL:'      + vel);
             MQTTClient.sendMessage('TM_GVEL:'     + gvel);
-            MQTTClient.sendMessage('TM_TAVANCE:'  + tavance);
-            MQTTClient.sendMessage('TM_TGIRO:'    + tgiro);
+            MQTTClient.sendMessage('TM_PGIRO:'    + pgiro);
+            MQTTClient.sendMessage('TM_PAVANCE:'  + pavance);
             MQTTClient.sendMessage('TM_PARED:'    + pared);
             MQTTClient.sendMessage('TM_PAUSA:'    + pausa);
             MQTTClient.sendMessage('TM_MUESTRAS:' + muestras);
-            Console.logSystem('Calibracion Tremouse enviada: vel=' + vel + ' gvel=' + gvel +
-                ' tavance=' + tavance + 'ms tgiro=' + tgiro + 'ms pared=' + pared +
-                'cm pausa=' + pausa + 'ms muestras=' + muestras);
+            Console.logSystem('⚙️ Calibración enviada: vel=' + vel + ' gvel=' + gvel +
+                ' pgiro=' + pgiro + ' pulsos | pavance=' + pavance + ' pulsos | pared=' + pared + 'cm');
         }
 
         function testTremouse() {
@@ -553,25 +383,19 @@ Orientación:       Norte fija (heading 0 en todo momento al arrancar)</pre>
             enviarCalibracionTremouse();
             setTimeout(() => {
                 MQTTClient.sendMessage('TM_TEST');
-                Console.logSystem('Test de movimiento Tremouse enviado (avance + giro izq + giro der)');
-            }, 500);
+                Console.logSystem('🔄 Test: avance + giro izq + giro der (por encoders)');
+            }, 600);
         }
 
-        // ── Tremouse ──────────────────────────────────────────────────
         function iniciarTremouse() {
-            if (!AppState.isConnected) {
-                Console.logError('⚠️ Conecta el robot primero');
-                return;
-            }
+            if (!AppState.isConnected) { Console.logError('⚠️ Conecta el robot primero'); return; }
             MQTTClient.sendMessage('TM');
             Console.logSystem('🐭 Tremouse iniciado (TM enviado)');
             document.getElementById('tremouseStatus').textContent = '🐭 Tremouse en ejecución...';
             document.getElementById('tremouseStatus').className = 'path-status path-status-running';
-            // Cambiar a pestaña del mapa
             UI.switchTab('maze');
         }
 
-        // ── Toggle paredes ────────────────────────────────────────────
         function toggleWalls() {
             const visible = Maze.toggleWalls();
             const btn = document.getElementById('toggleWallsBtn');
@@ -579,7 +403,6 @@ Orientación:       Norte fija (heading 0 en todo momento al arrancar)</pre>
             btn.className   = visible ? 'btn-walls-active' : '';
         }
 
-        // ── Firmware list ─────────────────────────────────────────────
         function toggleFirmwareList() {
             const list  = document.getElementById('firmwareList');
             const arrow = document.getElementById('firmwareArrow');
@@ -587,26 +410,24 @@ Orientación:       Norte fija (heading 0 en todo momento al arrancar)</pre>
             else                                { list.style.display = 'none';  arrow.textContent = '▼'; }
         }
 
-        // ── Exportar ──────────────────────────────────────────────────
         function exportMazeData() {
             const data = Maze.exportData();
             if (!data) { Console.logError('No hay datos para exportar'); return; }
             const blob = new Blob([data], { type: 'text/plain' });
             const url  = URL.createObjectURL(blob);
             const a    = document.createElement('a');
-            a.href = url; a.download = `mapa_tremouse_${new Date().getTime()}.txt`; a.click();
+            a.href = url; a.download = 'mapa_tremouse_' + new Date().getTime() + '.txt'; a.click();
             URL.revokeObjectURL(url);
             Console.logSystem('Mapa exportado exitosamente');
         }
 
-        // ── Resolver laberinto ────────────────────────────────────────
         function solveMaze() {
             const algorithm = document.getElementById('algorithmSelect').value;
             const solution  = MazeSolver.solve(algorithm);
             if (solution) {
                 Maze.setSolution(solution);
                 document.getElementById('toggleSolutionBtn').style.display = 'inline-block';
-                Console.logSystem(`✓ Laberinto resuelto con ${algorithm.toUpperCase()} — ${solution.length - 1} pasos`);
+                Console.logSystem('✓ Resuelto con ' + algorithm.toUpperCase() + ' — ' + (solution.length-1) + ' pasos');
                 RobotControl.actualizarInfoRuta();
             }
         }
