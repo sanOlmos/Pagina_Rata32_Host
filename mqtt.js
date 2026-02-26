@@ -2,17 +2,10 @@
 const MQTTClient = {
     connect() {
         const robotName = UI.getRobotName();
-
-        if (!robotName) {
-            Console.logError('Debes ingresar un nombre de robot');
-            UI.switchTab('console');
-            return;
-        }
-
+        if (!robotName) { Console.logError('Debes ingresar un nombre de robot'); UI.switchTab('console'); return; }
         AppState.currentTopic = robotName;
         UI.updateStatus('Conectando al broker...', 'connecting');
         Console.logSystem(`Intentando conectar con el robot: ${robotName}`);
-
         AppState.client = mqtt.connect(MQTT_CONFIG.brokerUrl, {
             clientId: 'web_client_' + Math.random().toString(16).substr(2, 8),
             username: MQTT_CONFIG.username,
@@ -20,7 +13,6 @@ const MQTTClient = {
             clean: MQTT_CONFIG.cleanSession,
             reconnectPeriod: MQTT_CONFIG.reconnectPeriod,
         });
-
         this.attachMQTTHandlers();
     },
 
@@ -33,37 +25,25 @@ const MQTTClient = {
 
     onConnect() {
         Console.logSystem('Conectado al broker HiveMQ Cloud');
-
+        // IMPORTANTE: la web NO se suscribe a /cmd para evitar recibir sus propios mensajes
         const topics = [
             `${AppState.currentTopic}/data`,
-            `${AppState.currentTopic}/cmd`,
             `${AppState.currentTopic}/status`,
-            `${AppState.currentTopic}/#`
         ];
-
         AppState.client.subscribe(topics, (err) => {
             if (!err) {
-                Console.logSystem(`📡 Suscrito a topics:`);
-                topics.forEach(topic => Console.logSystem(`  • ${topic}`));
-
-                AppState.client.publish(`${AppState.currentTopic}/cmd`, 'CONNECT', (err) => {
-                    if (!err) {
-                        Console.logSent('CONNECT');
-                        Console.logSystem('Esperando confirmación del robot...');
-                    }
-                });
+                Console.logSystem(`📡 Suscrito a: ${topics.join(', ')}`);
+                AppState.client.publish(`${AppState.currentTopic}/cmd`, 'CONNECT');
+                Console.logSent('CONNECT');
+                Console.logSystem('Esperando confirmación del robot...');
             }
         });
     },
 
     onMessage(topic, message) {
         const msg = message.toString();
-
-        // Mostrar en consola SIEMPRE (excepto coordenadas X,Y que son muy frecuentes en Tremouse)
         const isCoord = !msg.startsWith('CELL:') && msg.includes(',') && !isNaN(parseFloat(msg.split(',')[0]));
-        if (!isCoord) {
-            Console.logReceived(`[${topic}] ${msg}`);
-        }
+        if (!isCoord) Console.logReceived(`[${topic}] ${msg}`);
 
         // ── CONEXIÓN ──────────────────────────────────────────────────────
         if (msg === 'CONNECTED') {
@@ -76,111 +56,70 @@ const MQTTClient = {
         }
 
         // ── TREMOUSE CELL: col,row,wN,wE,wS,wW ───────────────────────────
-        // Ejemplo: CELL:2,3,1,0,0,1
         if (msg.startsWith('CELL:')) {
             const parts = msg.substring(5).split(',');
             if (parts.length === 6) {
-                const col = parseInt(parts[0]);
-                const row = parseInt(parts[1]);
-                const wN  = parts[2] === '1';
-                const wE  = parts[3] === '1';
-                const wS  = parts[4] === '1';
-                const wW  = parts[5] === '1';
-                if (!isNaN(col) && !isNaN(row)) {
-                    Maze.addWallData(col, row, wN, wE, wS, wW);
-                    // Cambiar automáticamente al tab del mapa si no está visible
-                    UI.notifyMapUpdate();
-                }
+                const col = parseInt(parts[0]), row = parseInt(parts[1]);
+                const wN = parts[2]==='1', wE = parts[3]==='1', wS = parts[4]==='1', wW = parts[5]==='1';
+                if (!isNaN(col) && !isNaN(row)) { Maze.addWallData(col, row, wN, wE, wS, wW); UI.notifyMapUpdate(); }
             }
             return;
         }
 
-        // ── TREMOUSE CFG: sync calibration inputs ────────────────────
-        // Formato: TM_CFG:vel=200,gvel=190,tavance=800,tgiro=550,pared=18.0,pausa=300
+        // ── TREMOUSE CFG ─────────────────────────────────────────────────
+        // Formato: TM_CFG:vel=200,gvel=190,pavance=48,pgiro=11,pared=18.0,pausa=300,muestras=5,toutgiro=2000
         if (msg.startsWith('TM_CFG:')) {
-            const cfg = msg.substring(7);
-            const pairs = { vel:'tmVelAvance', gvel:'tmVelGiro', tavance:'tmTiempoAvance',
-                            tgiro:'tmTiempoGiro', pared:'tmDistPared', pausa:'tmPausaMs',
-                            muestras:'tmMuestras' };
-            cfg.split(',').forEach(pair => {
+            const pairs = {
+                vel:      'tmVelAvance',
+                gvel:     'tmVelGiro',
+                pavance:  'tmPulsosAvance',   // ← nuevo: pulsos en vez de tiempo
+                pgiro:    'tmPulsosGiro',      // ← nuevo: pulsos en vez de tiempo
+                pared:    'tmDistPared',
+                pausa:    'tmPausaMs',
+                muestras: 'tmMuestras',
+                toutgiro: 'tmTimeoutGiro',
+            };
+            msg.substring(7).split(',').forEach(pair => {
                 const [k, v] = pair.split('=');
-                const inputId = pairs[k.trim()];
-                if (inputId) {
-                    const el = document.getElementById(inputId);
-                    if (el) el.value = parseFloat(v);
-                }
+                const id = pairs[k ? k.trim() : ''];
+                if (id) { const el = document.getElementById(id); if (el) el.value = parseFloat(v); }
             });
-            Console.logSystem('Calibracion Tremouse sincronizada desde el robot');
+            Console.logSystem('⚙️ Calibración Tremouse sincronizada desde el robot');
             return;
         }
 
         // ── TREMOUSE START ────────────────────────────────────────────────
-        if (msg === 'TREMOUSE_START') {
-            Console.logSystem('🐭 Modo Tremouse iniciado en el robot');
-            UI.notifyTremouseActive(true);
-            return;
-        }
+        if (msg === 'TREMOUSE_START') { Console.logSystem('🐭 Tremouse iniciado'); UI.notifyTremouseActive(true); return; }
 
         // ── STEPS (encoder) ───────────────────────────────────────────────
         if (msg.startsWith('STEPS:')) {
-            const parts = msg.substring(6).split(',');
-            const izq = parseFloat(parts[0]);
-            const der = parseFloat(parts[1]);
+            const [izqStr, derStr] = msg.substring(6).split(',');
+            const izq = parseFloat(izqStr), der = parseFloat(derStr);
             if (!isNaN(izq) && !isNaN(der) && typeof RobotControl !== 'undefined') {
                 RobotControl.onStepsReceived(izq, der);
-                if (RobotControl.autoPathRunning) {
+                if (RobotControl.autoPathRunning)
                     Console.logReceived(`📡 STEPS Izq:${izq} Der:${der} Avg:${((izq+der)/2).toFixed(1)}`);
-                }
             }
             return;
         }
 
-        // ── STATUS extendido (X:|Y:|ANG:|MODO:...) ───────────────────────
+        // ── STATUS ────────────────────────────────────────────────────────
         if (msg.startsWith('X:') && msg.includes('TM_COL:')) {
-            // Extraer heading del status para actualizar robot en mapa
-            const hdgMatch = msg.match(/TM_HDG:(\d)/);
-            const colMatch = msg.match(/TM_COL:(-?\d+)/);
-            const rowMatch = msg.match(/TM_ROW:(-?\d+)/);
-            if (hdgMatch && colMatch && rowMatch) {
-                Maze.robotHeading = parseInt(hdgMatch[1]);
-                // No redibujar aquí; se redibuja con el próximo CELL:
-            }
+            const m = msg.match(/TM_HDG:(\d)/);
+            if (m) Maze.robotHeading = parseInt(m[1]);
             return;
         }
 
         // ── STOP ─────────────────────────────────────────────────────────
-        if (msg === 'STOP') {
-            UI.notifyTremouseActive(false);
-            return;
-        }
+        if (msg === 'STOP') { UI.notifyTremouseActive(false); return; }
 
-        // ── COORDENADAS X,Y (odometría clásica) ──────────────────────────
-        if (isCoord) {
-            Maze.processLine(msg);
-            return;
-        }
+        // ── COORDENADAS X,Y ───────────────────────────────────────────────
+        if (isCoord) { Maze.processLine(msg); return; }
     },
 
-    onError(err) {
-        Console.logError(err.message);
-        UI.updateStatus('Error de conexión', 'disconnected');
-    },
-
-    onClose() {
-        if (AppState.isConnected) {
-            Console.logSystem('Conexión cerrada');
-            this.reset();
-        }
-    },
-
-    disconnect() {
-        if (AppState.client) {
-            AppState.client.end();
-            Console.logSystem('Desconectado del broker');
-        }
-        this.reset();
-    },
-
+    onError(err) { Console.logError(err.message); UI.updateStatus('Error de conexión', 'disconnected'); },
+    onClose() { if (AppState.isConnected) { Console.logSystem('Conexión cerrada'); this.reset(); } },
+    disconnect() { if (AppState.client) { AppState.client.end(); Console.logSystem('Desconectado'); } this.reset(); },
     reset() {
         AppState.isConnected = false;
         UI.updateStatus('Desconectado del broker', 'disconnected');
@@ -188,17 +127,11 @@ const MQTTClient = {
         UI.notifyTremouseActive(false);
         if (typeof RobotControl !== 'undefined') RobotControl.disable();
     },
-
-    toggleConnection() {
-        if (AppState.isConnected) this.disconnect();
-        else this.connect();
-    },
-
+    toggleConnection() { if (AppState.isConnected) this.disconnect(); else this.connect(); },
     sendMessage(message) {
         if (AppState.client && AppState.isConnected) {
-            const topic = `${AppState.currentTopic}/cmd`;
-            AppState.client.publish(topic, message);
-            Console.logSent(`[${topic}] ${message}`);
+            AppState.client.publish(`${AppState.currentTopic}/cmd`, message);
+            Console.logSent(`[${AppState.currentTopic}/cmd] ${message}`);
         }
     }
 };
