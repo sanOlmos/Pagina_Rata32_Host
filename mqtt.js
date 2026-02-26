@@ -88,6 +88,12 @@ const MQTTClient = {
             return;
         }
 
+        // ── TM_MOVE_DONE — movimiento autónomo completado ─────────────────
+        if (msg === 'TM_MOVE_DONE') {
+            if (typeof RobotControl !== 'undefined') RobotControl.onMoveDoneReceived();
+            return;
+        }
+
         // ── TREMOUSE START ────────────────────────────────────────────────
         if (msg === 'TREMOUSE_START') { Console.logSystem('🐭 Tremouse iniciado'); UI.notifyTremouseActive(true); return; }
 
