@@ -88,14 +88,15 @@ const MQTTClient = {
             return;
         }
 
-        // ── TM_MOVE_DONE — movimiento autónomo completado ─────────────────
-        if (msg === 'TM_MOVE_DONE') {
-            if (typeof RobotControl !== 'undefined') RobotControl.onMoveDoneReceived();
-            return;
-        }
-
         // ── TREMOUSE START ────────────────────────────────────────────────
         if (msg === 'TREMOUSE_START') { Console.logSystem('🐭 Tremouse iniciado'); UI.notifyTremouseActive(true); return; }
+
+        // ── TM_MOVE_DONE — sincronización de ejecución de ruta ────────────
+        // El firmware responde TM_MOVE_DONE al terminar TM_AVANZAR / TM_GIRO_IZQ / TM_GIRO_DER
+        if (msg === 'TM_MOVE_DONE') {
+            if (typeof RobotControl !== 'undefined') RobotControl.onTmMoveDone();
+            return;
+        }
 
         // ── STEPS (encoder) ───────────────────────────────────────────────
         if (msg.startsWith('STEPS:')) {
