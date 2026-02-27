@@ -211,21 +211,23 @@
                     </div>
                     <div class="route-info"><span id="routeStepsInfo">Sin ruta cargada — ve a Trayectoria y resuelve el laberinto</span></div>
                     <div class="calibration-panel">
-                        <div class="calibration-title">⚙️ Calibración de movimiento (Ruta Automática)</div>
+                        <div class="calibration-title">⚙️ Configuración de Ejecución de Ruta</div>
+                        <div style="font-size:0.75em;color:#0369a1;background:#e0f2fe;border-radius:6px;padding:7px 10px;margin-bottom:10px;">
+                            🔗 <strong>Usa la misma calibración del Tremouse</strong> — pulsos avance, pulsos giro, velocidades y pausa
+                            se toman directamente del firmware. Ajustalos en el panel Tremouse de arriba.<br>
+                            El robot confirma cada movimiento con <code>TM_MOVE_DONE</code> antes de recibir el siguiente.
+                        </div>
                         <div class="calibration-row">
                             <div class="calibration-field">
-                                <label for="inputPulsosCelda">Pulsos / celda (25 cm)</label>
-                                <input type="number" id="inputPulsosCelda" value="48" min="10" max="200" step="1">
+                                <label for="inputTmMoveTimeout">⏱️ Timeout por movimiento (ms)</label>
+                                <input type="number" id="inputTmMoveTimeout" value="8000" min="1000" max="30000" step="500">
                             </div>
-                            <div class="calibration-field">
-                                <label for="inputPulsosGiro">Pulsos / giro 90°</label>
-                                <input type="number" id="inputPulsosGiro" value="11" min="5" max="200" step="1">
+                            <div class="calibration-field" style="display:flex;align-items:flex-end;padding-bottom:4px;">
+                                <span style="font-size:0.78em;color:#64748b;">Tiempo máximo de espera para <code>TM_MOVE_DONE</code>.<br>Si expira, avanza al siguiente paso de todas formas.</span>
                             </div>
                         </div>
                         <div class="calibration-btns">
-                            <button class="calib-btn" id="btnTestGiro" disabled>🔄 Test Giro 90°</button>
-                            <button class="calib-btn" id="btnTestAvance" disabled>▶️ Test Avance 25cm</button>
-                            <span class="calibration-hint">Ajustá los valores hasta que el movimiento sea exacto</span>
+                            <span class="calibration-hint">Para calibrar: ajustá los parámetros en el panel Tremouse → Enviar al Robot → luego ejecutá la ruta</span>
                         </div>
                     </div>
                 </div>
