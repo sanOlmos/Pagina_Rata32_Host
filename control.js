@@ -14,36 +14,74 @@ const RobotControl = {
     autoPathRunning: false,
     autoPathAborted: false,
 
-    // ===== ESPERA DE CONFIRMACIÓN TM_MOVE_DONE =====
-    // La ruta usa los mismos comandos del Tremouse (TM_AVANZAR / TM_GIRO_IZQ / TM_GIRO_DER)
-    // El firmware responde con TM_MOVE_DONE cuando termina el movimiento.
-    _moveDoneResolvers: [],
-
-    onMoveDoneReceived() {
-        const r = this._moveDoneResolvers.shift();
-        if (r) r();
+    // ===== TIMEOUT DE ESPERA TM_MOVE_DONE (leído desde el UI) =====
+    get TM_MOVE_TIMEOUT_MS() {
+        const el = document.getElementById('inputTmMoveTimeout');
+        return el ? Math.max(1000, parseInt(el.value) || 8000) : 8000;
     },
+
+    // ===== SINCRONIZACIÓN TM_MOVE_DONE =====
+    // La web espera TM_MOVE_DONE del robot antes de enviar el siguiente comando.
+    // mqtt.js llama a onTmMoveDone() cuando llega el mensaje.
+    _tmMoveResolve: null,
+
+    onTmMoveDone() {
+        if (this._tmMoveResolve) {
+            const r = this._tmMoveResolve;
+            this._tmMoveResolve = null;
+            r(true);
+        }
+    },
+
+    waitForTmMoveDone() {
+        const timeout = this.TM_MOVE_TIMEOUT_MS;
+        return new Promise(resolve => {
+            this._tmMoveResolve = resolve;
+            setTimeout(() => {
+                if (this._tmMoveResolve === resolve) {
+                    this._tmMoveResolve = null;
+                    Console.logSystem(`⏱️ Timeout TM_MOVE_DONE (${timeout}ms) — continuando de todas formas`);
+                    resolve(false);
+                }
+            }, timeout);
+        });
+    },
+
+    // ===== PULSOS (solo para tests manuales independientes del Tremouse) =====
+    _stepResolvers: [],
+    _stepPulsosActuales: 0,
 
     // ===== ORIENTACIÓN ACTUAL DEL ROBOT =====
     headingDeg: 0,
 
     onStepsReceived(izq, der) {
-        // Mantenido por compatibilidad — ya no se usa en ejecución de ruta
+        const avg = (izq + der) / 2;
+        this._stepPulsosActuales = avg;
+        this._stepResolvers = this._stepResolvers.filter(({ resolve, target }) => {
+            if (avg >= target) { resolve(avg); return false; }
+            return true;
+        });
     },
 
-    waitForMoveDone(timeoutMs = 8000) {
+    waitForSteps(target, timeoutMs = 8000) {
         return new Promise(resolve => {
-            const entry = resolve;
-            this._moveDoneResolvers.push(entry);
+            if (this._stepPulsosActuales >= target) { resolve(this._stepPulsosActuales); return; }
+            const entry = { resolve, target };
+            this._stepResolvers.push(entry);
             setTimeout(() => {
-                const idx = this._moveDoneResolvers.indexOf(entry);
+                const idx = this._stepResolvers.indexOf(entry);
                 if (idx !== -1) {
-                    this._moveDoneResolvers.splice(idx, 1);
-                    Console.logSystem(`⏱️ Timeout esperando TM_MOVE_DONE`);
-                    resolve();
+                    this._stepResolvers.splice(idx, 1);
+                    Console.logSystem(`⏱️ Timeout paso (${this._stepPulsosActuales.toFixed(0)}/${target} pulsos)`);
+                    resolve(this._stepPulsosActuales);
                 }
             }, timeoutMs);
         });
+    },
+
+    resetStepCounter() {
+        this._stepPulsosActuales = 0;
+        this._stepResolvers = [];
     },
 
     init() {
@@ -118,6 +156,7 @@ const RobotControl = {
         const path = MazeSolver.solution;
         this.autoPathRunning = true;
         this.autoPathAborted = false;
+        this._tmMoveResolve  = null;
 
         const headingInicial = this._pedirOrientacionInicial(path);
         if (headingInicial === null) {
@@ -132,9 +171,12 @@ const RobotControl = {
         this.updatePathStatus('running', `Iniciando — orientación: ${this._headingLabel(this.headingDeg)}`);
 
         Console.logSystem(`🗺️ ══════════ RUTA AUTOMÁTICA INICIADA ══════════`);
-        Console.logSystem(`   Robot colocado manualmente en celda de inicio`);
+        Console.logSystem(`   📡 Protocolo: TM_AVANZAR / TM_GIRO_IZQ / TM_GIRO_DER`);
+        Console.logSystem(`   🔄 Sincronización: espera TM_MOVE_DONE del robot tras cada mov.`);
+        Console.logSystem(`   ⚙️ Calibración: usa la misma configuración del Tremouse en el robot`);
         Console.logSystem(`   Orientación inicial: ${this._headingLabel(this.headingDeg)}`);
         Console.logSystem(`   Total de pasos: ${path.length - 1}`);
+        Console.logSystem(`   Timeout por movimiento: ${this.TM_MOVE_TIMEOUT_MS} ms`);
 
         MQTTClient.sendMessage('Z');
         await this.sleep(350);
@@ -149,7 +191,6 @@ const RobotControl = {
 
             const targetHeading = this._xyToHeading(dx, dy);
             const giro = this._calcularGiro(this.headingDeg, targetHeading);
-            const pulsosAvance = Math.round(this.PULSOS_POR_CELDA * distancia / 25);
 
             this.updatePathStatus('running',
                 `Paso ${i + 1}/${path.length - 1} | ${this._headingLabel(targetHeading)} | ${distancia.toFixed(0)} cm`
@@ -161,15 +202,17 @@ const RobotControl = {
                 `Rumbo: ${this._headingLabel(targetHeading)} | Giro: ${giro > 0 ? '+' : ''}${giro}°`
             );
 
+            // ── GIROS por encoder — misma función tmGiroIzq/tmGiroDer del firmware ──
             if (giro !== 0) {
-                const cmdGiro    = giro > 0 ? 'TM_GIRO_DER' : 'TM_GIRO_IZQ';
+                const cmdGiro      = giro > 0 ? 'TM_GIRO_DER' : 'TM_GIRO_IZQ';
                 const repeticiones = Math.abs(giro) / 90;
 
                 for (let g = 0; g < repeticiones && !this.autoPathAborted; g++) {
-                    Console.logSystem(`   Girando ${giro > 0 ? '→ derecha' : '← izquierda'} 90° (${g + 1}/${repeticiones})`);
+                    Console.logSystem(`   Girando ${cmdGiro === 'TM_GIRO_DER' ? '→ derecha' : '← izquierda'} 90° (${g + 1}/${repeticiones}) [firmware encoder]`);
                     MQTTClient.sendMessage(cmdGiro);
-                    await this.waitForMoveDone(6000);
-                    await this.sleep(100);
+                    const ok = await this.waitForTmMoveDone();
+                    Console.logSystem(`   ${ok ? '✓ TM_MOVE_DONE' : '⚠️ timeout — continuando'} giro ${g + 1}`);
+                    if (this.autoPathAborted) break;
                 }
 
                 this.headingDeg = targetHeading;
@@ -178,11 +221,14 @@ const RobotControl = {
 
             if (this.autoPathAborted) break;
 
-            Console.logSystem(`   Avanzando ${distancia.toFixed(0)} cm`);
-            MQTTClient.sendMessage('TM_AVANZAR');
-            await this.waitForMoveDone(8000);
-            Console.logSystem(`   ✓ Avance completado`);
-            await this.sleep(100);
+            // ── AVANCE por encoder — misma función tmAvanzar del firmware ──
+            const celdas = Math.max(1, Math.round(distancia / 25));
+            for (let c = 0; c < celdas && !this.autoPathAborted; c++) {
+                Console.logSystem(`   Avanzando celda ${c + 1}/${celdas} — 25cm [firmware encoder]`);
+                MQTTClient.sendMessage('TM_AVANZAR');
+                const ok = await this.waitForTmMoveDone();
+                Console.logSystem(`   ${ok ? '✓ TM_MOVE_DONE' : '⚠️ timeout — continuando'} avance ${c + 1}`);
+            }
         }
 
         MQTTClient.sendMessage('S');
@@ -259,34 +305,48 @@ const RobotControl = {
         if (!AppState.isConnected) { Console.logError('⚠️ Conecta el robot primero'); return; }
         if (this.autoPathRunning)  { Console.logError('⚠️ Hay una ruta en ejecución'); return; }
 
-        Console.logSystem(`🔄 TEST GIRO 90° — usando parámetros Tremouse`);
-        document.getElementById('btnTestGiro').disabled  = true;
-        document.getElementById('btnTestAvance').disabled = true;
+        const pulsos = this.PULSOS_POR_GIRO_90;
+        Console.logSystem(`🔄 TEST GIRO 90° — objetivo: ${pulsos} pulsos`);
+        { const _el = document.getElementById('btnTestGiro'); if (_el) _el.disabled = true; }
+        { const _el = document.getElementById('btnTestAvance'); if (_el) _el.disabled = true; }
 
-        MQTTClient.sendMessage('TM_GIRO_DER');
-        await this.waitForMoveDone(6000);
+        this.resetStepCounter();
+        MQTTClient.sendMessage('Z_STEPS');
+        await this.sleep(150);
+        MQTTClient.sendMessage('R');
+        const pReal = await this.waitForSteps(pulsos, 6000);
+        MQTTClient.sendMessage('S');
+        await this.sleep(200);
 
-        Console.logSystem(`   ✓ Giro completado`);
+        Console.logSystem(`   ✓ Giro completado — pulsos reales: ${pReal.toFixed(1)} / objetivo: ${pulsos}`);
+        Console.logSystem(`   Si giró menos de 90° → aumentá el valor. Si giró más → reducilo.`);
 
-        document.getElementById('btnTestGiro').disabled  = false;
-        document.getElementById('btnTestAvance').disabled = false;
+        { const _el = document.getElementById('btnTestGiro'); if (_el) _el.disabled = false; }
+        { const _el = document.getElementById('btnTestAvance'); if (_el) _el.disabled = false; }
     },
 
     async testAvance25cm() {
         if (!AppState.isConnected) { Console.logError('⚠️ Conecta el robot primero'); return; }
         if (this.autoPathRunning)  { Console.logError('⚠️ Hay una ruta en ejecución'); return; }
 
-        Console.logSystem(`▶️ TEST AVANCE 25cm — usando parámetros Tremouse`);
-        document.getElementById('btnTestGiro').disabled  = true;
-        document.getElementById('btnTestAvance').disabled = true;
+        const pulsos = this.PULSOS_POR_CELDA;
+        Console.logSystem(`▶️ TEST AVANCE 25cm — objetivo: ${pulsos} pulsos`);
+        { const _el = document.getElementById('btnTestGiro'); if (_el) _el.disabled = true; }
+        { const _el = document.getElementById('btnTestAvance'); if (_el) _el.disabled = true; }
 
-        MQTTClient.sendMessage('TM_AVANZAR');
-        await this.waitForMoveDone(8000);
+        this.resetStepCounter();
+        MQTTClient.sendMessage('Z_STEPS');
+        await this.sleep(150);
+        MQTTClient.sendMessage('F');
+        const pReal = await this.waitForSteps(pulsos, 8000);
+        MQTTClient.sendMessage('S');
+        await this.sleep(200);
 
-        Console.logSystem(`   ✓ Avance completado`);
+        Console.logSystem(`   ✓ Avance completado — pulsos reales: ${pReal.toFixed(1)} / objetivo: ${pulsos}`);
+        Console.logSystem(`   Si avanzó menos de 25cm → aumentá el valor. Si avanzó más → reducilo.`);
 
-        document.getElementById('btnTestGiro').disabled  = false;
-        document.getElementById('btnTestAvance').disabled = false;
+        { const _el = document.getElementById('btnTestGiro'); if (_el) _el.disabled = false; }
+        { const _el = document.getElementById('btnTestAvance'); if (_el) _el.disabled = false; }
     },
 
     abortarRuta() {
