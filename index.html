@@ -54,7 +54,7 @@
                     <h3>Descargas</h3>
                     <div class="download-category">
                         <div class="category-header" onclick="toggleFirmwareList()">
-                            <div class="download-icon">💾</div>
+                            <div class="download-icon"></div>
                             <div class="category-info">
                                 <h4>Firmwares ESP32 <span class="expand-arrow" id="firmwareArrow">▼</span></h4>
                                 <p>Código fuente para cargar en la placa ESP32</p>
@@ -73,7 +73,7 @@
                     </div>
                     <div class="download-category">
                         <div class="category-header">
-                            <div class="download-icon">🔧</div>
+                            <div class="download-icon"></div>
                             <div class="category-info"><h4>Repositorio</h4><p>Código fuente completo</p></div>
                         </div>
                         <div class="github-link">
@@ -110,17 +110,17 @@
 
                 <!-- PANEL TREMOUSE -->
                 <div class="auto-panel auto-panel-tremouse">
-                    <h3>🐭 Modo Tremouse — Mapeo con 3 Ultrasonidos</h3>
+                    <h3>Modo Tremouse — Mapeo con 3 Ultrasonidos</h3>
                     <p>Exploración celda a celda. Giros controlados por <strong>encoder</strong> (11 pulsos = 90° exacto, ajustable desde calibración).</p>
                     <div id="tremouseStatus" class="path-status path-status-idle" style="margin-bottom:12px;">En espera</div>
                     <div class="auto-btn-row">
                         <button class="auto-btn auto-btn-tremouse" id="btnTremouse" disabled onclick="iniciarTremouse()">
-                            <span class="auto-btn-icon">🐭</span>
+                            <span class="auto-btn-icon"></span>
                             <span class="auto-btn-label">Iniciar Tremouse</span>
                             <span class="auto-btn-sub">Envía TM al robot</span>
                         </button>
                         <button class="auto-btn auto-btn-stop-mv" onclick="MQTTClient.sendMessage('S')" disabled id="btnStopTremouse">
-                            <span class="auto-btn-icon">⏹️</span>
+                            <span class="auto-btn-icon"></span>
                             <span class="auto-btn-label">Detener</span>
                             <span class="auto-btn-sub">Envía S</span>
                         </button>
@@ -131,9 +131,9 @@
 
                     <!-- CALIBRACIÓN TREMOUSE POR ENCODER -->
                     <div class="calibration-panel" style="margin-top:14px;">
-                        <div class="calibration-title">⚙️ Calibración del Robot (Tremouse) — Control por Encoder</div>
+                        <div class="calibration-title">Calibración del Robot (Tremouse) — Control por Encoder</div>
                         <div style="font-size:0.75em;color:#0369a1;background:#e0f2fe;border-radius:6px;padding:7px 10px;margin-bottom:10px;">
-                            📐 <strong>Valores teóricos</strong> (rueda ⌀5cm, 30 pulsos/rev, eje 7.5cm):
+                            <strong>Valores teóricos</strong> (rueda ⌀5cm, 30 pulsos/rev, eje 7.5cm):
                             Giro 90° = <strong>11 pulsos</strong> | Avance 25cm = <strong>48 pulsos</strong><br>
                             <em>Si gira de más → bajá pulsos giro. Si gira de menos → subílos.</em>
                         </div>
@@ -149,11 +149,11 @@
                         </div>
                         <div class="calibration-row">
                             <div class="calibration-field">
-                                <label for="tmPulsosGiro">🔄 Pulsos giro 90° (teórico: 11)</label>
+                                <label for="tmPulsosGiro">Pulsos giro 90° (teórico: 11)</label>
                                 <input type="number" id="tmPulsosGiro" value="11" min="1" max="100" step="1">
                             </div>
                             <div class="calibration-field">
-                                <label for="tmPulsosAvance">▶️ Pulsos avance 25cm (teórico: 48)</label>
+                                <label for="tmPulsosAvance">Pulsos avance 25cm (teórico: 48)</label>
                                 <input type="number" id="tmPulsosAvance" value="48" min="1" max="200" step="1">
                             </div>
                         </div>
@@ -174,52 +174,52 @@
                             </div>
                         </div>
                         <div class="calibration-btns">
-                            <button class="calib-btn" id="btnEnviarCalibTM" disabled onclick="enviarCalibracionTremouse()">📡 Enviar al Robot</button>
-                            <button class="calib-btn" id="btnTestTM" disabled onclick="testTremouse()">🔄 Test Movimiento</button>
-                            <button class="calib-btn" id="btnInfoTM" disabled onclick="MQTTClient.sendMessage('TM_INFO')">ℹ️ Leer Config Actual</button>
+                            <button class="calib-btn" id="btnEnviarCalibTM" disabled onclick="enviarCalibracionTremouse()">Enviar al Robot</button>
+                            <button class="calib-btn" id="btnTestTM" disabled onclick="testTremouse()">Test Movimiento</button>
+                            <button class="calib-btn" id="btnInfoTM" disabled onclick="MQTTClient.sendMessage('TM_INFO')">Leer Config Actual</button>
                             <span class="calibration-hint">Los valores aplican tanto al Test como al Tremouse real</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- MODO AUTÓNOMO -->
+                <!-- MODO AUTONOMO -->
                 <div class="auto-panel">
-                    <h3>🤖 Modo Autónomo Clásico</h3>
+                    <h3>Modo Autónomo Clásico</h3>
                     <p>Envía <code>MV</code> para navegación autónoma con sensores (sin mapeo de paredes).</p>
                     <div class="auto-btn-row">
                         <button class="auto-btn auto-btn-mv" id="btnModoAutonomo" disabled>
-                            <span class="auto-btn-icon">🚀</span><span class="auto-btn-label">Iniciar Modo Autónomo</span><span class="auto-btn-sub">Envía MV</span>
+                            <span class="auto-btn-icon"></span><span class="auto-btn-label">Iniciar Modo Autónomo</span><span class="auto-btn-sub">Envía MV</span>
                         </button>
                         <button class="auto-btn auto-btn-stop-mv" onclick="MQTTClient.sendMessage('S')" disabled id="btnStopAutonomo">
-                            <span class="auto-btn-icon">⏹️</span><span class="auto-btn-label">Detener Autónomo</span><span class="auto-btn-sub">Envía S</span>
+                            <span class="auto-btn-icon"></span><span class="auto-btn-label">Detener Autónomo</span><span class="auto-btn-sub">Envía S</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- EJECUTAR RUTA -->
                 <div class="auto-panel auto-panel-route">
-                    <h3>🗺️ Ejecutar Ruta del Algoritmo</h3>
+                    <h3>Ejecutar Ruta del Algoritmo</h3>
                     <p>Mueve el robot siguiendo el camino calculado. <strong>Resuelve el laberinto primero</strong> desde Trayectoria.</p>
                     <div id="pathStatus" class="path-status path-status-idle">Listo para ejecutar</div>
                     <div class="auto-btn-row">
                         <button class="auto-btn auto-btn-route" id="btnEjecutarRuta" disabled>
-                            <span class="auto-btn-icon">▶️</span><span class="auto-btn-label">Ejecutar Ruta</span><span class="auto-btn-sub">Sigue el camino óptimo</span>
+                            <span class="auto-btn-icon">▶</span><span class="auto-btn-label">Ejecutar Ruta</span><span class="auto-btn-sub">Sigue el camino óptimo</span>
                         </button>
                         <button class="auto-btn auto-btn-abort" id="btnAbortarRuta" disabled style="display:none;">
-                            <span class="auto-btn-icon">⛔</span><span class="auto-btn-label">Abortar Ruta</span><span class="auto-btn-sub">Detiene inmediatamente</span>
+                            <span class="auto-btn-icon"></span><span class="auto-btn-label">Abortar Ruta</span><span class="auto-btn-sub">Detiene inmediatamente</span>
                         </button>
                     </div>
                     <div class="route-info"><span id="routeStepsInfo">Sin ruta cargada — ve a Trayectoria y resuelve el laberinto</span></div>
                     <div class="calibration-panel">
-                        <div class="calibration-title">⚙️ Configuración de Ejecución de Ruta</div>
+                        <div class="calibration-title">Configuración de Ejecución de Ruta</div>
                         <div style="font-size:0.75em;color:#0369a1;background:#e0f2fe;border-radius:6px;padding:7px 10px;margin-bottom:10px;">
-                            🔗 <strong>Usa la misma calibración del Tremouse</strong> — pulsos avance, pulsos giro, velocidades y pausa
+                            <strong>Usa la misma calibración del Tremouse</strong> — pulsos avance, pulsos giro, velocidades y pausa
                             se toman directamente del firmware. Ajustalos en el panel Tremouse de arriba.<br>
                             El robot confirma cada movimiento con <code>TM_MOVE_DONE</code> antes de recibir el siguiente.
                         </div>
                         <div class="calibration-row">
                             <div class="calibration-field">
-                                <label for="inputTmMoveTimeout">⏱️ Timeout por movimiento (ms)</label>
+                                <label for="inputTmMoveTimeout">Timeout por movimiento (ms)</label>
                                 <input type="number" id="inputTmMoveTimeout" value="8000" min="1000" max="30000" step="500">
                             </div>
                             <div class="calibration-field" style="display:flex;align-items:flex-end;padding-bottom:4px;">
@@ -267,17 +267,17 @@
             <div id="maze-tab" class="tab-content">
                 <h2>Visualización de Trayectoria y Paredes</h2>
                 <div id="mazeMapNotice" class="tremouse-map-notice" style="display:none;">
-                    🐭 <strong>Tremouse activo</strong> — recibiendo paredes en tiempo real
+                    <strong>Tremouse activo</strong> — recibiendo paredes en tiempo real
                 </div>
                 <div class="maze-controls">
-                    <button onclick="Maze.clear()">🗑️ Limpiar Canvas</button>
+                    <button onclick="Maze.clear()">Limpiar Canvas</button>
                     <input type="file" id="mazeFile" accept=".txt,.csv" style="display:none;">
-                    <button onclick="document.getElementById('mazeFile').click()">📂 Cargar Archivo</button>
-                    <button onclick="exportMazeData()">💾 Exportar Datos</button>
-                    <button id="toggleWallsBtn" onclick="toggleWalls()" class="btn-walls-active">🧱 Ocultar Paredes</button>
+                    <button onclick="document.getElementById('mazeFile').click()">Cargar Archivo</button>
+                    <button onclick="exportMazeData()">Exportar Datos</button>
+                    <button id="toggleWallsBtn" onclick="toggleWalls()" class="btn-walls-active">Ocultar Paredes</button>
                 </div>
                 <div class="solver-controls">
-                    <h3>🤖 Resolución Automática</h3>
+                    <h3>Resolución Automática</h3>
                     <div class="solver-group">
                         <label>Algoritmo:</label>
                         <select id="algorithmSelect">
@@ -285,7 +285,7 @@
                             <option value="dijkstra">Dijkstra (Óptimo)</option>
                             <option value="bfs">BFS (Amplitud)</option>
                         </select>
-                        <button onclick="solveMaze()">▶️ Resolver Laberinto</button>
+                        <button onclick="solveMaze()">Resolver Laberinto</button>
                         <button id="toggleSolutionBtn" onclick="toggleSolution()" style="display:none;">Ocultar Solución</button>
                     </div>
                 </div>
@@ -300,7 +300,7 @@
                     <h3>Leyenda:</h3>
                     <p><span class="legend-color" style="background:#22c55e;"></span> <strong>Verde (S):</strong> Inicio &nbsp; <span class="legend-color" style="background:#ef4444;"></span> <strong>Rojo (E):</strong> Fin</p>
                     <p><span class="legend-color" style="background:rgba(96,165,250,0.5);"></span> Azul claro: celdas visitadas &nbsp; <span class="legend-color" style="background:#f97316;"></span> Naranja: paredes Tremouse</p>
-                    <p><span class="legend-color" style="background:rgba(245,158,11,0.5);"></span> Amarillo: camino óptimo &nbsp; <span class="legend-color" style="background:#ef4444;border-radius:50%;"></span> Círculo rojo: posición del robot</p>
+                    <p><span class="legend-color" style="background:rgba(245,158,11,0.5);"></span> Amarillo: camino óptimo &nbsp; <span class="legend-color" style="background:#ef4444;border-radius:50%;"></span> Circulo rojo: posición del robot</p>
                     <h3 style="margin-top:16px;">Protocolo Tremouse:</h3>
                     <pre style="background:#f1f5f9;padding:10px;border-radius:4px;color:#1e293b;border:1px solid #e2e8f0;font-size:0.8em;">CELL:col,row,wN,wE,wS,wW   Ejemplo: CELL:2,3,1,0,0,1
 TM → inicia Tremouse | S → detiene | Giro: 11 pulsos encoder = 90°</pre>
@@ -358,8 +358,6 @@ TM → inicia Tremouse | S → detiene | Giro: 11 pulsos encoder = 90°</pre>
             });
         });
 
-        // Calibración Tremouse — ENCODER BASED
-        // Aplica tanto a TM_TEST como a TM real (son los mismos parámetros en el firmware)
         function enviarCalibracionTremouse() {
             if (!AppState.isConnected) { Console.logError('Conecta el robot primero'); return; }
             const vel      = document.getElementById('tmVelAvance').value;
@@ -376,7 +374,7 @@ TM → inicia Tremouse | S → detiene | Giro: 11 pulsos encoder = 90°</pre>
             MQTTClient.sendMessage('TM_PARED:'    + pared);
             MQTTClient.sendMessage('TM_PAUSA:'    + pausa);
             MQTTClient.sendMessage('TM_MUESTRAS:' + muestras);
-            Console.logSystem('⚙️ Calibración enviada: vel=' + vel + ' gvel=' + gvel +
+            Console.logSystem('Calibracion enviada: vel=' + vel + ' gvel=' + gvel +
                 ' pgiro=' + pgiro + ' pulsos | pavance=' + pavance + ' pulsos | pared=' + pared + 'cm');
         }
 
@@ -385,15 +383,15 @@ TM → inicia Tremouse | S → detiene | Giro: 11 pulsos encoder = 90°</pre>
             enviarCalibracionTremouse();
             setTimeout(() => {
                 MQTTClient.sendMessage('TM_TEST');
-                Console.logSystem('🔄 Test: avance + giro izq + giro der (por encoders)');
+                Console.logSystem('Test: avance + giro izq + giro der (por encoders)');
             }, 600);
         }
 
         function iniciarTremouse() {
-            if (!AppState.isConnected) { Console.logError('⚠️ Conecta el robot primero'); return; }
+            if (!AppState.isConnected) { Console.logError('Conecta el robot primero'); return; }
             MQTTClient.sendMessage('TM');
-            Console.logSystem('🐭 Tremouse iniciado (TM enviado)');
-            document.getElementById('tremouseStatus').textContent = '🐭 Tremouse en ejecución...';
+            Console.logSystem('Tremouse iniciado (TM enviado)');
+            document.getElementById('tremouseStatus').textContent = 'Tremouse en ejecución...';
             document.getElementById('tremouseStatus').className = 'path-status path-status-running';
             UI.switchTab('maze');
         }
@@ -401,7 +399,7 @@ TM → inicia Tremouse | S → detiene | Giro: 11 pulsos encoder = 90°</pre>
         function toggleWalls() {
             const visible = Maze.toggleWalls();
             const btn = document.getElementById('toggleWallsBtn');
-            btn.textContent = visible ? '🧱 Ocultar Paredes' : '🧱 Mostrar Paredes';
+            btn.textContent = visible ? 'Ocultar Paredes' : 'Mostrar Paredes';
             btn.className   = visible ? 'btn-walls-active' : '';
         }
 
@@ -429,7 +427,7 @@ TM → inicia Tremouse | S → detiene | Giro: 11 pulsos encoder = 90°</pre>
             if (solution) {
                 Maze.setSolution(solution);
                 document.getElementById('toggleSolutionBtn').style.display = 'inline-block';
-                Console.logSystem('✓ Resuelto con ' + algorithm.toUpperCase() + ' — ' + (solution.length-1) + ' pasos');
+                Console.logSystem('Resuelto con ' + algorithm.toUpperCase() + ' — ' + (solution.length-1) + ' pasos');
                 RobotControl.actualizarInfoRuta();
             }
         }
